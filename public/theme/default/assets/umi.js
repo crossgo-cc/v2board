@@ -32032,7 +32032,23 @@
                   , r = t.fetchByIdLoading;
                 return s.a.createElement(s.a.Fragment, null, s.a.cloneElement(this.props.children, {
                     onClick: ()=>this.show()
-                }), s.a.createElement(d["a"], {
+                }), Object(g["l"])() ? s.a.createElement(d["a"], {
+                    visible: e,
+                    title: n.title || "Loading...",
+                    placement: "bottom",
+                    height: "100%",
+                    onClose: this.hide.bind(this),
+                    bodyStyle: {
+                        overflowY: "auto"
+                    }
+                }, r ? s.a.createElement(h["a"], {
+                    type: "loading"
+                }) : s.a.createElement("div", {
+                    className: "custom-html-style",
+                    dangerouslySetInnerHTML: {
+                        __html: b.render(n.body || "")
+                    }
+                })) : s.a.createElement(d["a"], {
                     visible: e,
                     title: n.title || "Loading...",
                     width: "80%",
