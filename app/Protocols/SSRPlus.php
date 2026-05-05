@@ -20,7 +20,7 @@ class SSRPlus
         $uri = '';
 
         foreach ($this->servers as $server) {
-            $uri .= Helper::buildUri($this->user['uuid'], $server);
+            $uri .= Helper::buildUri($this->user['uuid'], $server, 'ssrplus');
         }
         return base64_encode($uri);
     }

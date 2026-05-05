@@ -21,7 +21,7 @@ class Passwall
         $uri = '';
 
         foreach ($this->servers as $server) {
-            $uri .= Helper::buildUri($this->user['uuid'], $server);
+            $uri .= Helper::buildUri($this->user['uuid'], $server, 'passwall');
         }
         return base64_encode($uri);
     }

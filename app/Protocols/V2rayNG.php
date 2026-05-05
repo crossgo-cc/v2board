@@ -21,7 +21,7 @@ class V2rayNG
         $uri = '';
 
         foreach ($this->servers as $server) {
-            $uri .= Helper::buildUri($this->user['uuid'], $server);
+            $uri .= Helper::buildUri($this->user['uuid'], $server, 'v2rayng');
         }
         return base64_encode($uri);
     }

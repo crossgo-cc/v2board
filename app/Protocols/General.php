@@ -21,7 +21,7 @@ class General
         $uri = '';
 
         foreach ($this->servers as $server) {
-            $uri .= Helper::buildUri($this->user['uuid'], $server);
+            $uri .= Helper::buildUri($this->user['uuid'], $server, 'general');
         }
         return base64_encode($uri);
     }

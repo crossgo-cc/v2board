@@ -50,6 +50,9 @@ class SingboxOld
             if ($item['type'] === 'v2node') {
                 $item['type'] = $item['protocol'];
             }
+            if (!Helper::supportsClientProtocol('singbox-old', $item)) {
+                continue;
+            }
             if ($item['type'] === 'shadowsocks') {
                 $ssConfig = $this->buildShadowsocks($this->user['uuid'], $item);
                 $proxies[] = $ssConfig;
@@ -174,6 +177,9 @@ class SingboxOld
             $grpcSettings = $server['networkSettings'] ?? ($server['network_settings'] ?? []);
             if (isset($grpcSettings['serviceName'])) $array['transport']['service_name'] = $grpcSettings['serviceName'];
         }
+        if ($server['network'] === 'httpupgrade') {
+            $array['transport'] = Helper::buildSingboxHttpupgradeTransport($server);
+        }
 
         return $array;
     }
@@ -238,6 +244,9 @@ class SingboxOld
                 if (isset($grpcSettings['serviceName'])) $array['transport']['service_name'] = $grpcSettings['serviceName'];
             }
         }
+        if ($server['network'] === 'httpupgrade') {
+            $array['transport'] = Helper::buildSingboxHttpupgradeTransport($server);
+        }
 
         return $array;
     }
@@ -274,6 +283,9 @@ class SingboxOld
                 $array['transport']['early_data_header_name'] = 'Sec-WebSocket-Protocol';
             }
         };
+        if (($server['network'] ?? null) === 'httpupgrade') {
+            $array['transport'] = Helper::buildSingboxHttpupgradeTransport($server);
+        }
 
         return $array;
     }

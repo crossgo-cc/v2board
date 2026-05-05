@@ -40,6 +40,9 @@ class Stash
             if (($item['type'] ?? null) === 'v2node' && isset($item['protocol'])) {
                 $item['type'] = $item['protocol'];
             }
+            if (!Helper::supportsClientProtocol('stash', $item)) {
+                continue;
+            }
             if ($item['type'] === 'shadowsocks') {
                 array_push($proxy, self::buildShadowsocks($user['uuid'], $item));
                 array_push($proxies, $item['name']);
@@ -141,6 +144,8 @@ class Stash
 
     public static function buildVmess($uuid, $server)
     {
+        $networkSettings = $server['networkSettings'] ?? ($server['network_settings'] ?? []);
+        $tlsSettings = $server['tlsSettings'] ?? ($server['tls_settings'] ?? []);
         $array = [];
         $array['name'] = $server['name'];
         $array['type'] = 'vmess';
@@ -153,25 +158,27 @@ class Stash
 
         if ($server['tls']) {
             $array['tls'] = true;
-            if ($server['tlsSettings']) {
-                $tlsSettings = $server['tlsSettings'];
-                if (isset($tlsSettings['allowInsecure']) && !empty($tlsSettings['allowInsecure']))
-                    $array['skip-cert-verify'] = ($tlsSettings['allowInsecure'] ? true : false);
-                if (isset($tlsSettings['serverName']) && !empty($tlsSettings['serverName']))
-                    $array['servername'] = $tlsSettings['serverName'];
+            if ($tlsSettings) {
+                $allowInsecure = $tlsSettings['allowInsecure'] ?? ($tlsSettings['allow_insecure'] ?? null);
+                $serverName = $tlsSettings['serverName'] ?? ($tlsSettings['server_name'] ?? null);
+                if (!empty($allowInsecure))
+                    $array['skip-cert-verify'] = ($allowInsecure ? true : false);
+                if (!empty($serverName))
+                    $array['servername'] = $serverName;
             }
         }
         if ($server['network'] === 'tcp') {
-            $tcpSettings = $server['networkSettings'];
+            $tcpSettings = $networkSettings;
             if (isset($tcpSettings['header']['type']) && $tcpSettings['header']['type'] == 'http') {
                 $array['network'] = $tcpSettings['header']['type'];
                 if (isset($tcpSettings['header']['request']['headers']['Host'])) $array['http-opts']['headers']['Host'] = $tcpSettings['header']['request']['headers']['Host'];
+                if (isset($tcpSettings['header']['request']['path'])) $array['http-opts']['path'] = $tcpSettings['header']['request']['path'];
             }
         }
         if ($server['network'] === 'ws') {
             $array['network'] = 'ws';
-            if ($server['networkSettings']) {
-                $wsSettings = $server['networkSettings'];
+            if ($networkSettings) {
+                $wsSettings = $networkSettings;
                 $array['ws-opts'] = [];
                 if (isset($wsSettings['path']) && !empty($wsSettings['path']))
                     $array['ws-opts']['path'] = $wsSettings['path'];
@@ -188,8 +195,8 @@ class Stash
         }
         if ($server['network'] === 'grpc') {
             $array['network'] = 'grpc';
-            if ($server['networkSettings']) {
-                $grpcSettings = $server['networkSettings'];
+            if ($networkSettings) {
+                $grpcSettings = $networkSettings;
                 $array['grpc-opts'] = [];
                 if (isset($grpcSettings['serviceName']))  $array['grpc-opts']['grpc-service-name'] = $grpcSettings['serviceName'];
             }
@@ -263,6 +270,7 @@ class Stash
     
     public static function buildTrojan($password, $server)
     {
+        $tlsSettings = $server['tls_settings'] ?? [];
         $array = [];
         $array['name'] = $server['name'];
         $array['type'] = 'trojan';
@@ -286,13 +294,16 @@ class Stash
                 }
             }
         };
-        if (!empty($server['server_name'])) $array['sni'] = $server['server_name'];
-        if (!empty($server['allow_insecure'])) $array['skip-cert-verify'] = ($server['allow_insecure'] ? true : false);
+        $sni = $server['server_name'] ?? ($tlsSettings['server_name'] ?? '');
+        $allowInsecure = $server['allow_insecure'] ?? ($tlsSettings['allow_insecure'] ?? 0);
+        if (!empty($sni)) $array['sni'] = $sni;
+        $array['skip-cert-verify'] = $allowInsecure ? true : false;
         return $array;
     }
 
     public static function buildTuic($password, $server)
     {
+        $tlsSettings = $server['tls_settings'] ?? [];
         $array = [
             'name' => $server['name'],
             'type' => 'tuic',
@@ -306,10 +317,11 @@ class Stash
             //'reduce-rtt' => $server['zero_rtt_handshake'] ? true : false,
             //'udp-relay-mode' => $server['udp_relay_mode'] ?? 'native',
             //congestion-controller' => $server['congestion_control'] ?? 'cubic',
-            'skip-cert-verify' => $server['insecure'] ? true : false,
+            'skip-cert-verify' => ($server['insecure'] ?? ($tlsSettings['allow_insecure'] ?? 0)) ? true : false,
         ];
-        if (isset($server['server_name'])) {
-            $array['sni'] = $server['server_name'];
+        $sni = $server['server_name'] ?? ($tlsSettings['server_name'] ?? '');
+        if ($sni) {
+            $array['sni'] = $sni;
         }
 
         return $array;

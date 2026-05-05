@@ -6,7 +6,7 @@ use App\Utils\Helper;
 
 class QuantumultX
 {
-    public $flag = 'quantumult%20x';
+    public $flag = 'quantumult';
     private $servers;
     private $user;
 
@@ -34,9 +34,7 @@ class QuantumultX
                 $item['type'] = $item['protocol'];
             }
 
-            // 提前过滤不支持的传输协议 (QX 不支持 gRPC, HTTPUpgrade, XHTTP)
-            $network = $item['network'] ?? 'tcp';
-            if (in_array($network, ['grpc', 'httpupgrade', 'xhttp'])) {
+            if (!Helper::supportsClientProtocol('quantumultx', $item)) {
                 continue;
             }
 
@@ -52,6 +50,9 @@ class QuantumultX
                     break;
                 case 'trojan':
                     $uri .= self::buildTrojan($uuid, $item);
+                    break;
+                case 'anytls':
+                    $uri .= self::buildAnyTLS($uuid, $item);
                     break;
             }
         }
@@ -372,6 +373,36 @@ class QuantumultX
         }
 
         $config = array_filter($config);
+        $uri = implode(',', $config);
+        $uri .= "\r\n";
+        return $uri;
+    }
+
+    public static function buildAnyTLS($password, $server)
+    {
+        $tlsSettings = $server['tls_settings'] ?? [];
+        $sni = $server['server_name'] ?? ($tlsSettings['server_name'] ?? null);
+        $allowInsecure = $server['insecure'] ?? ($tlsSettings['allow_insecure'] ?? false);
+
+        $config = [
+            "anytls={$server['host']}:{$server['port']}",
+            "password={$password}",
+            'over-tls=true',
+            'udp-relay=true',
+        ];
+
+        if ($sni) {
+            $config[] = "tls-host={$sni}";
+        }
+        if ($allowInsecure) {
+            $config[] = 'tls-verification=false';
+        }
+        if ((int)($server['tls'] ?? 0) === 2) {
+            if (isset($tlsSettings['public_key'])) $config[] = "reality-base64-pubkey={$tlsSettings['public_key']}";
+            if (isset($tlsSettings['short_id'])) $config[] = "reality-hex-shortid={$tlsSettings['short_id']}";
+        }
+        $config[] = "tag={$server['name']}";
+
         $uri = implode(',', $config);
         $uri .= "\r\n";
         return $uri;

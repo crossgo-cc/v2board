@@ -31,6 +31,9 @@ class Surge
             if (($item['type'] ?? null) === 'v2node' && isset($item['protocol'])) {
                 $item['type'] = $item['protocol'];
             }
+            if (!Helper::supportsClientProtocol('surge', $item)) {
+                continue;
+            }
             if ($item['type'] === 'shadowsocks') {
                 // [Proxy]
                 $proxies .= self::buildShadowsocks($user['uuid'], $item);
@@ -46,7 +49,12 @@ class Surge
                 $proxies .= self::buildTrojan($user['uuid'], $item);
                 // [Proxy Group]
                 $proxyGroup .= $item['name'] . ', ';
-            }elseif ($item['type'] === 'hysteria' && $item['version'] === 2) { //surge只支持hysteria2
+            }elseif ($item['type'] === 'tuic') {
+                // [Proxy]
+                $proxies .= self::buildTuic($user['uuid'], $item);
+                // [Proxy Group]
+                $proxyGroup .= $item['name'] . ', ';
+            }elseif ($item['type'] === 'hysteria2' || ($item['type'] === 'hysteria' && (int)($item['version'] ?? 0) === 2)) { //surge只支持hysteria2
                 // [Proxy]
                 $proxies .= self::buildHysteria($user['uuid'], $item);
                 // [Proxy Group]
@@ -125,6 +133,8 @@ class Surge
 
     public static function buildVmess($uuid, $server)
     {
+        $networkSettings = $server['networkSettings'] ?? ($server['network_settings'] ?? []);
+        $tlsSettings = $server['tlsSettings'] ?? ($server['tls_settings'] ?? []);
         $config = [
             "{$server['name']}=vmess",
             "{$server['host']}",
@@ -137,18 +147,19 @@ class Surge
 
         if ($server['tls']) {
             array_push($config, 'tls=true');
-            if ($server['tlsSettings']) {
-                $tlsSettings = $server['tlsSettings'];
-                if (isset($tlsSettings['allowInsecure']) && !empty($tlsSettings['allowInsecure']))
-                    array_push($config, 'skip-cert-verify=' . ($tlsSettings['allowInsecure'] ? 'true' : 'false'));
-                if (isset($tlsSettings['serverName']) && !empty($tlsSettings['serverName']))
-                    array_push($config, "sni={$tlsSettings['serverName']}");
+            if ($tlsSettings) {
+                $allowInsecure = $tlsSettings['allowInsecure'] ?? ($tlsSettings['allow_insecure'] ?? null);
+                $serverName = $tlsSettings['serverName'] ?? ($tlsSettings['server_name'] ?? null);
+                if (!empty($allowInsecure))
+                    array_push($config, 'skip-cert-verify=' . ($allowInsecure ? 'true' : 'false'));
+                if (!empty($serverName))
+                    array_push($config, "sni={$serverName}");
             }
         }
         if ($server['network'] === 'ws') {
             array_push($config, 'ws=true');
-            if ($server['networkSettings']) {
-                $wsSettings = $server['networkSettings'];
+            if ($networkSettings) {
+                $wsSettings = $networkSettings;
                 if (isset($wsSettings['path']) && !empty($wsSettings['path']))
                     array_push($config, "ws-path={$wsSettings['path']}");
                 if (isset($wsSettings['headers']['Host']) && !empty($wsSettings['headers']['Host']))
@@ -165,17 +176,20 @@ class Surge
 
     public static function buildTrojan($password, $server)
     {
+        $tlsSettings = $server['tls_settings'] ?? [];
+        $sni = $server['server_name'] ?? ($tlsSettings['server_name'] ?? '');
+        $allowInsecure = $server['allow_insecure'] ?? ($tlsSettings['allow_insecure'] ?? 0);
         $config = [
             "{$server['name']}=trojan",
             "{$server['host']}",
             "{$server['port']}",
             "password={$password}",
-            $server['server_name'] ? "sni={$server['server_name']}" : "",
+            $sni ? "sni={$sni}" : "",
             'tfo=true',
             'udp-relay=true'
         ];
-        if (!empty($server['allow_insecure'])) {
-            array_push($config, $server['allow_insecure'] ? 'skip-cert-verify=true' : 'skip-cert-verify=false');
+        if ($allowInsecure !== null) {
+            array_push($config, $allowInsecure ? 'skip-cert-verify=true' : 'skip-cert-verify=false');
         }
         if (isset($server['network']) && (string)$server['network'] === 'ws') {
             array_push($config, 'ws=true');
@@ -193,9 +207,39 @@ class Surge
         return $uri;
     }
 
+    public static function buildTuic($password, $server)
+    {
+        $tlsSettings = $server['tls_settings'] ?? [];
+        $sni = $server['server_name'] ?? ($tlsSettings['server_name'] ?? '');
+        $allowInsecure = ($server['insecure'] ?? ($tlsSettings['allow_insecure'] ?? 0)) == 1 ? 'true' : 'false';
+
+        $config = [
+            "{$server['name']}=tuic",
+            "{$server['host']}",
+            "{$server['port']}",
+            "skip-cert-verify={$allowInsecure}",
+            "uuid={$password}",
+            "password={$password}",
+            "alpn=h3",
+            "version=5",
+        ];
+
+        if ($sni) {
+            $config[] = "sni={$sni}";
+        }
+
+        $uri = implode(', ', $config);
+        $uri .= "\r\n";
+        return $uri;
+    }
+
     //参考文档: https://manual.nssurge.com/policy/proxy.html
     public static function buildHysteria($password, $server)
     {
+        $tlsSettings = $server['tls_settings'] ?? [];
+        $sni = $server['server_name'] ?? ($tlsSettings['server_name'] ?? '');
+        $insecure = $server['insecure'] ?? ($tlsSettings['allow_insecure'] ?? 0);
+
         $parts = explode(",",$server['port']);
         $firstPart = $parts[0];
         if (strpos($firstPart, '-') !== false) {
@@ -211,12 +255,12 @@ class Surge
             "{$firstPort}",
             "password={$password}",
             "download-bandwidth={$server['up_mbps']}",
-            $server['server_name'] ? "sni={$server['server_name']}" : "",
+            $sni ? "sni={$sni}" : "",
             // 'tfo=true', 
             'udp-relay=true'
         ];
-        if (!empty($server['insecure'])) {
-            array_push($config, $server['insecure'] ? 'skip-cert-verify=true' : 'skip-cert-verify=false');
+        if ($insecure !== null) {
+            array_push($config, $insecure ? 'skip-cert-verify=true' : 'skip-cert-verify=false');
         }
         $config = array_filter($config);
         $uri = implode(',', $config);

@@ -2,6 +2,7 @@
 
 namespace App\Protocols;
 
+use App\Utils\Helper;
 use phpDocumentor\Reflection\Types\Self_;
 use Symfony\Component\Yaml\Yaml;
 
@@ -39,6 +40,9 @@ class Clash
         foreach ($servers as $item) {
             if ($item['type'] === 'v2node') {
                 $item['type'] = $item['protocol'];
+            }
+            if (!Helper::supportsClientProtocol('clash', $item)) {
+                continue;
             }
             if ($item['type'] === 'shadowsocks'
                 && in_array($item['cipher'], [

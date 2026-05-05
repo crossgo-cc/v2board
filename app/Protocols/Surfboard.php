@@ -31,6 +31,9 @@ class Surfboard
             if (($item['type'] ?? null) === 'v2node' && isset($item['protocol'])) {
                 $item['type'] = $item['protocol'];
             }
+            if (!Helper::supportsClientProtocol('surfboard', $item)) {
+                continue;
+            }
             if ($item['type'] === 'shadowsocks'
                 && in_array($item['cipher'], [
                     'aes-128-gcm',
@@ -53,6 +56,12 @@ class Surfboard
             if ($item['type'] === 'trojan') {
                 // [Proxy]
                 $proxies .= self::buildTrojan($user['uuid'], $item);
+                // [Proxy Group]
+                $proxyGroup .= $item['name'] . ', ';
+            }
+            if ($item['type'] === 'hysteria2' || ($item['type'] === 'hysteria' && (int)($item['version'] ?? 0) === 2)) {
+                // [Proxy]
+                $proxies .= self::buildHysteria2($user['uuid'], $item);
                 // [Proxy Group]
                 $proxyGroup .= $item['name'] . ', ';
             }
@@ -112,6 +121,8 @@ class Surfboard
 
     public static function buildVmess($uuid, $server)
     {
+        $networkSettings = $server['networkSettings'] ?? ($server['network_settings'] ?? []);
+        $tlsSettings = $server['tlsSettings'] ?? ($server['tls_settings'] ?? []);
         $config = [
             "{$server['name']}=vmess",
             "{$server['host']}",
@@ -124,18 +135,19 @@ class Surfboard
 
         if ($server['tls']) {
             array_push($config, 'tls=true');
-            if ($server['tlsSettings']) {
-                $tlsSettings = $server['tlsSettings'];
-                if (isset($tlsSettings['allowInsecure']) && !empty($tlsSettings['allowInsecure']))
-                    array_push($config, 'skip-cert-verify=' . ($tlsSettings['allowInsecure'] ? 'true' : 'false'));
-                if (isset($tlsSettings['serverName']) && !empty($tlsSettings['serverName']))
-                    array_push($config, "sni={$tlsSettings['serverName']}");
+            if ($tlsSettings) {
+                $allowInsecure = $tlsSettings['allowInsecure'] ?? ($tlsSettings['allow_insecure'] ?? null);
+                $serverName = $tlsSettings['serverName'] ?? ($tlsSettings['server_name'] ?? null);
+                if (!empty($allowInsecure))
+                    array_push($config, 'skip-cert-verify=' . ($allowInsecure ? 'true' : 'false'));
+                if (!empty($serverName))
+                    array_push($config, "sni={$serverName}");
             }
         }
         if ($server['network'] === 'ws') {
             array_push($config, 'ws=true');
-            if ($server['networkSettings']) {
-                $wsSettings = $server['networkSettings'];
+            if ($networkSettings) {
+                $wsSettings = $networkSettings;
                 if (isset($wsSettings['path']) && !empty($wsSettings['path']))
                     array_push($config, "ws-path={$wsSettings['path']}");
                 if (isset($wsSettings['headers']['Host']) && !empty($wsSettings['headers']['Host']))
@@ -152,17 +164,20 @@ class Surfboard
 
     public static function buildTrojan($password, $server)
     {
+        $tlsSettings = $server['tls_settings'] ?? [];
+        $sni = $server['server_name'] ?? ($tlsSettings['server_name'] ?? '');
+        $allowInsecure = $server['allow_insecure'] ?? ($tlsSettings['allow_insecure'] ?? 0);
         $config = [
             "{$server['name']}=trojan",
             "{$server['host']}",
             "{$server['port']}",
             "password={$password}",
-            $server['server_name'] ? "sni={$server['server_name']}" : "",
+            $sni ? "sni={$sni}" : "",
             'tfo=true',
             'udp-relay=true'
         ];
-        if (!empty($server['allow_insecure'])) {
-            array_push($config, $server['allow_insecure'] ? 'skip-cert-verify=true' : 'skip-cert-verify=false');
+        if ($allowInsecure !== null) {
+            array_push($config, $allowInsecure ? 'skip-cert-verify=true' : 'skip-cert-verify=false');
         }
         if(isset($server['network']) && $server['network'] === "ws") {
             array_push($config, "ws=true");
@@ -175,6 +190,45 @@ class Surfboard
         }
         $config = array_filter($config);
         $uri = implode(',', $config);
+        $uri .= "\r\n";
+        return $uri;
+    }
+
+    public static function buildHysteria2($password, $server)
+    {
+        $tlsSettings = $server['tls_settings'] ?? [];
+        $sni = $server['server_name'] ?? ($tlsSettings['server_name'] ?? '');
+        $allowInsecure = ($server['insecure'] ?? ($tlsSettings['allow_insecure'] ?? 0)) == 1 ? 'true' : 'false';
+
+        $parts = explode(",", $server['port']);
+        $firstPart = $parts[0];
+        if (strpos($firstPart, '-') !== false) {
+            $range = explode('-', $firstPart);
+            $firstPort = $range[0];
+        } else {
+            $firstPort = $firstPart;
+        }
+
+        $config = [
+            "{$server['name']}=hysteria2",
+            "{$server['host']}",
+            "{$firstPort}",
+            "password={$password}",
+            "skip-cert-verify={$allowInsecure}",
+            'udp-relay=true',
+        ];
+
+        if (!empty($server['up_mbps'])) {
+            $config[] = "download-bandwidth={$server['up_mbps']}";
+        }
+        if (count($parts) !== 1 || strpos($parts[0], '-') !== false) {
+            $config[] = 'port-hopping="' . str_replace(',', ';', $server['port']) . '"';
+        }
+        if ($sni) {
+            $config[] = "sni={$sni}";
+        }
+
+        $uri = implode(', ', $config);
         $uri .= "\r\n";
         return $uri;
     }

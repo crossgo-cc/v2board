@@ -30,9 +30,12 @@ class Shadowrocket
 
         foreach ($this->servers as $server) {
             if ($server['type'] === 'vmess' || ($server['type'] === 'v2node' && $server['protocol'] === 'vmess')) {
+                if (!Helper::supportsClientProtocol('shadowrocket', $server)) {
+                    continue;
+                }
                 $uri .= self::buildVmess($user['uuid'], $server);
             } else {
-                $uri .= Helper::buildUri($this->user['uuid'], $server);
+                $uri .= Helper::buildUri($this->user['uuid'], $server, 'shadowrocket');
             }
         }
         return base64_encode($uri);

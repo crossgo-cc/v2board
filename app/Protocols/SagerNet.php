@@ -22,10 +22,7 @@ class SagerNet
         $uri = '';
 
         foreach ($this->servers as $server) {
-            if($server['type'] === 'hysteria') {
-                continue;
-            }
-            $uri .= Helper::buildUri($this->user['uuid'], $server);
+            $uri .= Helper::buildUri($this->user['uuid'], $server, 'sagernet');
         }
         return base64_encode($uri);
     }

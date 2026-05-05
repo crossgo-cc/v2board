@@ -40,6 +40,9 @@ class ClashNyanpasu
             if (($item['type'] ?? null) === 'v2node' && isset($item['protocol'])) {
                 $item['type'] = $item['protocol'];
             }
+            if (!Helper::supportsClientProtocol('mihomo', $item)) {
+                continue;
+            }
             switch ($item['type']) {
                 case 'shadowsocks':
                     $proxy[] = self::buildShadowsocks($user['uuid'], $item);
@@ -175,10 +178,12 @@ class ClashNyanpasu
             $array['tls'] = true;
             $tlsSettings = $server['tlsSettings'] ?? ($server['tls_settings'] ?? null);
             if ($tlsSettings) {
-                if (isset($tlsSettings['allowInsecure']) && !empty($tlsSettings['allowInsecure']))
-                    $array['skip-cert-verify'] = ($tlsSettings['allowInsecure'] ? true : false);
-                if (isset($tlsSettings['serverName']) && !empty($tlsSettings['serverName']))
-                    $array['servername'] = $tlsSettings['serverName'];
+                $allowInsecure = $tlsSettings['allowInsecure'] ?? ($tlsSettings['allow_insecure'] ?? null);
+                $serverName = $tlsSettings['serverName'] ?? ($tlsSettings['server_name'] ?? null);
+                if (!empty($allowInsecure))
+                    $array['skip-cert-verify'] = ($allowInsecure ? true : false);
+                if (!empty($serverName))
+                    $array['servername'] = $serverName;
                 if (!empty($tlsSettings['ech'])) {
                     if ($tlsSettings['ech'] === 'cloudflare') {
                         $array['ech-opts'] = [
@@ -224,16 +229,20 @@ class ClashNyanpasu
                 if (isset($grpcSettings['serviceName'])) $array['grpc-opts']['grpc-service-name'] = $grpcSettings['serviceName'];
             }
         }
+        if ($network === 'httpupgrade') {
+            $array['network'] = 'ws';
+            $array['ws-opts'] = Helper::buildClashWsOptions($server, true);
+        }
 
         if (isset($server['encryption']) && !empty($server['encryption']) && isset($server['encryption_settings']) && !empty($server['encryption_settings'])) {
             $encryptionSettings = $server['encryption_settings'];
             $array['encryption'] = $server['encryption'] ?? 'mlkem768x25519plus';
-            $array['encryption'] .= '.' . $encryptionSettings['mode'] ?? 'native';
-            $array['encryption'] .= '.' . $encryptionSettings['rtt'] ?? '1rtt';
+            $array['encryption'] .= '.' . ($encryptionSettings['mode'] ?? 'native');
+            $array['encryption'] .= '.' . ($encryptionSettings['rtt'] ?? '1rtt');
             if (isset($encryptionSettings['client_padding']) && !empty($encryptionSettings['client_padding'])) {
                 $array['encryption'] .= '.' . $encryptionSettings['client_padding'];
             }
-            $array['encryption'] .= '.' . $encryptionSettings['password'] ?? '';
+            $array['encryption'] .= '.' . ($encryptionSettings['password'] ?? '');
         }
 
         return $array;
@@ -307,6 +316,10 @@ class ClashNyanpasu
                 if (isset($grpcSettings['serviceName'])) $array['grpc-opts']['grpc-service-name'] = $grpcSettings['serviceName'];
             }
         }
+        if ($server['network'] === 'httpupgrade') {
+            $array['network'] = 'ws';
+            $array['ws-opts'] = Helper::buildClashWsOptions($server, true);
+        }
         if ($server['network'] === 'xhttp') {
             $array['network'] = 'xhttp';
             if ($server['network_settings']) {
@@ -328,12 +341,12 @@ class ClashNyanpasu
         if (isset($server['encryption']) && !empty($server['encryption']) && isset($server['encryption_settings']) && !empty($server['encryption_settings'])) {
             $encryptionSettings = $server['encryption_settings'];
             $array['encryption'] = $server['encryption'] ?? 'mlkem768x25519plus';
-            $array['encryption'] .= '.' . $encryptionSettings['mode'] ?? 'native';
-            $array['encryption'] .= '.' . $encryptionSettings['rtt'] ?? '1rtt';
+            $array['encryption'] .= '.' . ($encryptionSettings['mode'] ?? 'native');
+            $array['encryption'] .= '.' . ($encryptionSettings['rtt'] ?? '1rtt');
             if (isset($encryptionSettings['client_padding']) && !empty($encryptionSettings['client_padding'])) {
                 $array['encryption'] .= '.' . $encryptionSettings['client_padding'];
             }
-            $array['encryption'] .= '.' . $encryptionSettings['password'] ?? '';
+            $array['encryption'] .= '.' . ($encryptionSettings['password'] ?? '');
         }
 
         return $array;
@@ -364,6 +377,10 @@ class ClashNyanpasu
                 }
             }
         };
+        if (($server['network'] ?? null) === 'httpupgrade') {
+            $array['network'] = 'ws';
+            $array['ws-opts'] = Helper::buildClashWsOptions($server, true);
+        }
         $tlsSettings = $server['tls_settings'] ?? [];
         $array['sni'] = $server['server_name'] ?? ($tlsSettings['server_name'] ?? '');
         $array['skip-cert-verify'] = ($server['allow_insecure'] ?? ($tlsSettings['allow_insecure'] ?? 0)) == 1 ? true : false;
