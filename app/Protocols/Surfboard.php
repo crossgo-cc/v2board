@@ -113,6 +113,15 @@ class Surfboard
             'tfo=true',
             'udp-relay=true'
         ];
+        if (isset($server['obfs']) && $server['obfs'] === 'http') {
+            $config[] = "obfs={$server['obfs']}";
+            if (isset($server['obfs-host']) && !empty($server['obfs-host'])) {
+                $config[] = "obfs-host={$server['obfs-host']}";
+            }
+            if (isset($server['obfs-path'])) {
+                $config[] = "obfs-uri={$server['obfs-path']}";
+            }
+        }
         $config = array_filter($config);
         $uri = implode(',', $config);
         $uri .= "\r\n";
@@ -243,7 +252,7 @@ class Surfboard
             "{$server['name']}=anytls",
             "{$server['host']}",
             "{$server['port']}",
-            "password={$password}",
+            "{$password}",
             "skip-cert-verify={$allowInsecure}",
         ];
 

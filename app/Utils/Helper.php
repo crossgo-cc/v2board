@@ -658,7 +658,7 @@ class Helper
             $obfs_password = rawurlencode($server['obfs_password']);
             $uri .= $server['version'] == 2 ? 
                 "&obfs={$server['obfs']}&obfs-password={$obfs_password}" :
-                "&obfs={$server['obfs']}&obfsParam{$obfs_password}";
+                "&obfs={$server['obfs']}&obfsParam={$obfs_password}";
         }
         if (count($parts) !== 1 || strpos($parts[0], '-') !== false) {
             $uri .= "&mport={$server['mport']}";

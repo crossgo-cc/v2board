@@ -360,13 +360,13 @@ class Stash
             }
         } else {
             $array['type'] = 'hysteria';
-            $array['auth_str'] = $password;
+            $array['auth-str'] = $password;
             if (isset($server['obfs']) && isset($server['obfs_password'])){
                 $array['obfs'] = $server['obfs_password'];
             }
             //Todo:完善客户端上下行
-            $array['up'] = $server['down_mbps'];
-            $array['down'] = $server['up_mbps'];
+            $array['up-speed'] = $server['down_mbps'];
+            $array['down-speed'] = $server['up_mbps'];
             $array['protocol'] = 'udp';
         }
 
@@ -380,7 +380,7 @@ class Stash
             'name' => $server['name'],
             'type' => 'hysteria2',
             'server' => $server['host'],
-            'password' => $password,
+            'auth' => $password,
             'skip-cert-verify' => ($tlsSettings['allow_insecure'] ?? 0) == 1 ? true : false,
             'sni' => $tlsSettings['server_name'] ?? '',
             'udp' => true,

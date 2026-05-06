@@ -469,7 +469,7 @@ class ClashMeta
             }
         } else {
             $array['type'] = 'hysteria';
-            $array['auth_str'] = $password;
+            $array['auth-str'] = $password;
             if (isset($server['obfs']) && isset($server['obfs_password'])){
                 $array['obfs'] = $server['obfs_password'];
             }

@@ -76,6 +76,17 @@ class Loon
             if (isset($server['obfs-path'])) {
                 $config[] = "obfs-uri={$server['obfs-path']}";
             }
+        } elseif (($server['network'] ?? null) === 'http') {
+            // v2node Shadowsocks stores HTTP obfs as network=http.
+            $networkSettings = $server['network_settings'] ?? ($server['networkSettings'] ?? []);
+            $config[] = 'obfs-name=http';
+            $host = $networkSettings['host'] ?? ($networkSettings['Host'] ?? null);
+            if (!empty($host)) {
+                $config[] = "obfs-host={$host}";
+            }
+            if (isset($networkSettings['path'])) {
+                $config[] = "obfs-uri={$networkSettings['path']}";
+            }
         }
         $config[] = 'fast-open=false';
         $config[] = 'udp=true';
@@ -174,6 +185,7 @@ class Loon
                     array_push($config, "tls-name={$tlsSettings['server_name']}");
             }
         }elseif($server['tls'] === 2){
+            array_push($config, 'over-tls=true');
             array_push($config, "flow={$server['flow']}");
             if ($server['tls_settings']) {
                 $tlsSettings = $server['tls_settings'];
@@ -221,13 +233,14 @@ class Loon
             array_push($config, $allowInsecure ? 'skip-cert-verify=true' : 'skip-cert-verify=false');
         }
         if (isset($server['network']) && (string)$server['network'] === 'ws') {
-            array_push($config, 'ws=true');
+            array_push($config, 'transport=ws');
             if ($server['network_settings']) {
-                $wsSettings = $server['network_settings'];
-                if (isset($wsSettings['path']) && !empty($wsSettings['path']))
-                    array_push($config, "ws-path={$wsSettings['path']}");
-                if (isset($wsSettings['headers']['Host']) && !empty($wsSettings['headers']['Host']))
-                    array_push($config, "ws-headers=Host:{$wsSettings['headers']['Host']}");
+                $transportSettings = $server['network_settings'];
+                if (isset($transportSettings['path']) && !empty($transportSettings['path']))
+                    array_push($config, "path={$transportSettings['path']}");
+                $host = $transportSettings['host'] ?? ($transportSettings['headers']['Host'] ?? null);
+                if (!empty($host))
+                    array_push($config, "host={$host}");
             }
         }
         $config = array_filter($config);
@@ -255,7 +268,7 @@ class Loon
             "{$server['name']}=hysteria2",
             "{$server['host']}",
             "{$firstPort}",
-            "password={$password}",
+            "{$password}",
             "download-bandwidth={$server['up_mbps']}",
             $sni ? "sni={$sni}" : "",
             'udp=true'
