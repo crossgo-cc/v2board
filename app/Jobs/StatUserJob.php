@@ -2,7 +2,6 @@
 
 namespace App\Jobs;
 
-use App\Models\StatServer;
 use App\Models\StatUser;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -47,55 +46,48 @@ class StatUserJob implements ShouldQueue
         if ($this->recordType === 'm') {
             //
         }
-        $attempt = 0;
-        $maxAttempts = 3;
-        $existingData = StatUser::where('record_at', $recordAt)
-        ->where('server_rate', $this->server['rate'])
-        ->whereIn('user_id', array_keys($this->data))
-        ->select(['user_id', 'id', 'u', 'd'])
-        ->get()
-        ->keyBy('user_id');
+        if (empty($this->data)) {
+            return;
+        }
 
-        $insertData = [];
-        while ($attempt < $maxAttempts) {
-            try {
-                DB::beginTransaction();
-                foreach($this->data as $userId => $trafficData){
-                    if (isset($existingData[$userId])) {
-                        $userdata = StatUser::where('id', $existingData[$userId]['id'])->first();
-                        $userdata->update([
-                            'u' => $userdata['u'] + $trafficData[0],
-                            'd' => $userdata['d'] + $trafficData[1]
-                        ]);
-                    } else {
-                        $insertData[] = [
-                            'user_id' => $userId,
-                            'server_rate' => $this->server['rate'],
-                            'u' => $trafficData[0],
-                            'd' => $trafficData[1],
-                            'record_type' => $this->recordType,
-                            'record_at' => $recordAt
-                        ];
+        $table = (new StatUser())->getTable();
+        $now = time();
+
+        try {
+            DB::transaction(function () use ($table, $now, $recordAt) {
+                foreach (array_chunk($this->data, 500, true) as $chunk) {
+                    $placeholders = [];
+                    $bindings = [];
+                    foreach ($chunk as $userId => $trafficData) {
+                        if (!is_numeric($userId) || !is_array($trafficData) || !isset($trafficData[0], $trafficData[1])) {
+                            continue;
+                        }
+                        $placeholders[] = '(?, ?, ?, ?, ?, ?, ?, ?)';
+                        array_push(
+                            $bindings,
+                            $userId,
+                            $this->server['rate'],
+                            $trafficData[0],
+                            $trafficData[1],
+                            $this->recordType,
+                            $recordAt,
+                            $now,
+                            $now
+                        );
                     }
-                }
-                if (!empty($insertData)) {
-                    collect($insertData)->chunk(500)->each(function ($chunk) {
-                        StatUser::upsert($chunk->toArray(), ['user_id', 'server_rate', 'record_at']);
-                    });
-                }
-                DB::commit();
-                return;
-            } catch (\Exception $e) {
-                DB::rollback();
-                if (strpos($e->getMessage(), '40001') !== false || strpos(strtolower($e->getMessage()), 'deadlock') !== false) {
-                    $attempt++;
-                    if ($attempt < $maxAttempts) {
-                        sleep(pow(2, $attempt));
+                    if (empty($bindings)) {
                         continue;
                     }
+                    DB::statement(
+                        "INSERT INTO {$table} (`user_id`, `server_rate`, `u`, `d`, `record_type`, `record_at`, `created_at`, `updated_at`) VALUES "
+                        . implode(',', $placeholders)
+                        . " ON DUPLICATE KEY UPDATE `u` = `u` + VALUES(`u`), `d` = `d` + VALUES(`d`), `record_type` = VALUES(`record_type`), `updated_at` = VALUES(`updated_at`)",
+                        $bindings
+                    );
                 }
-                abort(500, '用户统计数据失败'. $e->getMessage());
-            }
+            });
+        } catch (\Exception $e) {
+            abort(500, '用户统计数据失败'. $e->getMessage());
         }
     }
 }

@@ -50,37 +50,37 @@ class StatServerJob implements ShouldQueue
         if ($this->recordType === 'm') {
             //
         }
+        if (empty($this->data)) {
+            return;
+        }
+
         try {
-            DB::beginTransaction();
             $u = 0;
             $d = 0;
             foreach(array_keys($this->data) as $userId){
+                if (!is_array($this->data[$userId]) || !isset($this->data[$userId][0], $this->data[$userId][1])) {
+                    continue;
+                }
                 $u += $this->data[$userId][0];
                 $d += $this->data[$userId][1];
             }
-            $serverdata = StatServer::lockForUpdate()
-                ->where('record_at', $recordAt)
-                ->where('server_id', $this->server['id'])
-                ->where('server_type', $this->protocol)
-                ->lockForUpdate()->first();
-            if ($serverdata) {
-                $serverdata->update([
-                    'u' => $serverdata['u'] + $u,
-                    'd' => $serverdata['d'] + $d
-                ]);
-            } else {
-                StatServer::create([
-                    'server_id' => $this->server['id'],
-                    'server_type' => $this->protocol,
-                    'u' => $u,
-                    'd' => $d,
-                    'record_type' => $this->recordType,
-                    'record_at' => $recordAt
-                ]);
-            }
-            DB::commit();
+            $now = time();
+            $table = (new StatServer())->getTable();
+            DB::statement(
+                "INSERT INTO {$table} (`server_id`, `server_type`, `u`, `d`, `record_type`, `record_at`, `created_at`, `updated_at`) VALUES (?, ?, ?, ?, ?, ?, ?, ?) "
+                . "ON DUPLICATE KEY UPDATE `u` = `u` + VALUES(`u`), `d` = `d` + VALUES(`d`), `record_type` = VALUES(`record_type`), `updated_at` = VALUES(`updated_at`)",
+                [
+                    $this->server['id'],
+                    $this->protocol,
+                    $u,
+                    $d,
+                    $this->recordType,
+                    $recordAt,
+                    $now,
+                    $now
+                ]
+            );
         } catch (\Exception $e) {
-            DB::rollback();
             abort(500, '节点统计数据失败'. $e->getMessage());
         }
     }

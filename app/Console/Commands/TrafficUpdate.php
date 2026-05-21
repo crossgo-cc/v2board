@@ -52,7 +52,11 @@ class TrafficUpdate extends Command
             return;
         }
 
-        $users = User::whereIn('id', array_keys($downloads))->get(['id', 'u', 'd']);
+        $userIds = array_unique(array_merge(array_keys($uploads), array_keys($downloads)));
+        $users = User::whereIn('id', $userIds)->get(['id', 'u', 'd']);
+        if ($users->isEmpty()) {
+            return;
+        }
         $time = time();
         $casesU = [];
         $casesD = [];

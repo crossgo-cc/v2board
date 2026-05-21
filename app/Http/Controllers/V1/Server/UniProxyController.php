@@ -134,9 +134,10 @@ class UniProxyController extends Controller
             ], 400);
         }
         $updateAt = time();
-        $sourceKey = $this->getAliveSourceKey($request);
+        $sourceId = $this->getReportSourceId($request);
+        $sourceKey = $this->getAliveSourceKey($sourceId);
         $legacyNodeKey = $this->nodeType . $this->nodeId;
-        Cache::lock($this->getAliveLockKey(), 10)->block(3, function () use ($data, $updateAt, $sourceKey, $legacyNodeKey) {
+        Cache::lock($this->getAliveLockKey(), 10)->block(3, function () use ($data, $updateAt, $sourceId, $sourceKey, $legacyNodeKey) {
             $cacheKeys = array_map(function ($uid) {
                 return 'ALIVE_IP_USER_' . $uid;
             }, array_keys($data));
@@ -152,7 +153,7 @@ class UniProxyController extends Controller
                 $ips_array = $cachedData[$key] ?? [];
 
                 // 更新节点数据
-                $ips_array[$sourceKey] = ['aliveips' => $ips, 'lastupdateAt' => $updateAt];
+                $ips_array[$sourceKey] = ['aliveips' => $this->formatAliveIps($ips, $sourceId), 'lastupdateAt' => $updateAt];
                 unset($ips_array[$legacyNodeKey]);
                 // 清理过期数据
                 foreach ($ips_array as $nodetypeid => $oldips) {
@@ -168,18 +169,27 @@ class UniProxyController extends Controller
                     foreach ($ips_array as $nodetypeid => $newdata) {
                         if ($nodetypeid !== 'alive_ip' && is_array($newdata) && isset($newdata['aliveips'])) {
                             foreach ($newdata['aliveips'] as $ip_NodeId) {
-                                $ip = explode("_", $ip_NodeId)[0];
-                                $ipmap[$ip] = 1;
+                                $ip = $this->getAliveClientIp($ip_NodeId);
+                                if ($ip !== null) {
+                                    $ipmap[$ip] = 1;
+                                }
                             }
                         }
                     }
                     $count = count($ipmap);
                 } else {
+                    $deviceMap = [];
                     foreach ($ips_array as $nodetypeid => $newdata) {
                         if ($nodetypeid !== 'alive_ip' && is_array($newdata) && isset($newdata['aliveips'])) {
-                            $count += count($newdata['aliveips']);
+                            foreach ($newdata['aliveips'] as $ip_NodeId) {
+                                $ip = $this->getAliveClientIp($ip_NodeId);
+                                if ($ip !== null) {
+                                    $deviceMap[$ip . '_' . $this->getAliveLogicalNodeKey($nodetypeid)] = 1;
+                                }
+                            }
                         }
                     }
+                    $count = count($deviceMap);
                 }
                 $ips_array['alive_ip'] = $count;
 
@@ -353,9 +363,9 @@ class UniProxyController extends Controller
         return 'SERVER_' . strtoupper($this->nodeType) . '_ONLINE_SOURCES_' . $this->nodeInfo->id;
     }
 
-    private function getAliveSourceKey(Request $request): string
+    private function getAliveSourceKey(string $sourceId): string
     {
-        return $this->nodeType . $this->nodeId . ':' . $this->getReportSourceId($request);
+        return $this->nodeType . $this->nodeId . ':' . $sourceId;
     }
 
     private function getAliveLockKey(): string
@@ -388,5 +398,42 @@ class UniProxyController extends Controller
         }
         $ips = explode(',', $forwardedFor);
         return trim($ips[0]);
+    }
+
+    private function formatAliveIps(array $ips, string $sourceId): array
+    {
+        $formatted = [];
+        $instanceId = $this->getAliveInstanceId($sourceId);
+        foreach ($ips as $ipNodeId) {
+            $ip = $this->getAliveClientIp($ipNodeId);
+            if ($ip === null) {
+                continue;
+            }
+            $formatted[] = $ip . '_' . $instanceId;
+        }
+        return $formatted;
+    }
+
+    private function getAliveInstanceId(string $sourceId): string
+    {
+        $hash = substr(sha1($this->nodeType . ':' . $this->nodeId . ':' . $sourceId), 0, 8);
+        return $this->nodeType . $this->nodeId . '-' . $hash;
+    }
+
+    private function getAliveLogicalNodeKey($sourceKey): string
+    {
+        $parts = explode(':', (string)$sourceKey, 2);
+        $nodeKey = trim($parts[0] ?? '');
+        return $nodeKey === '' ? 'unknown' : $nodeKey;
+    }
+
+    private function getAliveClientIp($ipNodeId)
+    {
+        if (!is_string($ipNodeId) && !is_numeric($ipNodeId)) {
+            return null;
+        }
+        $parts = explode('_', trim((string)$ipNodeId), 2);
+        $ip = trim($parts[0] ?? '');
+        return $ip === '' ? null : $ip;
     }
 }

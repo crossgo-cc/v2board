@@ -92,8 +92,7 @@ class UserController extends Controller
                 foreach($ips_array as $nodetypeid => $data) {
                     if (!is_int($data) && isset($data['aliveips'])) {
                         foreach($data['aliveips'] as $ip_NodeId) {
-                            $ip = explode("_", $ip_NodeId)[0];
-                            $ips[] = $ip . '_' . $nodetypeid;
+                            $ips[] = $ip_NodeId;
                         }
                     }
                 }
