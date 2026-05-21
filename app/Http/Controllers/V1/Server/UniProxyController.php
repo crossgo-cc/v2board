@@ -81,8 +81,7 @@ class UniProxyController extends Controller
                 'error' => 'Invalid traffic data'
             ], 400);
         }
-        Cache::put(CacheKey::get('SERVER_' . strtoupper($this->nodeType) . '_ONLINE_USER', $this->nodeInfo->id), count($data), 3600);
-        Cache::put(CacheKey::get('SERVER_' . strtoupper($this->nodeType) . '_LAST_PUSH_AT', $this->nodeInfo->id), time(), 3600);
+        $this->updateOnlineUsers($request, $data);
         $userService = new UserService();
         $userService->trafficFetch($this->nodeInfo->toArray(), $this->nodeType, $data);
 
@@ -135,58 +134,66 @@ class UniProxyController extends Controller
             ], 400);
         }
         $updateAt = time();
-        $cacheKeys = array_map(function ($uid) {
-            return 'ALIVE_IP_USER_' . $uid;
-        }, array_keys($data));
+        $sourceKey = $this->getAliveSourceKey($request);
+        $legacyNodeKey = $this->nodeType . $this->nodeId;
+        Cache::lock($this->getAliveLockKey(), 10)->block(3, function () use ($data, $updateAt, $sourceKey, $legacyNodeKey) {
+            $cacheKeys = array_map(function ($uid) {
+                return 'ALIVE_IP_USER_' . $uid;
+            }, array_keys($data));
 
-        $cachedData = Cache::many($cacheKeys);
-        $updates = [];
+            $cachedData = Cache::many($cacheKeys);
+            $updates = [];
 
-        foreach ($data as $uid => $ips) {
-            if (!is_numeric($uid) || !is_array($ips)) {
-                continue; // 跳过无效数据
-            }
-            $key = 'ALIVE_IP_USER_' . $uid;
-            $ips_array = $cachedData[$key] ?? [];
-
-            // 更新节点数据
-            $ips_array[$this->nodeType . $this->nodeId] = ['aliveips' => $ips, 'lastupdateAt' => $updateAt];
-            // 清理过期数据
-            foreach ($ips_array as $nodetypeid => $oldips) {
-                if ($nodetypeid !== 'alive_ip' && is_array($oldips) && ($updateAt - ($oldips['lastupdateAt'] ?? 0) > 100)) {
-                    unset($ips_array[$nodetypeid]);
+            foreach ($data as $uid => $ips) {
+                if (!is_numeric($uid) || !is_array($ips)) {
+                    continue; // 跳过无效数据
                 }
-            }
+                $key = 'ALIVE_IP_USER_' . $uid;
+                $ips_array = $cachedData[$key] ?? [];
 
-            // 计算活跃IP数量
-            $count = 0;
-            if (config('v2board.device_limit_mode', 0) == 1) {
-                $ipmap = [];
-                foreach ($ips_array as $nodetypeid => $newdata) {
-                    if ($nodetypeid !== 'alive_ip' && is_array($newdata) && isset($newdata['aliveips'])) {
-                        foreach ($newdata['aliveips'] as $ip_NodeId) {
-                            $ip = explode("_", $ip_NodeId)[0];
-                            $ipmap[$ip] = 1;
+                // 更新节点数据
+                $ips_array[$sourceKey] = ['aliveips' => $ips, 'lastupdateAt' => $updateAt];
+                unset($ips_array[$legacyNodeKey]);
+                // 清理过期数据
+                foreach ($ips_array as $nodetypeid => $oldips) {
+                    if ($nodetypeid !== 'alive_ip' && is_array($oldips) && ($updateAt - ($oldips['lastupdateAt'] ?? 0) > 100)) {
+                        unset($ips_array[$nodetypeid]);
+                    }
+                }
+
+                // 计算活跃IP数量
+                $count = 0;
+                if (config('v2board.device_limit_mode', 0) == 1) {
+                    $ipmap = [];
+                    foreach ($ips_array as $nodetypeid => $newdata) {
+                        if ($nodetypeid !== 'alive_ip' && is_array($newdata) && isset($newdata['aliveips'])) {
+                            foreach ($newdata['aliveips'] as $ip_NodeId) {
+                                $ip = explode("_", $ip_NodeId)[0];
+                                $ipmap[$ip] = 1;
+                            }
+                        }
+                    }
+                    $count = count($ipmap);
+                } else {
+                    foreach ($ips_array as $nodetypeid => $newdata) {
+                        if ($nodetypeid !== 'alive_ip' && is_array($newdata) && isset($newdata['aliveips'])) {
+                            $count += count($newdata['aliveips']);
                         }
                     }
                 }
-                $count = count($ipmap);
-            } else {
-                foreach ($ips_array as $nodetypeid => $newdata) {
-                    if ($nodetypeid !== 'alive_ip' && is_array($newdata) && isset($newdata['aliveips'])) {
-                        $count += count($newdata['aliveips']);
-                    }
-                }
+                $ips_array['alive_ip'] = $count;
+
+                $updates[$key] = $ips_array;
             }
-            $ips_array['alive_ip'] = $count;
 
-            $updates[$key] = $ips_array;
-        }
-
-        // 批量更新缓存
-        foreach ($updates as $key => $value) {
-            Cache::put($key, $value, 120);
-        }
+            // 批量更新缓存
+            foreach ($updates as $key => $value) {
+                Cache::put($key, $value, 120);
+            }
+            if (!empty($updates)) {
+                Cache::forget('ALIVE_LIST');
+            }
+        });
 
         return response([
             'data' => true
@@ -291,5 +298,95 @@ class UniProxyController extends Controller
         }
 
         return response($response)->header('ETag', "\"{$eTag}\"");
+    }
+
+    private function updateOnlineUsers(Request $request, array $data)
+    {
+        $lockKey = $this->getOnlineSourcesKey() . '_LOCK';
+        Cache::lock($lockKey, 10)->block(3, function () use ($request, $data) {
+            $now = time();
+            $sourcesKey = $this->getOnlineSourcesKey();
+            $sources = Cache::get($sourcesKey, []);
+            if (!is_array($sources)) {
+                $sources = [];
+            }
+
+            $sources[$this->getReportSourceId($request)] = [
+                'users' => array_values(array_map('strval', array_keys($data))),
+                'last_push_at' => $now
+            ];
+
+            $this->pruneOnlineSources($sources, $now);
+            $this->writeAggregatedOnlineUsers($sources, $now);
+            Cache::put($sourcesKey, $sources, 3600);
+        });
+    }
+
+    private function pruneOnlineSources(array &$sources, int $now)
+    {
+        $expiredAt = $now - max(300, (int)config('v2board.server_push_interval', 60) * 3);
+        foreach ($sources as $sourceId => $source) {
+            if (!is_array($source) || !isset($source['last_push_at']) || $source['last_push_at'] < $expiredAt) {
+                unset($sources[$sourceId]);
+            }
+        }
+    }
+
+    private function writeAggregatedOnlineUsers(array $sources, int $now)
+    {
+        $onlineUsers = [];
+        $lastPushAt = 0;
+        foreach ($sources as $source) {
+            $lastPushAt = max($lastPushAt, (int)$source['last_push_at']);
+            foreach (($source['users'] ?? []) as $userId) {
+                $onlineUsers[$userId] = 1;
+            }
+        }
+
+        $serverType = strtoupper($this->nodeType);
+        Cache::put(CacheKey::get("SERVER_{$serverType}_ONLINE_USER", $this->nodeInfo->id), count($onlineUsers), 3600);
+        Cache::put(CacheKey::get("SERVER_{$serverType}_LAST_PUSH_AT", $this->nodeInfo->id), $lastPushAt ?: $now, 3600);
+    }
+
+    private function getOnlineSourcesKey(): string
+    {
+        return 'SERVER_' . strtoupper($this->nodeType) . '_ONLINE_SOURCES_' . $this->nodeInfo->id;
+    }
+
+    private function getAliveSourceKey(Request $request): string
+    {
+        return $this->nodeType . $this->nodeId . ':' . $this->getReportSourceId($request);
+    }
+
+    private function getAliveLockKey(): string
+    {
+        return 'ALIVE_IP_USER_LOCK_' . strtoupper($this->nodeType) . '_' . $this->nodeId;
+    }
+
+    private function getReportSourceId(Request $request): string
+    {
+        $sourceId = $request->header('CF-Connecting-IP')
+            ?: $request->header('X-Real-IP')
+            ?: $this->getFirstForwardedFor($request)
+            ?: $request->ip()
+            ?: $request->server('REMOTE_ADDR')
+            ?: 'unknown';
+
+        $sourceId = trim((string)$sourceId);
+        if ($sourceId === '') {
+            $sourceId = 'unknown';
+        }
+
+        return preg_replace('/[^A-Za-z0-9_.:-]/', '_', $sourceId);
+    }
+
+    private function getFirstForwardedFor(Request $request)
+    {
+        $forwardedFor = $request->header('X-Forwarded-For');
+        if (!$forwardedFor) {
+            return null;
+        }
+        $ips = explode(',', $forwardedFor);
+        return trim($ips[0]);
     }
 }
