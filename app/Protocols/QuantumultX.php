@@ -382,7 +382,7 @@ class QuantumultX
     {
         $tlsSettings = $server['tls_settings'] ?? [];
         $sni = $server['server_name'] ?? ($tlsSettings['server_name'] ?? null);
-        $allowInsecure = $server['insecure'] ?? ($tlsSettings['allow_insecure'] ?? false);
+        $allowInsecure = $server['insecure'] ?? ($server['allow_insecure'] ?? ($tlsSettings['allow_insecure'] ?? false));
 
         $config = [
             "anytls={$server['host']}:{$server['port']}",
@@ -394,15 +394,14 @@ class QuantumultX
         if ($sni) {
             $config[] = "tls-host={$sni}";
         }
-        if ($allowInsecure) {
-            $config[] = 'tls-verification=false';
-        }
+        $config[] = 'tls-verification=' . ($allowInsecure ? 'false' : 'true');
         if ((int)($server['tls'] ?? 0) === 2) {
             if (isset($tlsSettings['public_key'])) $config[] = "reality-base64-pubkey={$tlsSettings['public_key']}";
             if (isset($tlsSettings['short_id'])) $config[] = "reality-hex-shortid={$tlsSettings['short_id']}";
         }
         $config[] = "tag={$server['name']}";
 
+        $config = array_filter($config);
         $uri = implode(',', $config);
         $uri .= "\r\n";
         return $uri;

@@ -128,6 +128,11 @@ class UniProxyController extends Controller
         if (empty($data)) {
             $data = $_POST;
         }
+        if (empty($data)) {
+            return response([
+                'data' => true
+            ]);
+        }
         if (!is_array($data)) {
             return response([
                 'error' => 'Invalid online data format'
