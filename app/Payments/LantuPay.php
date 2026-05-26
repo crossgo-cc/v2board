@@ -31,7 +31,7 @@ class LantuPay {
             ],
             'ltzf_trade_type' => [
                 'label' => '支付模式',
-                'description' => 'wxpay_native 或 merge_native，默认 wxpay_native',
+                'description' => 'wxpay_native、wxpay_h5、jsapi_convenient 或 merge_native，默认 wxpay_native',
                 'type' => 'input',
             ],
             'ltzf_product_name' => [
@@ -72,6 +72,14 @@ class LantuPay {
                 $params['return_url'] = $order['return_url'];
                 $params['type'] = 'link_url';
                 break;
+            case 'wxpay_h5':
+                $url = $this->apiBase . '/api/wxpay/h5';
+                $params['return_url'] = $order['return_url'];
+                break;
+            case 'jsapi_convenient':
+                $url = $this->apiBase . '/api/wxpay/jsapi_convenient';
+                $params['return_url'] = $order['return_url'];
+                break;
             case 'wxpay_native':
             default:
                 $url = $this->apiBase . '/api/wxpay/native';
@@ -92,7 +100,7 @@ class LantuPay {
         }
 
         return [
-            'type' => 0,
+            'type' => $tradeType === 'wxpay_h5' ? 1 : 0,
             'data' => $payUrl
         ];
     }
@@ -177,6 +185,12 @@ class LantuPay {
         $data = $this->value($result, 'data');
         if ($tradeType === 'merge_native') {
             return is_string($data) ? $data : $this->value($data, 'link_url');
+        }
+        if ($tradeType === 'wxpay_h5') {
+            return is_string($data) ? $data : null;
+        }
+        if ($tradeType === 'jsapi_convenient') {
+            return $this->value($data, 'order_url');
         }
 
         return $this->value($data, 'code_url');
