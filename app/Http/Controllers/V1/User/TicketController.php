@@ -94,6 +94,8 @@ class TicketController extends Controller
 
             DB::commit();
             $this->sendNotify($ticket, $request->input('message'),$request->user['id']);
+            $ticketService = new TicketService();
+            $ticketService->sendAdminEmailNotify($ticket, $request->input('message'), $request->user['id'], 'new');
             return response([
                 'data' => true
             ]);
@@ -134,6 +136,7 @@ class TicketController extends Controller
             abort(500, __('Ticket reply failed'));
         }
         $this->sendNotify($ticket, $request->input('message'), $request->user['id']);
+        $ticketService->sendAdminEmailNotify($ticket, $request->input('message'), $request->user['id'], 'reply');
         return response([
             'data' => true
         ]);

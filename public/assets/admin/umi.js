@@ -6060,7 +6060,22 @@
                    f.a.createElement("option", {
                     value: 2
                 }, "\u5b8c\u5168\u7981\u6b62\u5de5\u5355")
-                )))), f.a.createElement(s["a"].TabPane, {
+                )), f.a.createElement(m, {
+                    title: "\u5de5\u5355\u56de\u590d\u90ae\u4ef6\u901a\u77e5",
+                    description: "\u7ba1\u7406\u5458\u56de\u590d\u7528\u6237\u5de5\u5355\u540e\uff0c\u5411\u7528\u6237\u53d1\u9001\u90ae\u4ef6\u901a\u77e5\u3002"
+                }, f.a.createElement(l["a"], {
+                    checked: parseInt(null === e.ticket.ticket_reply_email_notify_enable || void 0 === e.ticket.ticket_reply_email_notify_enable ? 1 : e.ticket.ticket_reply_email_notify_enable),
+                    onChange: e=>this.set("ticket", "ticket_reply_email_notify_enable", e ? 1 : 0)
+                })), f.a.createElement(m, {
+                    title: "\u5de5\u5355\u901a\u77e5\u90ae\u7bb1",
+                    description: "\u7528\u6237\u65b0\u5efa\u5de5\u5355\u6216\u7528\u6237\u56de\u590d\u5de5\u5355\u540e\uff0c\u5411\u8fd9\u4e9b\u90ae\u7bb1\u53d1\u9001\u901a\u77e5\uff1b\u7559\u7a7a\u4e3a\u5173\u95ed\u3002"
+                }, f.a.createElement("textarea", {
+                    rows: "2",
+                    className: "form-control",
+                    placeholder: "\u8bf7\u8f93\u5165\u901a\u77e5\u90ae\u7bb1\uff0c\u591a\u4e2a\u90ae\u7bb1\u7528\u9017\u53f7\u6216\u6362\u884c\u5206\u9694",
+                    defaultValue: (e.ticket.ticket_notify_email || []).join("\n"),
+                    onChange: e=>this.set("ticket", "ticket_notify_email", e.target.value.split(/[\n,]+/))
+                })))), f.a.createElement(s["a"].TabPane, {
                     tab: "\u9080\u8bf7&\u4f63\u91d1",
                     key: "invite"
                 }, f.a.createElement("div", {

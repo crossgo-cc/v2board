@@ -14,6 +14,8 @@ class ConfigSave extends FormRequest
         ],
         // invite & commission
         'ticket_status' => 'in:0,1,2',
+        'ticket_reply_email_notify_enable' => 'in:0,1',
+        'ticket_notify_email' => 'nullable|array',
         'invite_force' => 'in:0,1',
         'invite_commission' => 'integer',
         'invite_gen_limit' => 'integer',
@@ -124,7 +126,30 @@ class ConfigSave extends FormRequest
                 }
             }
         };
+        $rules['ticket_notify_email.*'] = 'email';
         return $rules;
+    }
+
+    protected function prepareForValidation()
+    {
+        if (!$this->has('ticket_notify_email')) {
+            return;
+        }
+
+        $emails = $this->input('ticket_notify_email');
+        if (!is_array($emails)) {
+            return;
+        }
+
+        $emails = array_values(array_filter(array_map(function ($email) {
+            return trim($email);
+        }, $emails), function ($email) {
+            return $email !== '';
+        }));
+
+        $this->merge([
+            'ticket_notify_email' => $emails
+        ]);
     }
 
     public function messages()
@@ -140,6 +165,8 @@ class ConfigSave extends FormRequest
             'logo.url' => 'LOGO URL格式不正确，必须携带https(s)://',
             'secure_path.min' => '后台路径长度最小为8位',
             'secure_path.regex' => '后台路径只能为字母或数字',
+            'ticket_notify_email.array' => '工单通知邮箱格式不正确',
+            'ticket_notify_email.*.email' => '工单通知邮箱格式不正确',
         ];
     }
 }

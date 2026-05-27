@@ -60,23 +60,57 @@ class TicketService {
         $this->sendEmailNotify($ticket, $ticketMessage);
     }
 
+    public function sendAdminEmailNotify(Ticket $ticket, string $message, $userId = null, string $action = 'new')
+    {
+        $emails = config('v2board.ticket_notify_email', []);
+        if (empty($emails)) {
+            return;
+        }
+
+        $user = $userId ? User::find($userId) : User::find($ticket->user_id);
+        $actionText = $action === 'reply' ? '回复了工单' : '提交了新工单';
+        $userEmail = $user ? $user->email : '未知';
+        $subject = '用户' . $actionText . ' #' . $ticket->id . ' - ' . $ticket->subject;
+        $content = "用户邮箱：" . e($userEmail) . "\r\n工单ID：#{$ticket->id}\r\n主题：" . e($ticket->subject) . "\r\n内容：" . e($message);
+        foreach ($emails as $email) {
+            $this->sendNotifyEmail($email, $subject, $content);
+        }
+    }
+
     // 半小时内不再重复通知
     private function sendEmailNotify(Ticket $ticket, TicketMessage $ticketMessage)
     {
+        if (!(int)config('v2board.ticket_reply_email_notify_enable', 1)) {
+            return;
+        }
+
         $user = User::find($ticket->user_id);
+        if (!$user) {
+            return;
+        }
+
         $cacheKey = 'ticket_sendEmailNotify_' . $ticket->user_id;
         if (!Cache::get($cacheKey)) {
             Cache::put($cacheKey, 1, 1800);
-            SendEmailJob::dispatch([
-                'email' => $user->email,
-                'subject' => '您在' . config('v2board.app_name', 'V2Board') . '的工单得到了回复',
-                'template_name' => 'notify',
-                'template_value' => [
-                    'name' => config('v2board.app_name', 'V2Board'),
-                    'url' => config('v2board.app_url'),
-                    'content' => "主题：{$ticket->subject}\r\n回复内容：{$ticketMessage->message}"
-                ]
-            ]);
+            $this->sendNotifyEmail(
+                $user->email,
+                '您在' . config('v2board.app_name', 'V2Board') . '的工单得到了回复',
+                "主题：" . e($ticket->subject) . "\r\n回复内容：" . e($ticketMessage->message)
+            );
         }
+    }
+
+    private function sendNotifyEmail($email, $subject, $content)
+    {
+        SendEmailJob::dispatch([
+            'email' => $email,
+            'subject' => str_replace(["\r", "\n"], ' ', $subject),
+            'template_name' => 'notify',
+            'template_value' => [
+                'name' => config('v2board.app_name', 'V2Board'),
+                'url' => config('v2board.app_url'),
+                'content' => $content
+            ]
+        ]);
     }
 }
