@@ -33,6 +33,8 @@ class CacheKey
         'SERVER_V2NODE_LAST_PUSH_AT' => 'v2node节点最后推送时间',
         'TEMP_TOKEN' => '临时令牌',
         'LAST_SEND_EMAIL_REMIND_TRAFFIC' => '最后发送流量邮件提醒',
+        'LAST_SEND_EMAIL_AUTO_RESET_TRAFFIC_BALANCE_NOT_ENOUGH' => '最后发送自动重置流量余额不足提醒',
+        'LAST_SEND_EMAIL_AUTO_RENEWAL_BALANCE_NOT_ENOUGH' => '最后发送自动续费余额不足提醒',
         'SCHEDULE_LAST_CHECK_AT' => '计划任务最后检查时间',
         'REGISTER_IP_RATE_LIMIT' => '注册频率限制',
         'LAST_SEND_LOGIN_WITH_MAIL_LINK_TIMESTAMP' => '最后一次发送登入链接时间',

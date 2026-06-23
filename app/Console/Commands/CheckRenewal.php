@@ -15,6 +15,8 @@ use Exception;
 
 class CheckRenewal extends Command
 {
+    private const RENEW_WINDOW = 86400 * 3;
+
     /**
      * The name and signature of the console command.
      *
@@ -47,69 +49,128 @@ class CheckRenewal extends Command
     public function handle()
     {
         ini_set('memory_limit', -1);
-        $users = User::all();
 
-        //$mailService = new MailService();
-        foreach ($users as $user) {
-            if ($user->auto_renewal && $user->plan_id !== NULL && $user->expired_at !== NULL && $user->expired_at > time() && $user->expired_at - time() < 86400 * 2) {
-                try {
-                    $latestOrder = Order::where('user_id', $user->id)
-                        ->where('period', '!=', 'reset_price')
-                        ->where('period', '!=', 'onetime_price')
-                        ->where('period', '!=', 'deposit')
-                        ->where('status', 3)
-                        ->orderBy('created_at', 'desc')
-                        ->first();
-                    if (!$latestOrder) {
-                        throw new Exception("No valid order");
-                    }
-                    $latestPeriod = $latestOrder->period;
-
-                    $planService = new PlanService($user->plan_id);
-                    $plan = $planService->plan;
-                    if (!$plan) {
-                        throw new Exception("No such plan");
-                    }
-                    if (!$plan->renew) {
-                        throw new Exception('This subscription cannot be renewed');
-                    }
-                    if($user->balance < $plan[$latestPeriod]) {
-                        throw new Exception('No enough balance');
-                    }
-
-                    DB::beginTransaction();
-                    $order = new Order();
-                    $orderService = new OrderService($order);
-                    $order->user_id = $user->id;
-                    $order->plan_id = $plan->id;
-                    $order->period = $latestPeriod;
-                    $order->trade_no = Helper::generateOrderNo();
-                    $order->balance_amount = $plan[$latestPeriod];
-                    $order->total_amount = 0;
-                    $orderService->setVipDiscount($user);
-                    $order->type = 2;
-                    
-                    $user->balance = $user->balance - $plan[$latestPeriod];
-                    $user->expired_at = $this->getTime($latestPeriod, $user->expired_at);
-                    if (!$user->save()) {
-                        DB::rollback();
-                        throw new Exception('自动续费失败');
-                    }
-                    $order->status = 3;
-                    if (!$order->save()) {
-                        DB::rollback();
-                        throw new Exception('自动续费失败');
-                    }
-                    DB::commit();
-                    //$mailService->remindAutorenewal($user);
-                } catch (\Exception $e) {
-                    $user->auto_renewal = 0;
-                    if(!$user->save()){
-                        info('用户自动续费失败,调整设置失败', [$e->getMessage() , $user]);
-                    };
+        $now = time();
+        User::where('auto_renewal', 1)
+            ->whereNotNull('plan_id')
+            ->whereNotNull('expired_at')
+            ->where('expired_at', '>', $now)
+            ->where('expired_at', '<', $now + self::RENEW_WINDOW)
+            ->select('id')
+            ->orderBy('id')
+            ->chunkById(100, function ($users) {
+                foreach ($users as $user) {
+                    $this->handleUser($user->id);
                 }
+            });
+    }
+
+    private function handleUser(int $userId): void
+    {
+        DB::beginTransaction();
+        try {
+            $user = User::lockForUpdate()->find($userId);
+            if (!$this->shouldRenew($user)) {
+                DB::commit();
+                return;
             }
+
+            $latestOrder = Order::where('user_id', $user->id)
+                ->where('period', '!=', 'reset_price')
+                ->where('period', '!=', 'onetime_price')
+                ->where('period', '!=', 'deposit')
+                ->where('status', 3)
+                ->orderBy('created_at', 'desc')
+                ->first();
+            if (!$latestOrder) {
+                DB::commit();
+                info('用户自动续费跳过：无可用订单', [$userId]);
+                return;
+            }
+            $latestPeriod = $latestOrder->period;
+
+            $planService = new PlanService($user->plan_id);
+            $plan = $planService->plan;
+            if (!$plan) {
+                DB::commit();
+                info('用户自动续费跳过：套餐不存在', [$userId]);
+                return;
+            }
+
+            if (!$plan->renew) {
+                $user->auto_renewal = 0;
+                if (!$user->save()) {
+                    throw new Exception('自动续费失败');
+                }
+                DB::commit();
+                return;
+            }
+
+            if ($plan[$latestPeriod] === null || (int)$plan[$latestPeriod] < 0) {
+                $user->auto_renewal = 0;
+                if (!$user->save()) {
+                    throw new Exception('自动续费失败');
+                }
+                DB::commit();
+                info('用户自动续费跳过：套餐周期价格不可用', [$userId, $latestPeriod]);
+                return;
+            }
+
+            $renewalPrice = (int)$plan[$latestPeriod];
+            if ($user->balance < $renewalPrice) {
+                $user->auto_renewal = 0;
+                if (!$user->save()) {
+                    throw new Exception('自动续费失败');
+                }
+                DB::commit();
+                try {
+                    $mailService = new MailService();
+                    $mailService->remindAutoRenewalBalanceNotEnough($user, $renewalPrice);
+                } catch (Exception $e) {
+                    info('自动续费余额不足邮件发送失败', [$e->getMessage(), $userId]);
+                }
+                return;
+            }
+
+            $order = new Order();
+            $orderService = new OrderService($order);
+            $order->user_id = $user->id;
+            $order->plan_id = $plan->id;
+            $order->period = $latestPeriod;
+            $order->trade_no = Helper::generateOrderNo();
+            $order->balance_amount = $renewalPrice;
+            $order->total_amount = 0;
+            $orderService->setVipDiscount($user);
+            $order->type = 2;
+            $order->status = 3;
+            $order->paid_at = time();
+
+            $user->balance = $user->balance - $renewalPrice;
+            $user->expired_at = $this->getTime($latestPeriod, $user->expired_at);
+            if (!$user->save()) {
+                throw new Exception('自动续费失败');
+            }
+            if (!$order->save()) {
+                throw new Exception('自动续费失败');
+            }
+
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollBack();
+            info('用户自动续费失败', [$e->getMessage(), $userId]);
         }
+    }
+
+    private function shouldRenew(?User $user): bool
+    {
+        if (!$user) return false;
+        if (!$user->auto_renewal) return false;
+        if ($user->plan_id === null) return false;
+        if ($user->expired_at === null) return false;
+        $now = time();
+        if ($user->expired_at <= $now) return false;
+        if ($user->expired_at - $now >= self::RENEW_WINDOW) return false;
+        return true;
     }
 
     private function getTime($str, $timestamp)

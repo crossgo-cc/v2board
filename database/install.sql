@@ -572,6 +572,7 @@ CREATE TABLE `v2_user` (
                            `plan_id` int(11) DEFAULT NULL,
                            `speed_limit` int(11) DEFAULT NULL,
                            `auto_renewal` tinyint(4) DEFAULT '0',
+                           `auto_reset_traffic` tinyint(4) DEFAULT '0',
                            `remind_expire` tinyint(4) DEFAULT '1',
                            `remind_traffic` tinyint(4) DEFAULT '1',
                            `token` char(32) NOT NULL,

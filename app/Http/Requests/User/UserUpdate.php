@@ -15,6 +15,7 @@ class UserUpdate extends FormRequest
     {
         return [
             'auto_renewal' => 'in:0,1',
+            'auto_reset_traffic' => 'in:0,1',
             'remind_expire' => 'in:0,1',
             'remind_traffic' => 'in:0,1'
         ];

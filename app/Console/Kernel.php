@@ -35,10 +35,11 @@ class Kernel extends ConsoleKernel
         $schedule->command('check:order')->everyMinute()->withoutOverlapping();
         $schedule->command('check:commission')->everyFifteenMinutes();
         $schedule->command('check:ticket')->everyMinute();
-        $schedule->command('check:renewal')->dailyAt('22:30');
+        $schedule->command('check:renewal')->dailyAt('22:30')->withoutOverlapping();
         // reset
         $schedule->command('reset:traffic')->daily();
         $schedule->command('reset:log')->daily();
+        $schedule->command('check:autoResetTraffic')->everyFiveMinutes()->withoutOverlapping();
         // send
         $schedule->command('send:remindMail')->dailyAt('11:30');
         // horizon metrics

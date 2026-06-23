@@ -16042,6 +16042,9 @@
                     className: "font-size-h5 text-muted ml-4"
                 }, r.currency)), l.a.createElement("span", {
                     className: "text-muted",
+                    title: Object(m["formatMessage"])({
+                        id: "\u81ea\u52a8\u7eed\u8d39\u8bf4\u660e"
+                    }),
                     style: {
                         cursor: "pointer"
                     }
@@ -16051,6 +16054,20 @@
                     loading: this.props.user.auto_renewal_loading,
                     checked: t.auto_renewal,
                     onChange: e=>this.update("auto_renewal", e ? 1 : 0)
+                })), l.a.createElement("span", {
+                    className: "text-muted ml-3",
+                    title: Object(m["formatMessage"])({
+                        id: "\u81ea\u52a8\u91cd\u7f6e\u6d41\u91cf\u8bf4\u660e"
+                    }),
+                    style: {
+                        cursor: "pointer"
+                    }
+                }, Object(m["formatMessage"])({
+                    id: "\u81ea\u52a8\u91cd\u7f6e\u6d41\u91cf"
+                }), " ", l.a.createElement(i["a"], {
+                    loading: this.props.user.auto_reset_traffic_loading,
+                    checked: t.auto_reset_traffic,
+                    onChange: e=>this.update("auto_reset_traffic", e ? 1 : 0)
                 })), l.a.createElement("div", {
                     className: "pt-3"
                 }, l.a.createElement(a["a"], {

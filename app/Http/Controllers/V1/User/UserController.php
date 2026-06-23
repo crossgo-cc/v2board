@@ -273,6 +273,7 @@ class UserController extends Controller
                 'created_at',
                 'banned',
                 'auto_renewal',
+                'auto_reset_traffic',
                 'remind_expire',
                 'remind_traffic',
                 'expired_at',
@@ -388,6 +389,7 @@ class UserController extends Controller
     {
         $updateData = $request->only([
             'auto_renewal',
+            'auto_reset_traffic',
             'remind_expire',
             'remind_traffic'
         ]);
