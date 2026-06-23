@@ -16040,7 +16040,49 @@
                     className: "display-4 text-black font-w300 mb-2"
                 }, void 0 !== t.balance ? (parseInt(t.balance) / 100).toFixed(2) : "--.--", l.a.createElement("span", {
                     className: "font-size-h5 text-muted ml-4"
-                }, r.currency)), l.a.createElement("span", {
+                }, r.currency)), l.a.createElement("div", {
+                    className: "pt-3"
+                }, l.a.createElement(a["a"], {
+                    type: "primary",
+                    onClick: ()=>this.deposit()
+                }, Object(m["formatMessage"])({
+                    id: "\u5145\u503c"
+                })))))))), l.a.createElement("div", {
+                    className: "row mb-3 mb-md-0"
+                }, l.a.createElement("div", {
+                    className: "col-md-12"
+                }, l.a.createElement("div", {
+                    className: "block block-rounded "
+                }, l.a.createElement("div", {
+                    className: "block-header block-header-default"
+                }, l.a.createElement("h3", {
+                    className: "block-title"
+                }, Object(m["formatMessage"])({
+                    id: "\u81ea\u52a8\u7eed\u8d39"
+                }), " / ", Object(m["formatMessage"])({
+                    id: "\u81ea\u52a8\u91cd\u7f6e\u6d41\u91cf"
+                })), l.a.createElement("div", {
+                    className: "block-options"
+                })), l.a.createElement("div", {
+                    className: "block-content"
+                }, l.a.createElement("div", {
+                    className: "row push"
+                }, l.a.createElement("div", {
+                    className: "col-md-12"
+                }, l.a.createElement("div", {
+                    className: "alert alert-warning mb-3",
+                    role: "alert"
+                }, l.a.createElement("div", null, l.a.createElement("strong", null, Object(m["formatMessage"])({
+                    id: "\u81ea\u52a8\u7eed\u8d39"
+                }), "\uff1a"), Object(m["formatMessage"])({
+                    id: "\u81ea\u52a8\u7eed\u8d39\u8bf4\u660e"
+                })), l.a.createElement("div", {
+                    className: "mt-1"
+                }, l.a.createElement("strong", null, Object(m["formatMessage"])({
+                    id: "\u81ea\u52a8\u91cd\u7f6e\u6d41\u91cf"
+                }), "\uff1a"), Object(m["formatMessage"])({
+                    id: "\u81ea\u52a8\u91cd\u7f6e\u6d41\u91cf\u8bf4\u660e"
+                }))), l.a.createElement("span", {
                     className: "text-muted",
                     title: Object(m["formatMessage"])({
                         id: "\u81ea\u52a8\u7eed\u8d39\u8bf4\u660e"
@@ -16068,13 +16110,6 @@
                     loading: this.props.user.auto_reset_traffic_loading,
                     checked: t.auto_reset_traffic,
                     onChange: e=>this.update("auto_reset_traffic", e ? 1 : 0)
-                })), l.a.createElement("div", {
-                    className: "pt-3"
-                }, l.a.createElement(a["a"], {
-                    type: "primary",
-                    onClick: ()=>this.deposit()
-                }, Object(m["formatMessage"])({
-                    id: "\u5145\u503c"
                 })))))))), l.a.createElement("div", {
                     className: "row mb-3 mb-md-0"
                 }, l.a.createElement("div", {
