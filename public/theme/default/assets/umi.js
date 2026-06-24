@@ -16041,14 +16041,14 @@
                 }, void 0 !== t.balance ? (parseInt(t.balance) / 100).toFixed(2) : "--.--", l.a.createElement("span", {
                     className: "font-size-h5 text-muted ml-4"
                 }, r.currency)), l.a.createElement("div", {
-                    className: "alert alert-danger mb-3",
+                    className: "alert alert-info mb-3",
                     role: "alert"
                 }, l.a.createElement("strong", null, Object(m["formatMessage"])({
-                    id: "\u91cd\u8981\u63d0\u793a"
+                    id: "\u6e29\u99a8\u63d0\u793a"
                 }), "\uff1a"), Object(m["formatMessage"])({
                     id: "\u8bf7\u786e\u4fdd\u8d26\u6237\u4f59\u989d\u5145\u8db3\u8bf4\u660e"
                 })), l.a.createElement("div", {
-                    className: "pt-3"
+                    className: "pt-0"
                 }, l.a.createElement(a["a"], {
                     type: "primary",
                     onClick: ()=>this.deposit()
