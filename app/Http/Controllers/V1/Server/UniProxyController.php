@@ -142,11 +142,23 @@ class UniProxyController extends Controller
         $sourceId = $this->getReportSourceId($request);
         $sourceKey = $this->getAliveSourceKey($sourceId);
         $legacyNodeKey = $this->nodeType . $this->nodeId;
-        Cache::lock($this->getAliveLockKey(), 10)->block(3, function () use ($data, $updateAt, $sourceId, $sourceKey, $legacyNodeKey) {
-            $cacheKeys = array_map(function ($uid) {
-                return 'ALIVE_IP_USER_' . $uid;
-            }, array_keys($data));
 
+        $cacheKeys = [];
+        $keyMap = [];
+        foreach ($data as $uid => $_) {
+            if (!is_numeric($uid)) continue;
+            $key = 'ALIVE_IP_USER_' . $uid;
+            $cacheKeys[] = $key;
+            $keyMap[$uid] = $key;
+        }
+
+        if (empty($cacheKeys)) {
+            return response([
+                'data' => true
+            ]);
+        }
+
+        Cache::lock($this->getAliveLockKey(), 10)->block(3, function () use ($data, $updateAt, $sourceId, $sourceKey, $legacyNodeKey, $cacheKeys, $keyMap) {
             $cachedData = Cache::many($cacheKeys);
             $updates = [];
 
@@ -154,7 +166,7 @@ class UniProxyController extends Controller
                 if (!is_numeric($uid) || !is_array($ips)) {
                     continue; // 跳过无效数据
                 }
-                $key = 'ALIVE_IP_USER_' . $uid;
+                $key = $keyMap[$uid] ?? 'ALIVE_IP_USER_' . $uid;
                 $ips_array = $cachedData[$key] ?? [];
 
                 // 更新节点数据
