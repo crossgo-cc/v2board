@@ -40,37 +40,31 @@ final class ClientProtocols
     private const PROFILES = [
         self::SHADOWROCKET => [
             'renderer' => Shadowrocket::class,
-            'keywords' => ['shadowrocket'],
+            'flags' => ['shadowrocket'],
+            'user_agent_prefixes' => ['shadowrocket/'],
             'subscription_info' => true,
         ],
         self::SING_BOX => [
             'renderer' => Singbox::class,
-            'keywords' => ['sing-box', 'singbox'],
+            'flags' => ['sing-box'],
+            'user_agent_prefixes' => ['sfa/', 'sfi/', 'sfm/', 'sft/'],
             'subscription_info' => false,
         ],
         self::SURGE => [
             'renderer' => Surge::class,
-            'keywords' => ['surge'],
+            'flags' => ['surge'],
+            'user_agent_prefixes' => ['surge/', 'surge mac/', 'surge ios/'],
             'subscription_info' => true,
         ],
         self::MIHOMO => [
             'renderer' => Mihomo::class,
-            'keywords' => [
-                'mihomo',
-                'clash.meta',
-                'clash meta',
-                'clashmeta',
-                'clash-meta',
-                'clash-verge/',
-                'clash verge rev',
-                'clash-verge-rev',
-                'clashvergerev',
-                'nyanpasu',
-                'flclash',
-                'clash party',
-                'clash-party',
-                'clashparty',
-                'sparkle',
+            'flags' => ['mihomo'],
+            'user_agent_prefixes' => [
+                'clash.meta/',
+                'clash-verge/v',
+                'clash-nyanpasu/v',
+                'flclash/v',
+                'mihomo.party/v',
             ],
             'subscription_info' => true,
         ],
@@ -127,8 +121,14 @@ final class ClientProtocols
         $userAgent = strtolower((string)$userAgent);
 
         foreach (self::PROFILES as $name => $profile) {
-            foreach ($profile['keywords'] as $keyword) {
-                if (strpos($userAgent, $keyword) !== false) {
+            if (in_array($userAgent, $profile['flags'], true)) {
+                return ['name' => $name] + $profile;
+            }
+        }
+
+        foreach (self::PROFILES as $name => $profile) {
+            foreach ($profile['user_agent_prefixes'] as $prefix) {
+                if (strpos($userAgent, $prefix) === 0) {
                     return ['name' => $name] + $profile;
                 }
             }

@@ -37,8 +37,8 @@ class ClientSubscriptionRenderingTest extends TestCase
     {
         return [
             ['unknown-client'],
-            ['Mihomo/1.19'],
-            ['sing-box/1.13'],
+            ['clash.meta/1.19'],
+            ['SFA/1.13'],
             ['Shadowrocket/2.2'],
             ['Surge/5.0'],
         ];
@@ -46,7 +46,7 @@ class ClientSubscriptionRenderingTest extends TestCase
 
     public function testProfileUpdateIntervalIsTwoHours()
     {
-        foreach (['Mihomo/1.19', 'sing-box/1.13'] as $userAgent) {
+        foreach (['clash.meta/1.19', 'SFA/1.13'] as $userAgent) {
             $response = $this->render($userAgent, $this->user(), []);
 
             $this->assertSame('2', $response->headers->get('profile-update-interval'));
@@ -89,7 +89,7 @@ class ClientSubscriptionRenderingTest extends TestCase
     public function testSingboxUsesStableRuleSetDownloadFields()
     {
         $response = $this->render(
-            'sing-box/1.13.14',
+            'SFA/1.13.14',
             $this->user(),
             []
         );
@@ -162,7 +162,7 @@ class ClientSubscriptionRenderingTest extends TestCase
     public function testMihomoOnlyRendersValidTlsAndTransportCombinations()
     {
         $response = $this->render(
-            'Mihomo/1.19',
+            'clash.meta/1.19',
             $this->user(),
             [
                 array_merge($this->server('vmess', 'valid-vmess-reality'), [
@@ -200,7 +200,7 @@ class ClientSubscriptionRenderingTest extends TestCase
             'down_mbps' => 100,
         ]);
 
-        foreach (['Mihomo/1.19', 'sing-box/1.13.14'] as $userAgent) {
+        foreach (['clash.meta/1.19', 'SFA/1.13.14'] as $userAgent) {
             $response = $this->render(
                 $userAgent,
                 $this->user(),
@@ -215,7 +215,7 @@ class ClientSubscriptionRenderingTest extends TestCase
     public function testSingboxRejectsGeckoAndUsesValidServerPortRanges()
     {
         $response = $this->render(
-            'sing-box/1.13.14',
+            'SFA/1.13.14',
             $this->user(),
             [
                 array_merge($this->server('hysteria2', 'unsupported-gecko'), [

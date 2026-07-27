@@ -29,18 +29,19 @@ class ClientProtocolsTest extends TestCase
     public function maintainedClientProvider()
     {
         return [
-            ['Shadowrocket/2.2', 'shadowrocket', Shadowrocket::class],
-            ['sing-box/1.13.0', 'sing-box', Singbox::class],
-            ['singbox/1.12.0', 'sing-box', Singbox::class],
+            ['Shadowrocket/2.2 CFNetwork/1492.0.1 Darwin/23.3.0', 'shadowrocket', Shadowrocket::class],
+            ['SFA/1.13.0 (100; sing-box 1.13.0; language en_US)', 'sing-box', Singbox::class],
+            ['SFI/1.13.0 (Build 100; sing-box 1.13.0; language en_US)', 'sing-box', Singbox::class],
+            ['SFM/1.13.0 (Build 100; sing-box 1.13.0; language en_US)', 'sing-box', Singbox::class],
+            ['SFT/1.13.0 (Build 100; sing-box 1.13.0; language en_US)', 'sing-box', Singbox::class],
             ['Surge/5.0', 'surge', Surge::class],
-            ['Mihomo/1.19', 'mihomo', Mihomo::class],
-            ['Clash.Meta/1.19', 'mihomo', Mihomo::class],
+            ['Surge Mac/5.10.0', 'surge', Surge::class],
+            ['Surge iOS/5.10.0', 'surge', Surge::class],
+            ['clash.meta/1.19', 'mihomo', Mihomo::class],
             ['clash-verge/v2.4.5', 'mihomo', Mihomo::class],
-            ['Clash-Verge-Rev/2.5', 'mihomo', Mihomo::class],
-            ['Clash Nyanpasu/2.4', 'mihomo', Mihomo::class],
-            ['FlClash/0.8', 'mihomo', Mihomo::class],
-            ['Mihomo Party/2.0', 'mihomo', Mihomo::class],
-            ['Sparkle/1.0', 'mihomo', Mihomo::class],
+            ['clash-nyanpasu/v2.4', 'mihomo', Mihomo::class],
+            ['FlClash/v0.8 clash-verge Platform/android', 'mihomo', Mihomo::class],
+            ['mihomo.party/v1.8.9 (clash.meta)', 'mihomo', Mihomo::class],
         ];
     }
 
@@ -68,23 +69,43 @@ class ClientProtocolsTest extends TestCase
             ['Surfboard/2.4'],
             ['Stash/2.7'],
             ['Clash/1.0'],
+            ['Mihomo/1.19'],
+            ['Clash-Verge-Rev/2.5'],
+            ['Clash Nyanpasu/2.4'],
+            ['Mihomo Party/2.0'],
+            ['Sparkle/1.0'],
+            ['singbox/1.12.0'],
+            ['wrapper clash.meta/1.19'],
+            ['not-surge/5.0'],
+            ['mihomo-preview'],
             ['unknown-client'],
         ];
     }
 
     public function testSingboxUsesCurrentRendererWithoutSubscriptionInfoNodes()
     {
-        $profile = ClientProtocols::match('sing-box/1.11.9');
+        $profile = ClientProtocols::match('SFA/1.11.9');
 
         $this->assertSame('sing-box', $profile['name']);
         $this->assertSame(Singbox::class, $profile['renderer']);
         $this->assertFalse($profile['subscription_info']);
     }
 
-    public function testFrontendFlagsSelectExplicitProfiles()
+    public function testExplicitFlagsSelectProfiles()
     {
+        $this->assertSame('shadowrocket', ClientProtocols::match('shadowrocket')['name']);
         $this->assertSame('sing-box', ClientProtocols::match('sing-box')['name']);
+        $this->assertSame('surge', ClientProtocols::match('surge')['name']);
         $this->assertSame('mihomo', ClientProtocols::match('mihomo')['name']);
+    }
+
+    public function testFrontendImportLinksSetExplicitProfileFlags()
+    {
+        $frontend = file_get_contents(dirname(__DIR__, 2) . '/public/theme/default/assets/umi.js');
+
+        foreach (['flag=shadowrocket', 'flag=sing-box', 'flag=surge', 'flag=mihomo'] as $flag) {
+            $this->assertStringContainsString($flag, $frontend);
+        }
     }
 
     /**
