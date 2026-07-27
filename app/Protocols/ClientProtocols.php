@@ -61,6 +61,7 @@ final class ClientProtocols
                 'clash meta',
                 'clashmeta',
                 'clash-meta',
+                'clash-verge/',
                 'clash verge rev',
                 'clash-verge-rev',
                 'clashvergerev',

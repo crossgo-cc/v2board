@@ -35,6 +35,7 @@ class ClientProtocolsTest extends TestCase
             ['Surge/5.0', 'surge', Surge::class],
             ['Mihomo/1.19', 'mihomo', Mihomo::class],
             ['Clash.Meta/1.19', 'mihomo', Mihomo::class],
+            ['clash-verge/v2.4.5', 'mihomo', Mihomo::class],
             ['Clash-Verge-Rev/2.5', 'mihomo', Mihomo::class],
             ['Clash Nyanpasu/2.4', 'mihomo', Mihomo::class],
             ['FlClash/0.8', 'mihomo', Mihomo::class],
@@ -67,7 +68,6 @@ class ClientProtocolsTest extends TestCase
             ['Surfboard/2.4'],
             ['Stash/2.7'],
             ['Clash/1.0'],
-            ['Clash Verge/1.3'],
             ['unknown-client'],
         ];
     }

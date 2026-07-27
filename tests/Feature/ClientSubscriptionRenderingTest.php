@@ -6,6 +6,7 @@ use App\Protocols\Mihomo;
 use App\Protocols\ClientProtocols;
 use App\Protocols\Surge;
 use Illuminate\Http\Response;
+use Symfony\Component\Yaml\Yaml;
 use Tests\TestCase;
 
 class ClientSubscriptionRenderingTest extends TestCase
@@ -50,6 +51,17 @@ class ClientSubscriptionRenderingTest extends TestCase
 
             $this->assertSame('2', $response->headers->get('profile-update-interval'));
         }
+    }
+
+    public function testClashVergeUserAgentProducesMihomoYaml()
+    {
+        $response = $this->render('clash-verge/v2.4.5', $this->user(), [
+            $this->server('vmess', 'verge-node'),
+        ]);
+        $config = Yaml::parse($response->getContent());
+
+        $this->assertIsArray($config);
+        $this->assertSame('verge-node', $config['proxies'][0]['name']);
     }
 
     public function testSurgeDoesNotReceiveUnsupportedVlessNodes()
