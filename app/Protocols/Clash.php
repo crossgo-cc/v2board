@@ -38,12 +38,10 @@ class Clash
         $proxies = [];
 
         foreach ($servers as $item) {
-            if ($item['type'] === 'v2node') {
-                $item['type'] = $item['protocol'];
-            }
             if (!Helper::supportsClientProtocol('clash', $item)) {
                 continue;
             }
+            $item = Helper::normalizeServerProtocol($item);
             if ($item['type'] === 'shadowsocks'
                 && in_array($item['cipher'], [
                     'aes-128-gcm',
@@ -145,13 +143,13 @@ class Clash
 
         if ($server['tls']) {
             $array['tls'] = true;
-            $tlsSettings = $server['tls_settings'] ?? $server['tlsSettings'] ?? [];
-            $array['skip-cert-verify'] = ((int)($tlsSettings['allow_insecure'] ?? $tlsSettings['allowInsecure'] ?? 0)) == 1 ? true : false;
-            $array['servername'] = $tlsSettings['server_name'] ?? $tlsSettings['serverName'] ?? '';
+            $tlsSettings = $server['tls_settings'] ?? [];
+            $array['skip-cert-verify'] = ((int)($tlsSettings['allow_insecure'] ?? 0)) == 1 ? true : false;
+            $array['servername'] = $tlsSettings['server_name'] ?? '';
 
         }
         if ($server['network'] === 'tcp') {
-            $tcpSettings = $server['network_settings'] ?? ($server['networkSettings'] ?? []);
+            $tcpSettings = $server['network_settings'] ?? [];
             if (isset($tcpSettings['header']['type']) && $tcpSettings['header']['type'] == 'http') {
                 $array['network'] = $tcpSettings['header']['type'];
                 if (isset($tcpSettings['header']['request']['headers']['Host'])) $array['http-opts']['headers']['Host'] = $tcpSettings['header']['request']['headers']['Host'];
@@ -160,7 +158,7 @@ class Clash
         }
         if ($server['network'] === 'ws') {
             $array['network'] = 'ws';
-            $wsSettings = $server['network_settings'] ?? ($server['networkSettings'] ?? []);
+            $wsSettings = $server['network_settings'] ?? [];
             $array['ws-opts'] = [];
             if (isset($wsSettings['path']) && !empty($wsSettings['path']))
                 $array['ws-opts']['path'] = $wsSettings['path'];
@@ -171,7 +169,7 @@ class Clash
         }
         if ($server['network'] === 'grpc') {
             $array['network'] = 'grpc';
-            $grpcSettings = $server['network_settings'] ?? ($server['networkSettings'] ?? []);
+            $grpcSettings = $server['network_settings'] ?? [];
             $array['grpc-opts'] = [];
             if (isset($grpcSettings['serviceName'])) $array['grpc-opts']['grpc-service-name'] = $grpcSettings['serviceName'];
         }
@@ -204,8 +202,8 @@ class Clash
                 }
             }
         };
-        $array['sni'] = $server['server_name'] ?? (($server['tls_settings'] ?? [])['server_name'] ?? '');
-        $array['skip-cert-verify'] = ((int)(($server['tls_settings'] ?? [])['allow_insecure'] ?? ($server['allow_insecure'] ?? 0))) == 1 ? true : false;
+        $array['sni'] = ($server['tls_settings'] ?? [])['server_name'] ?? '';
+        $array['skip-cert-verify'] = ((int)(($server['tls_settings'] ?? [])['allow_insecure'] ?? 0)) == 1 ? true : false;
         return $array;
     }
 

@@ -28,12 +28,10 @@ class Surge
         $proxyGroup = '';
 
         foreach ($servers as $item) {
-            if (($item['type'] ?? null) === 'v2node' && isset($item['protocol'])) {
-                $item['type'] = $item['protocol'];
-            }
             if (!Helper::supportsClientProtocol('surge', $item)) {
                 continue;
             }
+            $item = Helper::normalizeServerProtocol($item);
             if ($item['type'] === 'shadowsocks') {
                 // [Proxy]
                 $proxies .= self::buildShadowsocks($user['uuid'], $item);
@@ -54,7 +52,7 @@ class Surge
                 $proxies .= self::buildTuic($user['uuid'], $item);
                 // [Proxy Group]
                 $proxyGroup .= $item['name'] . ', ';
-            }elseif ($item['type'] === 'hysteria2' || ($item['type'] === 'hysteria' && (int)($item['version'] ?? 0) === 2)) { //surge只支持hysteria2
+            }elseif ($item['type'] === 'hysteria2') {
                 // [Proxy]
                 $proxies .= self::buildHysteria($user['uuid'], $item);
                 // [Proxy Group]
@@ -133,8 +131,8 @@ class Surge
 
     public static function buildVmess($uuid, $server)
     {
-        $networkSettings = $server['networkSettings'] ?? ($server['network_settings'] ?? []);
-        $tlsSettings = $server['tlsSettings'] ?? ($server['tls_settings'] ?? []);
+        $networkSettings = $server['network_settings'] ?? [];
+        $tlsSettings = $server['tls_settings'] ?? [];
         $config = [
             "{$server['name']}=vmess",
             "{$server['host']}",
@@ -148,8 +146,8 @@ class Surge
         if ($server['tls']) {
             array_push($config, 'tls=true');
             if ($tlsSettings) {
-                $allowInsecure = $tlsSettings['allowInsecure'] ?? ($tlsSettings['allow_insecure'] ?? null);
-                $serverName = $tlsSettings['serverName'] ?? ($tlsSettings['server_name'] ?? null);
+                $allowInsecure = $tlsSettings['allow_insecure'] ?? null;
+                $serverName = $tlsSettings['server_name'] ?? null;
                 if (!empty($allowInsecure))
                     array_push($config, 'skip-cert-verify=' . ($allowInsecure ? 'true' : 'false'));
                 if (!empty($serverName))
@@ -177,8 +175,8 @@ class Surge
     public static function buildTrojan($password, $server)
     {
         $tlsSettings = $server['tls_settings'] ?? [];
-        $sni = $server['server_name'] ?? ($tlsSettings['server_name'] ?? '');
-        $allowInsecure = $server['allow_insecure'] ?? ($tlsSettings['allow_insecure'] ?? 0);
+        $sni = $tlsSettings['server_name'] ?? '';
+        $allowInsecure = $tlsSettings['allow_insecure'] ?? 0;
         $config = [
             "{$server['name']}=trojan",
             "{$server['host']}",
@@ -210,8 +208,8 @@ class Surge
     public static function buildTuic($password, $server)
     {
         $tlsSettings = $server['tls_settings'] ?? [];
-        $sni = $server['server_name'] ?? ($tlsSettings['server_name'] ?? '');
-        $allowInsecure = ($server['insecure'] ?? ($tlsSettings['allow_insecure'] ?? 0)) == 1 ? 'true' : 'false';
+        $sni = $tlsSettings['server_name'] ?? '';
+        $allowInsecure = ($tlsSettings['allow_insecure'] ?? 0) == 1 ? 'true' : 'false';
 
         $config = [
             "{$server['name']}=tuic",
@@ -237,8 +235,8 @@ class Surge
     public static function buildHysteria($password, $server)
     {
         $tlsSettings = $server['tls_settings'] ?? [];
-        $sni = $server['server_name'] ?? ($tlsSettings['server_name'] ?? '');
-        $insecure = $server['insecure'] ?? ($tlsSettings['allow_insecure'] ?? 0);
+        $sni = $tlsSettings['server_name'] ?? '';
+        $insecure = $tlsSettings['allow_insecure'] ?? 0;
 
         $parts = explode(",",$server['port']);
         $firstPart = $parts[0];
@@ -271,8 +269,8 @@ class Surge
     public static function buildAnyTLS($password, $server)
     {
         $tlsSettings = $server['tls_settings'] ?? [];
-        $allowInsecure = ($server['insecure'] ?? ($tlsSettings['allow_insecure'] ?? 0)) == 1 ? 'true' : 'false';
-        $sni = $server['server_name'] ?? ($tlsSettings['server_name'] ?? '');
+        $allowInsecure = ($tlsSettings['allow_insecure'] ?? 0) == 1 ? 'true' : 'false';
+        $sni = $tlsSettings['server_name'] ?? '';
 
         $config = [
             "{$server['name']}=anytls",

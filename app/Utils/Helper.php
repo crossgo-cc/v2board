@@ -41,7 +41,6 @@ class Helper
             'vmess' => true,
             'vless' => true,
             'trojan' => true,
-            'hysteria' => true,
             'hysteria2' => true,
             'tuic' => true,
             'anytls' => true,
@@ -57,7 +56,6 @@ class Helper
             'vless' => ['networks' => ['tcp', 'ws', 'grpc', 'httpupgrade', 'xhttp']],
             'trojan' => ['networks' => ['tcp', 'ws', 'grpc', 'httpupgrade']],
             'tuic' => true,
-            'hysteria' => true,
             'hysteria2' => true,
             'anytls' => ['networks' => ['tcp'], 'no_reality' => true],
         ],
@@ -67,7 +65,6 @@ class Helper
             'vless' => ['networks' => ['tcp', 'ws', 'grpc']],
             'trojan' => ['networks' => ['tcp', 'ws', 'grpc']],
             'tuic' => true,
-            'hysteria' => true,
             'hysteria2' => true,
             'anytls' => ['networks' => ['tcp'], 'no_reality' => true],
         ],
@@ -77,7 +74,6 @@ class Helper
             'vless' => ['networks' => ['tcp', 'ws', 'grpc', 'httpupgrade']],
             'trojan' => ['networks' => ['tcp', 'ws', 'grpc', 'httpupgrade']],
             'tuic' => true,
-            'hysteria' => true,
             'hysteria2' => true,
             'anytls' => ['networks' => ['tcp']],
         ],
@@ -97,7 +93,6 @@ class Helper
             'vmess' => ['networks' => ['tcp', 'ws']],
             'vless' => ['networks' => ['tcp', 'ws']],
             'trojan' => ['networks' => ['tcp', 'ws']],
-            'hysteria' => ['hysteria2_only' => true],
             'hysteria2' => true,
         ],
         'surge' => [
@@ -105,7 +100,6 @@ class Helper
             'vmess' => ['networks' => ['tcp', 'ws']],
             'trojan' => ['networks' => ['tcp', 'ws']],
             'tuic' => true,
-            'hysteria' => ['hysteria2_only' => true],
             'hysteria2' => true,
             'anytls' => ['networks' => ['tcp'], 'no_reality' => true],
         ],
@@ -113,7 +107,6 @@ class Helper
             'shadowsocks' => ['networks' => ['tcp', 'http'], 'strict_cipher' => true],
             'vmess' => ['networks' => ['tcp', 'ws']],
             'trojan' => ['networks' => ['tcp', 'ws']],
-            'hysteria' => ['hysteria2_only' => true],
             'hysteria2' => true,
             'anytls' => ['networks' => ['tcp'], 'no_reality' => true],
         ],
@@ -122,7 +115,6 @@ class Helper
             'vmess' => ['networks' => ['tcp', 'ws', 'grpc']],
             'vless' => ['networks' => ['tcp', 'ws', 'grpc', 'kcp', 'httpupgrade', 'xhttp']],
             'trojan' => ['networks' => ['tcp', 'ws', 'grpc']],
-            'hysteria' => true,
             'hysteria2' => true,
             'tuic' => true,
             'anytls' => ['networks' => ['tcp'], 'no_reality' => true],
@@ -132,7 +124,6 @@ class Helper
             'vmess' => ['networks' => ['tcp', 'ws', 'grpc', 'kcp', 'httpupgrade', 'xhttp']],
             'vless' => ['networks' => ['tcp', 'ws', 'grpc', 'kcp', 'httpupgrade', 'xhttp']],
             'trojan' => ['networks' => ['tcp', 'ws', 'grpc']],
-            'hysteria' => ['hysteria2_only' => true],
             'hysteria2' => true,
             'tuic' => true,
             'anytls' => ['networks' => ['tcp']],
@@ -142,7 +133,6 @@ class Helper
             'vmess' => ['networks' => ['tcp', 'ws', 'grpc', 'kcp', 'httpupgrade', 'xhttp']],
             'vless' => ['networks' => ['tcp', 'ws', 'grpc', 'kcp', 'httpupgrade', 'xhttp']],
             'trojan' => ['networks' => ['tcp', 'ws', 'grpc']],
-            'hysteria' => ['hysteria2_only' => true],
             'hysteria2' => true,
         ],
         'v2raytun' => [
@@ -153,7 +143,6 @@ class Helper
             'vmess' => ['networks' => ['tcp', 'ws', 'grpc', 'kcp', 'httpupgrade', 'xhttp']],
             'vless' => ['networks' => ['tcp', 'ws', 'grpc', 'kcp', 'httpupgrade', 'xhttp']],
             'trojan' => ['networks' => ['tcp', 'ws', 'grpc']],
-            'hysteria' => true,
             'hysteria2' => true,
             'tuic' => true,
             'anytls' => ['networks' => ['tcp']],
@@ -348,6 +337,9 @@ class Helper
 
     public static function supportsClientProtocol(string $client, array $server): bool
     {
+        if (($server['type'] ?? null) !== 'v2node') {
+            return false;
+        }
         $server = self::normalizeServerProtocol($server);
         $client = self::normalizeClientName($client);
         if (!isset(self::CLIENT_PROTOCOL_SUPPORT[$client])) {
@@ -385,9 +377,6 @@ class Helper
             return false;
         }
         if (!empty($rule['no_obfs']) && !empty($server['obfs'])) {
-            return false;
-        }
-        if (!empty($rule['hysteria2_only']) && !self::isHysteria2Server($server)) {
             return false;
         }
         if (!empty($rule['no_reality']) && (int)($server['tls'] ?? 0) === 2) {
@@ -429,20 +418,17 @@ class Helper
         return in_array(self::serverNetwork($server), $networks, true);
     }
 
-    private static function isHysteria2Server(array $server): bool
-    {
-        return self::serverType($server) === 'hysteria2' || (int)($server['version'] ?? 0) === 2;
-    }
 
     public static function buildUri($uuid, $server, $client = null)
     {
+        if (($server['type'] ?? null) !== 'v2node') {
+            return '';
+        }
         if ($client !== null && !self::supportsClientProtocol($client, $server)) {
             return '';
         }
 
-        if ($server['type'] == 'v2node') {
-            $server['type'] = $server['protocol'];
-        } 
+        $server = self::normalizeServerProtocol($server);
         $method = "build" . ucfirst($server['type']) . "Uri";
 
         if (method_exists(self::class, $method)) {
@@ -509,13 +495,13 @@ class Helper
         ];
 
         if ($server['tls']) {
-            $tlsSettings = $server['tls_settings'] ?? $server['tlsSettings'] ?? [];
-            $config['allowInsecure'] = (int)($tlsSettings['allow_insecure'] ?? $tlsSettings['allowInsecure'] ?? 0);
-            $config['sni'] = $tlsSettings['server_name'] ?? $tlsSettings['serverName'] ?? '';
+            $tlsSettings = $server['tls_settings'] ?? [];
+            $config['allowInsecure'] = (int)($tlsSettings['allow_insecure'] ?? 0);
+            $config['sni'] = $tlsSettings['server_name'] ?? '';
         }
         
         $network = (string)$server['network'];
-        $networkSettings = $server['networkSettings'] ?? ($server['network_settings'] ?? []);
+        $networkSettings = $server['network_settings'] ?? [];
     
         switch ($network) {
             case 'tcp':
@@ -612,9 +598,9 @@ class Helper
     {
         $tlsSettings = $server['tls_settings'] ?? [];
         $config = [
-            'allowInsecure' => $server['allow_insecure'] ?? ($tlsSettings['allow_insecure'] ?? 0),
-            'peer' => $server['server_name'] ?? ($tlsSettings['server_name'] ?? ''),
-            'sni' => $server['server_name'] ?? ($tlsSettings['server_name'] ?? ''),
+            'allowInsecure' => $tlsSettings['allow_insecure'] ?? 0,
+            'peer' => $tlsSettings['server_name'] ?? '',
+            'sni' => $tlsSettings['server_name'] ?? '',
             'type'=> $server['network'],
         ];
 
@@ -640,30 +626,6 @@ class Helper
         }
         $query = http_build_query($config);
         return "trojan://{$password}@" . self::formatHost($server['host']) . ":{$server['port']}?{$query}#". rawurlencode($server['name']) . "\r\n";
-    }
-
-    public static function buildHysteriaUri($password, $server)
-    {
-        $remote = self::formatHost($server['host']);
-        $name = self::encodeURIComponent($server['name']);
-
-        $parts = explode(",", $server['port']);
-        $firstPort = strpos($parts[0], '-') !== false ? explode('-', $parts[0])[0] : $parts[0];
-
-        $uri = $server['version'] == 2 ?
-            "hysteria2://{$password}@{$remote}:{$firstPort}/?insecure={$server['insecure']}&sni={$server['server_name']}" :
-            "hysteria://{$remote}:{$firstPort}/?protocol=udp&auth={$password}&insecure={$server['insecure']}&peer={$server['server_name']}&upmbps={$server['down_mbps']}&downmbps={$server['up_mbps']}";
-
-        if (isset($server['obfs']) && isset($server['obfs_password'])) {
-            $obfs_password = rawurlencode($server['obfs_password']);
-            $uri .= $server['version'] == 2 ? 
-                "&obfs={$server['obfs']}&obfs-password={$obfs_password}" :
-                "&obfs={$server['obfs']}&obfsParam={$obfs_password}";
-        }
-        if (count($parts) !== 1 || strpos($parts[0], '-') !== false) {
-            $uri .= "&mport={$server['mport']}";
-        }
-        return "{$uri}#{$name}\r\n";
     }
 
     public static function buildHysteria2Uri($password, $server)
@@ -692,10 +654,10 @@ class Helper
     {
         $tlsSettings = $server['tls_settings'] ?? [];
         $config = [
-            'sni' => $server['server_name'] ?? ($tlsSettings['server_name'] ?? ''),
+            'sni' => $tlsSettings['server_name'] ?? '',
             'alpn'=> 'h3',
             'congestion_control' => $server['congestion_control'],
-            'allow_insecure' => $server['insecure'] ?? ($tlsSettings['allow_insecure'] ?? 0),
+            'allow_insecure' => $tlsSettings['allow_insecure'] ?? 0,
             'disable_sni' => $server['disable_sni'],
             'udp_relay_mode' => $server['udp_relay_mode'],
         ];
@@ -712,10 +674,10 @@ class Helper
     {
         $tlsSettings = $server['tls_settings'] ?? [];
         $config = [
-            'insecure' => $server['insecure'] ?? ($tlsSettings['allow_insecure'] ?? 0),
+            'insecure' => $tlsSettings['allow_insecure'] ?? 0,
         ];
-        if (isset($server['server_name']) || isset($tlsSettings['server_name'])) {
-            $config['sni'] = $server['server_name'] ?? ($tlsSettings['server_name'] ?? '');
+        if (isset($tlsSettings['server_name'])) {
+            $config['sni'] = $tlsSettings['server_name'] ?? '';
         }
         if (isset($server['tls']) && $server['tls'] == 2) {
             $config['security'] = 'reality';
@@ -778,7 +740,7 @@ class Helper
     public static function configureNetworkSettings($server, &$config)
     {
         $network = $server['network'];
-        $settings = $server['network_settings'] ?? ($server['networkSettings'] ?? []);
+        $settings = $server['network_settings'] ?? [];
 
         switch ($network) {
             case 'tcp':
@@ -847,7 +809,7 @@ class Helper
 
     public static function buildClashWsOptions(array $server, bool $httpUpgrade = false): array
     {
-        $settings = $server['network_settings'] ?? ($server['networkSettings'] ?? []);
+        $settings = $server['network_settings'] ?? [];
         $options = $httpUpgrade ? ['v2ray-http-upgrade' => true] : [];
 
         if (!empty($settings['path'])) {
@@ -870,7 +832,7 @@ class Helper
 
     public static function buildSingboxHttpupgradeTransport(array $server): array
     {
-        $settings = $server['network_settings'] ?? ($server['networkSettings'] ?? []);
+        $settings = $server['network_settings'] ?? [];
         $transport = ['type' => 'httpupgrade'];
 
         if (!empty($settings['path'])) {

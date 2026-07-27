@@ -36,13 +36,10 @@ class ClashMeta
         $proxies = [];
 
         foreach ($servers as $item) {
-            // Singbox-style inline adaptation: unwrap v2node
-            if (($item['type'] ?? null) === 'v2node' && isset($item['protocol'])) {
-                $item['type'] = $item['protocol'];
-            }
             if (!Helper::supportsClientProtocol('mihomo', $item)) {
                 continue;
             }
+            $item = Helper::normalizeServerProtocol($item);
             switch ($item['type']) {
                 case 'shadowsocks':
                     $proxy[] = self::buildShadowsocks($user['uuid'], $item);
@@ -66,10 +63,6 @@ class ClashMeta
                     break;
                 case 'anytls':
                     $proxy[] = self::buildAnyTLS($user['uuid'], $item);
-                    $proxies[] = $item['name'];
-                    break;
-                case 'hysteria':
-                    $proxy[] = self::buildHysteria($user['uuid'], $item);
                     $proxies[] = $item['name'];
                     break;
                 case 'hysteria2':
@@ -176,10 +169,10 @@ class ClashMeta
 
         if (!empty($server['tls'])) {
             $array['tls'] = true;
-            $tlsSettings = $server['tlsSettings'] ?? ($server['tls_settings'] ?? null);
+            $tlsSettings = $server['tls_settings'] ?? null;
             if ($tlsSettings) {
-                $allowInsecure = $tlsSettings['allowInsecure'] ?? ($tlsSettings['allow_insecure'] ?? null);
-                $serverName = $tlsSettings['serverName'] ?? ($tlsSettings['server_name'] ?? null);
+                $allowInsecure = $tlsSettings['allow_insecure'] ?? null;
+                $serverName = $tlsSettings['server_name'] ?? null;
                 if (!empty($allowInsecure))
                     $array['skip-cert-verify'] = ($allowInsecure ? true : false);
                 if (!empty($serverName))
@@ -201,7 +194,7 @@ class ClashMeta
         }
         $network = $server['network'] ?? null;
         if ($network === 'tcp') {
-            $tcpSettings = $server['networkSettings'] ?? ($server['network_settings'] ?? []);
+            $tcpSettings = $server['network_settings'] ?? [];
             if (isset($tcpSettings['header']['type']) && $tcpSettings['header']['type'] == 'http') {
                 $array['network'] = $tcpSettings['header']['type'];
                 if (isset($tcpSettings['header']['request']['headers']['Host'])) $array['http-opts']['headers']['Host'] = $tcpSettings['header']['request']['headers']['Host'];
@@ -210,7 +203,7 @@ class ClashMeta
         }
         if ($network === 'ws') {
             $array['network'] = 'ws';
-            $wsSettings = $server['networkSettings'] ?? ($server['network_settings'] ?? null);
+            $wsSettings = $server['network_settings'] ?? null;
             if ($wsSettings) {
                 $array['ws-opts'] = [];
                 if (isset($wsSettings['path']) && !empty($wsSettings['path']))
@@ -223,7 +216,7 @@ class ClashMeta
         }
         if ($network === 'grpc') {
             $array['network'] = 'grpc';
-            $grpcSettings = $server['networkSettings'] ?? ($server['network_settings'] ?? null);
+            $grpcSettings = $server['network_settings'] ?? null;
             if ($grpcSettings) {
                 $array['grpc-opts'] = [];
                 if (isset($grpcSettings['serviceName'])) $array['grpc-opts']['grpc-service-name'] = $grpcSettings['serviceName'];
@@ -375,8 +368,8 @@ class ClashMeta
             $array['ws-opts'] = Helper::buildClashWsOptions($server, true);
         }
         $tlsSettings = $server['tls_settings'] ?? [];
-        $array['sni'] = $server['server_name'] ?? ($tlsSettings['server_name'] ?? '');
-        $array['skip-cert-verify'] = ($server['allow_insecure'] ?? ($tlsSettings['allow_insecure'] ?? 0)) == 1 ? true : false;
+        $array['sni'] = $tlsSettings['server_name'] ?? '';
+        $array['skip-cert-verify'] = ($tlsSettings['allow_insecure'] ?? 0) == 1 ? true : false;
         if (!empty($tlsSettings['ech'])) {
             if ($tlsSettings['ech'] === 'cloudflare') {
                 $array['ech-opts'] = [
@@ -409,8 +402,8 @@ class ClashMeta
             'congestion-controller' => $server['congestion_control'] ?? 'cubic',
         ];
         $tlsSettings = $server['tls_settings'] ?? [];
-        $array['skip-cert-verify'] = ($server['insecure'] ?? ($tlsSettings['allow_insecure'] ?? 0)) == 1 ? true : false;
-        $array['sni'] = $server['server_name'] ?? ($tlsSettings['server_name'] ?? '');
+        $array['skip-cert-verify'] = ($tlsSettings['allow_insecure'] ?? 0) == 1 ? true : false;
+        $array['sni'] = $tlsSettings['server_name'] ?? '';
 
         return $array;
     }
@@ -431,54 +424,8 @@ class ClashMeta
             ],
         ];
         $tlsSettings = $server['tls_settings'] ?? [];
-        $array['sni'] = $server['server_name'] ?? ($tlsSettings['server_name'] ?? '');
-        $array['skip-cert-verify'] = ($server['insecure'] ?? ($tlsSettings['allow_insecure'] ?? 0)) == 1 ? true : false;
-        return $array;
-    }
-
-    public static function buildHysteria($password, $server)
-    {
-        $array = [];
-        $array['name'] = $server['name'];
-        $array['server'] = $server['host'];
-
-        $parts = explode(",", $server['port']);
-        $firstPart = $parts[0];
-        if (strpos($firstPart, '-') !== false) {
-            $range = explode('-', $firstPart);
-            $firstPort = $range[0];
-        } else {
-            $firstPort = $firstPart;
-        }
-        $array['port'] = (int)$firstPort;
-        if (count($parts) !== 1 || strpos($parts[0], '-') !== false) {
-            $array['ports'] = $server['port'];
-            $array['mport'] = $server['port'];
-        }
-        $array['udp'] = true;
-        $array['skip-cert-verify'] = $server['insecure'] == 1 ? true : false;
-
-        if (isset($server['server_name'])) $array['sni'] = $server['server_name'];
-
-        if ($server['version'] === 2) {
-            $array['type'] = 'hysteria2';
-            $array['password'] = $password;
-            if (isset($server['obfs'])){
-                $array['obfs'] = $server['obfs'];
-                $array['obfs-password'] = $server['obfs_password'];
-            }
-        } else {
-            $array['type'] = 'hysteria';
-            $array['auth-str'] = $password;
-            if (isset($server['obfs']) && isset($server['obfs_password'])){
-                $array['obfs'] = $server['obfs_password'];
-            }
-            //Todo:完善客户端上下行
-            $array['up'] = $server['down_mbps'];
-            $array['down'] = $server['up_mbps'];
-            $array['protocol'] = 'udp';
-        }
-
+        $array['sni'] = $tlsSettings['server_name'] ?? '';
+        $array['skip-cert-verify'] = ($tlsSettings['allow_insecure'] ?? 0) == 1 ? true : false;
         return $array;
     }
 

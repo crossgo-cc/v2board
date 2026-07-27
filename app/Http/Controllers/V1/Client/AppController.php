@@ -5,6 +5,7 @@ namespace App\Http\Controllers\V1\Client;
 use App\Http\Controllers\Controller;
 use App\Services\ServerService;
 use App\Services\UserService;
+use App\Utils\Helper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Symfony\Component\Yaml\Yaml;
@@ -31,6 +32,10 @@ class AppController extends Controller
         $proxies = [];
 
         foreach ($servers as $item) {
+            if (!Helper::supportsClientProtocol('clash', $item)) {
+                continue;
+            }
+            $item = Helper::normalizeServerProtocol($item);
             if ($item['type'] === 'shadowsocks'
                 && in_array($item['cipher'], [
                     'aes-128-gcm',

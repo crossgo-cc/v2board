@@ -34,62 +34,6 @@ class AdminRoute
             $router->get ('/server/manage/getNodes', 'V1\\Admin\\Server\\ManageController@getNodes');
             $router->post('/server/manage/sort', 'V1\\Admin\\Server\\ManageController@sort');
             $router->group([
-                'prefix' => 'server/trojan'
-            ], function ($router) {
-                $router->post('save', 'V1\\Admin\\Server\\TrojanController@save');
-                $router->post('drop', 'V1\\Admin\\Server\\TrojanController@drop');
-                $router->post('update', 'V1\\Admin\\Server\\TrojanController@update');
-                $router->post('copy', 'V1\\Admin\\Server\\TrojanController@copy');
-            });
-            $router->group([
-                'prefix' => 'server/vmess'
-            ], function ($router) {
-                $router->post('save', 'V1\\Admin\\Server\\VmessController@save');
-                $router->post('drop', 'V1\\Admin\\Server\\VmessController@drop');
-                $router->post('update', 'V1\\Admin\\Server\\VmessController@update');
-                $router->post('copy', 'V1\\Admin\\Server\\VmessController@copy');
-            });
-            $router->group([
-                'prefix' => 'server/shadowsocks'
-            ], function ($router) {
-                $router->post('save', 'V1\\Admin\\Server\\ShadowsocksController@save');
-                $router->post('drop', 'V1\\Admin\\Server\\ShadowsocksController@drop');
-                $router->post('update', 'V1\\Admin\\Server\\ShadowsocksController@update');
-                $router->post('copy', 'V1\\Admin\\Server\\ShadowsocksController@copy');
-            });
-            $router->group([
-                'prefix' => 'server/tuic'
-            ], function ($router) {
-                $router->post('save', 'V1\\Admin\\Server\\TuicController@save');
-                $router->post('drop', 'V1\\Admin\\Server\\TuicController@drop');
-                $router->post('update', 'V1\\Admin\\Server\\TuicController@update');
-                $router->post('copy', 'V1\\Admin\\Server\\TuicController@copy');
-            });
-            $router->group([
-                'prefix' => 'server/hysteria'
-            ], function ($router) {
-                $router->post('save', 'V1\\Admin\\Server\\HysteriaController@save');
-                $router->post('drop', 'V1\\Admin\\Server\\HysteriaController@drop');
-                $router->post('update', 'V1\\Admin\\Server\\HysteriaController@update');
-                $router->post('copy', 'V1\\Admin\\Server\\HysteriaController@copy');
-            });
-            $router->group([
-                'prefix' => 'server/vless'
-            ], function ($router) {
-                $router->post('save', 'V1\\Admin\\Server\\VlessController@save');
-                $router->post('drop', 'V1\\Admin\\Server\\VlessController@drop');
-                $router->post('update', 'V1\\Admin\\Server\\VlessController@update');
-                $router->post('copy', 'V1\\Admin\\Server\\VlessController@copy');
-            });
-            $router->group([
-                'prefix' => 'server/anytls'
-            ], function ($router) {
-                $router->post('save', 'V1\\Admin\\Server\\AnyTLSController@save');
-                $router->post('drop', 'V1\\Admin\\Server\\AnyTLSController@drop');
-                $router->post('update', 'V1\\Admin\\Server\\AnyTLSController@update');
-                $router->post('copy', 'V1\\Admin\\Server\\AnyTLSController@copy');
-            });
-            $router->group([
                 'prefix' => 'server/v2node'
             ], function ($router) {
                 $router->post('save', 'V1\\Admin\\Server\\V2nodeController@save');

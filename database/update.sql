@@ -1,14 +1,4 @@
-ALTER TABLE `v2_server`
-ADD `last_check_at` int(11) NULL AFTER `rate`;
 
-ALTER TABLE `v2_server`
-ADD `network` varchar(11) COLLATE 'utf8_general_ci' NOT NULL AFTER `rate`;
-
-ALTER TABLE `v2_server`
-ADD `settings` text COLLATE 'utf8_general_ci' NULL AFTER `network`;
-
-ALTER TABLE `v2_server`
-ADD `show` tinyint(1) NOT NULL DEFAULT '0' AFTER `settings`;
 
 ALTER TABLE `v2_user`
 CHANGE `enable` `enable` tinyint(1) NOT NULL DEFAULT '1' AFTER `transfer_enable`;
@@ -66,20 +56,11 @@ CHANGE `u` `u` varchar(255) COLLATE 'utf8_general_ci' NOT NULL AFTER `server_id`
 CHANGE `d` `d` varchar(255) COLLATE 'utf8_general_ci' NOT NULL AFTER `u`,
 CHANGE `rate` `rate` int(11) NOT NULL AFTER `d`;
 
-ALTER TABLE `v2_server`
-DROP `last_check_at`;
-
-ALTER TABLE `v2_server`
-CHANGE `name` `name` varchar(255) COLLATE 'utf8mb4_general_ci' NOT NULL AFTER `group_id`;
-
 ALTER TABLE `v2_plan`
 CHANGE `month_price` `month_price` int(11) NULL DEFAULT '0' AFTER `content`,
 CHANGE `quarter_price` `quarter_price` int(11) NULL DEFAULT '0' AFTER `month_price`,
 CHANGE `half_year_price` `half_year_price` int(11) NULL DEFAULT '0' AFTER `quarter_price`,
 CHANGE `year_price` `year_price` int(11) NULL DEFAULT '0' AFTER `half_year_price`;
-
-ALTER TABLE `v2_server`
-ADD `parent_id` int(11) NULL AFTER `group_id`;
 
 CREATE TABLE `v2_mail_log` (
   `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -118,12 +99,6 @@ ADD `pv` int(11) NOT NULL DEFAULT '0' AFTER `status`;
 
 ALTER TABLE `v2_user`
 ADD `password_algo` char(10) COLLATE 'utf8_general_ci' NULL AFTER `password`;
-
-ALTER TABLE `v2_server`
-CHANGE `tls` `tls` tinyint(4) NOT NULL DEFAULT '0' AFTER `server_port`;
-
-ALTER TABLE `v2_server`
-ADD `rules` text COLLATE 'utf8_general_ci' NULL AFTER `settings`;
 
 CREATE TABLE `failed_jobs` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
@@ -167,24 +142,8 @@ CHANGE `expired_at` `expired_at` bigint(20) NULL DEFAULT '0' AFTER `token`;
 ALTER TABLE `v2_tutorial`
 DROP `icon`;
 
-ALTER TABLE `v2_server`
-CHANGE `settings` `networkSettings` text COLLATE 'utf8_general_ci' NULL AFTER `network`,
-CHANGE `rules` `ruleSettings` text COLLATE 'utf8_general_ci' NULL AFTER `networkSettings`;
-
-ALTER TABLE `v2_server`
-CHANGE `tags` `tags` varchar(255) COLLATE 'utf8_general_ci' NULL AFTER `server_port`,
-CHANGE `rate` `rate` varchar(11) COLLATE 'utf8_general_ci' NOT NULL AFTER `tags`,
-CHANGE `network` `network` varchar(11) COLLATE 'utf8_general_ci' NOT NULL AFTER `rate`,
-CHANGE `networkSettings` `networkSettings` text COLLATE 'utf8_general_ci' NULL AFTER `network`,
-CHANGE `tls` `tls` tinyint(4) NOT NULL DEFAULT '0' AFTER `networkSettings`,
-ADD `tlsSettings` text COLLATE 'utf8_general_ci' NULL AFTER `tls`;
-
 ALTER TABLE `v2_order`
 ADD `balance_amount` int(11) NULL COMMENT '使用余额' AFTER `refund_amount`;
-
-ALTER TABLE `v2_server`
-CHANGE `network` `network` text COLLATE 'utf8_general_ci' NOT NULL AFTER `rate`,
-ADD `dnsSettings` text COLLATE 'utf8_general_ci' NULL AFTER `ruleSettings`;
 
 ALTER TABLE `v2_order`
 ADD `surplus_order_ids` text NULL COMMENT '折抵订单' AFTER `balance_amount`;
@@ -202,9 +161,6 @@ CREATE TABLE `v2_server_stat` (
 );
 
 ALTER TABLE `v2_tutorial`
-ADD `sort` int(11) NULL AFTER `show`;
-
-ALTER TABLE `v2_server`
 ADD `sort` int(11) NULL AFTER `show`;
 
 ALTER TABLE `v2_plan`
@@ -244,19 +200,6 @@ ADD `online` int(11) NOT NULL AFTER `d`;
 ALTER TABLE `v2_server_stat`
 ADD INDEX `created_at` (`created_at`);
 
-CREATE TABLE `v2_server_trojan` (
-  `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  `group_id` varchar(255) NOT NULL,
-  `tags` varchar(255) NULL,
-  `name` varchar(255) NOT NULL,
-  `host` varchar(255) NOT NULL,
-  `port` int(11) NOT NULL,
-  `show` tinyint(1) NOT NULL DEFAULT '0',
-  `sort` int(11) NULL,
-  `created_at` int(11) NOT NULL,
-  `updated_at` int(11) NOT NULL
-) COMMENT='trojan伺服器表' COLLATE 'utf8mb4_general_ci';
-
 ALTER TABLE `v2_server_stat`
 CHANGE `d` `d` varchar(255) COLLATE 'utf8_general_ci' NOT NULL AFTER `u`,
 DROP `online`;
@@ -264,31 +207,11 @@ DROP `online`;
 ALTER TABLE `v2_user`
 CHANGE `v2ray_uuid` `uuid` varchar(36) COLLATE 'utf8_general_ci' NOT NULL AFTER `last_login_ip`;
 
-ALTER TABLE `v2_server_trojan`
-ADD `rate` varchar(11) COLLATE 'utf8mb4_general_ci' NOT NULL AFTER `name`;
-
 ALTER TABLE `v2_server_log`
 ADD `method` varchar(255) NOT NULL AFTER `rate`;
 
 ALTER TABLE `v2_coupon`
 ADD `limit_plan_ids` varchar(255) NULL AFTER `limit_use`;
-
-ALTER TABLE `v2_server_trojan`
-ADD `server_port` int(11) NOT NULL AFTER `port`;
-
-ALTER TABLE `v2_server_trojan`
-ADD `parent_id` int(11) NULL AFTER `group_id`;
-
-ALTER TABLE `v2_server_trojan`
-ADD `allow_insecure` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否允许不安全' AFTER `server_port`,
-CHANGE `show` `show` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否显示' AFTER `allow_insecure`;
-
-ALTER TABLE `v2_server_trojan`
-ADD `server_name` varchar(255) NULL AFTER `allow_insecure`;
-
-UPDATE `v2_server` SET
-`ruleSettings` = NULL
-WHERE `ruleSettings` = '{}';
 
 ALTER TABLE `v2_plan`
 ADD `two_year_price` int(11) NULL AFTER `year_price`,
@@ -296,23 +219,6 @@ ADD `three_year_price` int(11) NULL AFTER `two_year_price`;
 
 ALTER TABLE `v2_user`
 ADD `is_staff` tinyint(1) NOT NULL DEFAULT '0' AFTER `is_admin`;
-
-CREATE TABLE `v2_server_shadowsocks` (
-  `id` int NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  `group_id` varchar(255) NOT NULL,
-  `parent_id` int(11) NULL,
-  `tags` varchar(255) NULL,
-  `name` varchar(255) NOT NULL,
-  `rate` varchar(11) NOT NULL,
-  `host` varchar(255) NOT NULL,
-  `port` int(11) NOT NULL,
-  `server_port` int(11) NOT NULL,
-  `cipher` varchar(255) NOT NULL,
-  `show` tinyint NOT NULL DEFAULT '0',
-  `sort` int(11) NULL,
-  `created_at` int(11) NOT NULL,
-  `updated_at` int(11) NOT NULL
-) COLLATE 'utf8mb4_general_ci';
 
 ALTER TABLE `v2_coupon`
 CHANGE `code` `code` varchar(255) COLLATE 'utf8_general_ci' NOT NULL AFTER `id`;
@@ -334,9 +240,6 @@ ADD `coupon_id` int(11) NULL AFTER `plan_id`;
 
 ALTER TABLE `v2_server_stat`
 ADD `method` varchar(255) NOT NULL AFTER `server_id`;
-
-ALTER TABLE `v2_server`
-ADD `alter_id` int(11) NOT NULL DEFAULT '1' AFTER `network`;
 
 ALTER TABLE `v2_user`
 DROP `v2ray_alter_id`,
@@ -431,9 +334,6 @@ CREATE TABLE `v2_commission_log` (
 ALTER TABLE `v2_plan`
     ADD `reset_traffic_method` tinyint(1) NULL AFTER `reset_price`;
 
-ALTER TABLE `v2_server`
-    RENAME TO `v2_server_v2ray`;
-
 ALTER TABLE `v2_payment`
     ADD `icon` varchar(255) COLLATE 'utf8mb4_general_ci' NULL AFTER `name`;
 
@@ -442,9 +342,6 @@ ALTER TABLE `v2_coupon`
 
 ALTER TABLE `v2_order`
     CHANGE `cycle` `period` varchar(255) COLLATE 'utf8_general_ci' NOT NULL AFTER `type`;
-
-ALTER TABLE `v2_server_v2ray`
-DROP `alter_id`;
 
 ALTER TABLE `v2_user`
     CHANGE `commission_type` `commission_type` tinyint(4) NOT NULL DEFAULT '0' COMMENT '0: system 1: period 2: onetime' AFTER `discount`;
@@ -457,9 +354,6 @@ ALTER TABLE `v2_notice`
 
 ALTER TABLE `v2_order`
     ADD `actual_commission_balance` int(11) NULL COMMENT '实际支付佣金' AFTER `commission_balance`;
-
-ALTER TABLE `v2_server_v2ray`
-    CHANGE `port` `port` char(11) NOT NULL AFTER `host`;
 
 CREATE TABLE `v2_stat_user` (
                                 `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -475,7 +369,6 @@ CREATE TABLE `v2_stat_user` (
                                 `updated_at` int(11) NOT NULL,
                                 PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
 
 ALTER TABLE `v2_payment`
     ADD `notify_domain` varchar(128) COLLATE 'utf8mb4_general_ci' NULL AFTER `config`;
@@ -539,15 +432,8 @@ ALTER TABLE `v2_notice`
 ALTER TABLE `v2_ticket`
 ADD `reply_status` tinyint(1) NOT NULL DEFAULT '1' COMMENT '0:待回复 1:已回复' AFTER `status`;
 
-ALTER TABLE `v2_server_v2ray`
-DROP `settings`;
-
 ALTER TABLE `v2_ticket`
 DROP `last_reply_user_id`;
-
-ALTER TABLE `v2_server_shadowsocks`
-    ADD `obfs` char(11) NULL AFTER `cipher`,
-ADD `obfs_settings` varchar(255) NULL AFTER `obfs`;
 
 ALTER TABLE `v2_plan`
     CHANGE `name` `name` varchar(255) COLLATE 'utf8mb4_general_ci' NOT NULL AFTER `transfer_enable`,
@@ -567,39 +453,6 @@ ALTER TABLE `v2_user`
 
 ALTER TABLE `v2_plan`
     ADD `speed_limit` int(11) NULL AFTER `transfer_enable`;
-ALTER TABLE `v2_server_v2ray`
-    CHANGE `port` `port` varchar(11) COLLATE 'utf8_general_ci' NOT NULL AFTER `host`;
-ALTER TABLE `v2_server_shadowsocks`
-    CHANGE `port` `port` varchar(11) NOT NULL AFTER `host`;
-ALTER TABLE `v2_server_trojan`
-    CHANGE `port` `port` varchar(11) NOT NULL COMMENT '连接端口' AFTER `host`;
-
-ALTER TABLE `v2_server_shadowsocks`
-    ADD `route_id` varchar(255) COLLATE 'utf8mb4_general_ci' NULL AFTER `group_id`;
-
-ALTER TABLE `v2_server_trojan`
-    ADD `route_id` varchar(255) COLLATE 'utf8mb4_general_ci' NULL AFTER `group_id`;
-
-ALTER TABLE `v2_server_v2ray`
-    COLLATE 'utf8mb4_general_ci';
-
-ALTER TABLE `v2_server_v2ray`
-    CHANGE `group_id` `group_id` varchar(255) NOT NULL AFTER `id`,
-    CHANGE `route_id` `route_id` varchar(255) NULL AFTER `group_id`,
-    CHANGE `host` `host` varchar(255) NOT NULL AFTER `parent_id`,
-    CHANGE `port` `port` varchar(11) NOT NULL AFTER `host`,
-    CHANGE `tags` `tags` varchar(255) NULL AFTER `tls`,
-    CHANGE `rate` `rate` varchar(11) NOT NULL AFTER `tags`,
-    CHANGE `network` `network` text NOT NULL AFTER `rate`,
-    CHANGE `rules` `rules` text NULL AFTER `network`,
-    CHANGE `networkSettings` `networkSettings` text NULL AFTER `rules`,
-    CHANGE `tlsSettings` `tlsSettings` text NULL AFTER `networkSettings`,
-    CHANGE `ruleSettings` `ruleSettings` text NULL AFTER `tlsSettings`,
-    CHANGE `dnsSettings` `dnsSettings` text NULL AFTER `ruleSettings`;
-
-ALTER TABLE `v2_server_v2ray`
-    ADD `route_id` varchar(255) COLLATE 'utf8mb4_general_ci' NULL AFTER `group_id`;
-
 
 CREATE TABLE `v2_server_route` (
                                    `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -623,34 +476,6 @@ ALTER TABLE `v2_plan`
 
 ALTER TABLE `v2_plan`
     COLLATE 'utf8mb4_general_ci';
-
-ALTER TABLE `v2_server_v2ray`
-    RENAME TO `v2_server_vmess`;
-
-ALTER TABLE `v2_server_vmess`
-    CHANGE `network` `network` varchar(11) COLLATE 'utf8mb4_general_ci' NOT NULL AFTER `rate`;
-
-CREATE TABLE `v2_server_hysteria` (
-                                      `id` int(11) NOT NULL AUTO_INCREMENT,
-                                      `group_id` varchar(255) NOT NULL,
-                                      `route_id` varchar(255) DEFAULT NULL,
-                                      `name` varchar(255) NOT NULL,
-                                      `parent_id` int(11) DEFAULT NULL,
-                                      `host` varchar(255) NOT NULL,
-                                      `port` varchar(11) NOT NULL,
-                                      `server_port` int(11) NOT NULL,
-                                      `tags` varchar(255) DEFAULT NULL,
-                                      `rate` varchar(11) NOT NULL,
-                                      `show` tinyint(1) NOT NULL DEFAULT '0',
-                                      `sort` int(11) DEFAULT NULL,
-                                      `up_mbps` int(11) NOT NULL,
-                                      `down_mbps` int(11) NOT NULL,
-                                      `server_name` varchar(64) DEFAULT NULL,
-                                      `insecure` tinyint(1) NOT NULL DEFAULT '0',
-                                      `created_at` int(11) NOT NULL,
-                                      `updated_at` int(11) NOT NULL,
-                                      PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 ALTER TABLE `v2_plan`
     ADD `capacity_limit` int(11) NULL AFTER `reset_traffic_method`;
@@ -687,54 +512,11 @@ CREATE TABLE `v2_log` (
 ALTER TABLE `v2_log`
     CHANGE `title` `title` text COLLATE 'utf8mb4_general_ci' NOT NULL AFTER `id`;
 
-CREATE TABLE `v2_server_vless` (
-                                   `id` int(11) NOT NULL AUTO_INCREMENT,
-                                   `group_id` text NOT NULL,
-                                   `route_id` text,
-                                   `name` varchar(255) NOT NULL,
-                                   `parent_id` int(11) DEFAULT NULL,
-                                   `host` varchar(255) NOT NULL,
-                                   `port` int(11) NOT NULL,
-                                   `server_port` int(11) NOT NULL,
-                                   `tls` tinyint(1) NOT NULL,
-                                   `tls_settings` text,
-                                   `flow` varchar(11) DEFAULT NULL,
-                                   `network` varchar(11) NOT NULL,
-                                   `network_settings` text,
-                                   `tags` text,
-                                   `rate` varchar(11) NOT NULL,
-                                   `show` tinyint(1) NOT NULL DEFAULT '0',
-                                   `sort` int(11) DEFAULT NULL,
-                                   `created_at` int(11) NOT NULL,
-                                   `updated_at` int(11) NOT NULL,
-                                   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-ALTER TABLE `v2_server_vless`
-    CHANGE `flow` `flow` varchar(64) COLLATE 'utf8mb4_general_ci' NULL AFTER `tls_settings`;
-
-ALTER TABLE `v2_server_hysteria`
-    ADD `version` int(11) NOT NULL AFTER `id`;
-
-ALTER TABLE `v2_server_hysteria`
-    ADD `obfs` varchar(64) NULL AFTER `down_mbps`,
-    ADD `obfs_password` varchar(255) NULL AFTER `obfs`;
-
-UPDATE `v2_server_vless`
-    SET tls_settings = REPLACE(tls_settings, 'shortId', 'short_id');
-
 ALTER TABLE `v2_plan`
     ADD `device_limit` int(11) NULL AFTER `transfer_enable`;
 
 ALTER TABLE `v2_user`
     ADD `device_limit` int(11) NULL AFTER `transfer_enable`;
-
-ALTER TABLE `v2_server_trojan`
-    ADD `network` varchar(11) NULL AFTER `server_port`,
-    ADD `network_settings` text AFTER `network`;
-
-ALTER TABLE `v2_server_hysteria`
-    MODIFY COLUMN `port` VARCHAR(255) NOT NULL;
 
 CREATE TABLE `v2_giftcard` (
                              `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -764,61 +546,12 @@ ADD `auto_reset_traffic` tinyint(4) DEFAULT '0' AFTER `auto_renewal`;
 ALTER TABLE `v2_ticket`
 CHANGE `reply_status` `reply_status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0:待回复 1:已回复' AFTER `status`;
 
-CREATE TABLE `v2_server_tuic` (
-                                      `id` int(11) NOT NULL AUTO_INCREMENT,
-                                      `group_id` varchar(255) NOT NULL,
-                                      `route_id` varchar(255) DEFAULT NULL,
-                                      `name` varchar(255) NOT NULL,
-                                      `parent_id` int(11) DEFAULT NULL,
-                                      `host` varchar(255) NOT NULL,
-                                      `port` varchar(11) NOT NULL,
-                                      `server_port` int(11) NOT NULL,
-                                      `tags` varchar(255) DEFAULT NULL,
-                                      `rate` varchar(11) NOT NULL,
-                                      `show` tinyint(1) NOT NULL DEFAULT '0',
-                                      `sort` int(11) DEFAULT NULL,
-                                      `server_name` varchar(64) DEFAULT NULL,
-                                      `insecure` tinyint(1) NOT NULL DEFAULT '0',
-                                      `disable_sni` tinyint(1) NOT NULL DEFAULT '0',
-                                      `udp_relay_mode` varchar(64) DEFAULT NULL,
-                                      `zero_rtt_handshake` tinyint(1) NOT NULL DEFAULT '0',
-                                      `congestion_control` varchar(64) DEFAULT NULL,
-                                      `created_at` int(11) NOT NULL,
-                                      `updated_at` int(11) NOT NULL,
-                                      PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-CREATE TABLE `v2_server_anytls` (
-                                      `id` int(11) NOT NULL AUTO_INCREMENT,
-                                      `group_id` varchar(255) NOT NULL,
-                                      `route_id` varchar(255) DEFAULT NULL,
-                                      `name` varchar(255) NOT NULL,
-                                      `parent_id` int(11) DEFAULT NULL,
-                                      `host` varchar(255) NOT NULL,
-                                      `port` varchar(11) NOT NULL,
-                                      `server_port` int(11) NOT NULL,
-                                      `tags` varchar(255) DEFAULT NULL,
-                                      `rate` varchar(11) NOT NULL,
-                                      `show` tinyint(1) NOT NULL DEFAULT '0',
-                                      `sort` int(11) DEFAULT NULL,
-                                      `server_name` varchar(64) DEFAULT NULL,
-                                      `insecure` tinyint(1) NOT NULL DEFAULT '0',
-                                      `padding_scheme` text,
-                                      `created_at` int(11) NOT NULL,
-                                      `updated_at` int(11) NOT NULL,
-                                      PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
 ALTER TABLE `v2_user`
 ADD UNIQUE `token` (`token`);
 
 ALTER TABLE `v2_order` 
 ADD INDEX idx_user (`user_id`),
 ADD INDEX idx_user_status (`user_id`, `status`);
-
-ALTER TABLE `v2_server_vless`
-ADD `encryption` varchar(64) COLLATE 'utf8mb4_general_ci' NULL AFTER `network_settings`,
-ADD `encryption_settings` text COLLATE 'utf8mb4_general_ci' NULL AFTER `encryption`;
 
 CREATE TABLE `v2_server_v2node` (
                                     `id` int(11) NOT NULL AUTO_INCREMENT,

@@ -25,12 +25,10 @@ class Loon
         header("Subscription-Userinfo: upload={$user['u']}; download={$user['d']}; total={$user['transfer_enable']}; expire={$user['expired_at']}");
 
         foreach ($servers as $item) {
-            if (($item['type'] ?? null) === 'v2node' && isset($item['protocol'])) {
-                $item['type'] = $item['protocol'];
-            }
             if (!Helper::supportsClientProtocol('loon', $item)) {
                 continue;
             }
+            $item = Helper::normalizeServerProtocol($item);
             if ($item['type'] === 'shadowsocks') {
                 $uri .= self::buildShadowsocks($user['uuid'], $item);
             }elseif ($item['type'] === 'vmess') {
@@ -39,7 +37,7 @@ class Loon
                 $uri .= self::buildVless($user['uuid'], $item);
             }elseif ($item['type'] === 'trojan' && (($item['network'] ?? null) !== 'grpc')) {
                 $uri .= self::buildTrojan($user['uuid'], $item);
-            }elseif ($item['type'] === 'hysteria2' || ($item['type'] === 'hysteria' && (int)($item['version'] ?? 0) === 2)) { //loon只支持hysteria2
+            }elseif ($item['type'] === 'hysteria2') {
                 $uri .= self::buildHysteria($user['uuid'], $item);
             }elseif ($item['type'] === 'anytls') {
                 $uri .= self::buildAnytls($user['uuid'], $item);
@@ -78,7 +76,7 @@ class Loon
             }
         } elseif (($server['network'] ?? null) === 'http') {
             // v2node Shadowsocks stores HTTP obfs as network=http.
-            $networkSettings = $server['network_settings'] ?? ($server['networkSettings'] ?? []);
+            $networkSettings = $server['network_settings'] ?? [];
             $config[] = 'obfs-name=http';
             $host = $networkSettings['host'] ?? ($networkSettings['Host'] ?? null);
             if (!empty($host)) {
@@ -98,8 +96,8 @@ class Loon
 
     public static function buildVmess($uuid, $server)
     {
-        $networkSettings = $server['networkSettings'] ?? ($server['network_settings'] ?? []);
-        $tlsSettings = $server['tlsSettings'] ?? ($server['tls_settings'] ?? []);
+        $networkSettings = $server['network_settings'] ?? [];
+        $tlsSettings = $server['tls_settings'] ?? [];
         $config = [
             "{$server['name']}=vmess",
             "{$server['host']}",
@@ -126,8 +124,8 @@ class Loon
         if ($server['tls']) {
             array_push($config, 'over-tls=true');
             if ($tlsSettings) {
-                $allowInsecure = $tlsSettings['allowInsecure'] ?? ($tlsSettings['allow_insecure'] ?? null);
-                $serverName = $tlsSettings['serverName'] ?? ($tlsSettings['server_name'] ?? null);
+                $allowInsecure = $tlsSettings['allow_insecure'] ?? null;
+                $serverName = $tlsSettings['server_name'] ?? null;
                 if (!empty($allowInsecure))
                     array_push($config, 'skip-cert-verify=' . ($allowInsecure ? 'true' : 'false'));
                 if (!empty($serverName))
@@ -218,8 +216,8 @@ class Loon
     public static function buildTrojan($password, $server)
     {
         $tlsSettings = $server['tls_settings'] ?? [];
-        $sni = $server['server_name'] ?? ($tlsSettings['server_name'] ?? '');
-        $allowInsecure = $server['allow_insecure'] ?? ($tlsSettings['allow_insecure'] ?? 0);
+        $sni = $tlsSettings['server_name'] ?? '';
+        $allowInsecure = $tlsSettings['allow_insecure'] ?? 0;
         $config = [
             "{$server['name']}=trojan",
             "{$server['host']}",
@@ -252,8 +250,8 @@ class Loon
     public static function buildHysteria($password, $server)
     {
         $tlsSettings = $server['tls_settings'] ?? [];
-        $sni = $server['server_name'] ?? ($tlsSettings['server_name'] ?? '');
-        $insecure = $server['insecure'] ?? ($tlsSettings['allow_insecure'] ?? 0);
+        $sni = $tlsSettings['server_name'] ?? '';
+        $insecure = $tlsSettings['allow_insecure'] ?? 0;
 
         $parts = explode(",",$server['port']);
         $firstPart = $parts[0];
@@ -295,11 +293,11 @@ class Loon
             "udp=true"
         ];
         $tlsSettings = $server['tls_settings'] ?? [];
-        $sni = $server['server_name'] ?? $tlsSettings['server_name'] ?? '';
+        $sni = $tlsSettings['server_name'] ?? '';
         if ($sni) {
             $config[] = "sni={$sni}";
         }
-        $insecure = $server['insecure'] ?? $tlsSettings['allow_insecure'] ?? 0;
+        $insecure = $tlsSettings['allow_insecure'] ?? 0;
         $config[] = 'skip-cert-verify=' . ($insecure ? 'true' : 'false');
 
         $uri = implode(',', $config);

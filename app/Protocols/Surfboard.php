@@ -28,12 +28,10 @@ class Surfboard
         $proxyGroup = '';
 
         foreach ($servers as $item) {
-            if (($item['type'] ?? null) === 'v2node' && isset($item['protocol'])) {
-                $item['type'] = $item['protocol'];
-            }
             if (!Helper::supportsClientProtocol('surfboard', $item)) {
                 continue;
             }
+            $item = Helper::normalizeServerProtocol($item);
             if ($item['type'] === 'shadowsocks'
                 && in_array($item['cipher'], [
                     'aes-128-gcm',
@@ -59,7 +57,7 @@ class Surfboard
                 // [Proxy Group]
                 $proxyGroup .= $item['name'] . ', ';
             }
-            if ($item['type'] === 'hysteria2' || ($item['type'] === 'hysteria' && (int)($item['version'] ?? 0) === 2)) {
+            if ($item['type'] === 'hysteria2') {
                 // [Proxy]
                 $proxies .= self::buildHysteria2($user['uuid'], $item);
                 // [Proxy Group]
@@ -130,8 +128,8 @@ class Surfboard
 
     public static function buildVmess($uuid, $server)
     {
-        $networkSettings = $server['networkSettings'] ?? ($server['network_settings'] ?? []);
-        $tlsSettings = $server['tlsSettings'] ?? ($server['tls_settings'] ?? []);
+        $networkSettings = $server['network_settings'] ?? [];
+        $tlsSettings = $server['tls_settings'] ?? [];
         $config = [
             "{$server['name']}=vmess",
             "{$server['host']}",
@@ -145,8 +143,8 @@ class Surfboard
         if ($server['tls']) {
             array_push($config, 'tls=true');
             if ($tlsSettings) {
-                $allowInsecure = $tlsSettings['allowInsecure'] ?? ($tlsSettings['allow_insecure'] ?? null);
-                $serverName = $tlsSettings['serverName'] ?? ($tlsSettings['server_name'] ?? null);
+                $allowInsecure = $tlsSettings['allow_insecure'] ?? null;
+                $serverName = $tlsSettings['server_name'] ?? null;
                 if (!empty($allowInsecure))
                     array_push($config, 'skip-cert-verify=' . ($allowInsecure ? 'true' : 'false'));
                 if (!empty($serverName))
@@ -174,8 +172,8 @@ class Surfboard
     public static function buildTrojan($password, $server)
     {
         $tlsSettings = $server['tls_settings'] ?? [];
-        $sni = $server['server_name'] ?? ($tlsSettings['server_name'] ?? '');
-        $allowInsecure = $server['allow_insecure'] ?? ($tlsSettings['allow_insecure'] ?? 0);
+        $sni = $tlsSettings['server_name'] ?? '';
+        $allowInsecure = $tlsSettings['allow_insecure'] ?? 0;
         $config = [
             "{$server['name']}=trojan",
             "{$server['host']}",
@@ -206,8 +204,8 @@ class Surfboard
     public static function buildHysteria2($password, $server)
     {
         $tlsSettings = $server['tls_settings'] ?? [];
-        $sni = $server['server_name'] ?? ($tlsSettings['server_name'] ?? '');
-        $allowInsecure = ($server['insecure'] ?? ($tlsSettings['allow_insecure'] ?? 0)) == 1 ? 'true' : 'false';
+        $sni = $tlsSettings['server_name'] ?? '';
+        $allowInsecure = ($tlsSettings['allow_insecure'] ?? 0) == 1 ? 'true' : 'false';
 
         $parts = explode(",", $server['port']);
         $firstPart = $parts[0];
@@ -245,8 +243,8 @@ class Surfboard
     public static function buildAnyTLS($password, $server)
     {
         $tlsSettings = $server['tls_settings'] ?? [];
-        $allowInsecure = ($server['insecure'] ?? ($tlsSettings['allow_insecure'] ?? 0)) == 1 ? 'true' : 'false';
-        $sni = $server['server_name'] ?? ($tlsSettings['server_name'] ?? '');
+        $allowInsecure = ($tlsSettings['allow_insecure'] ?? 0) == 1 ? 'true' : 'false';
+        $sni = $tlsSettings['server_name'] ?? '';
 
         $config = [
             "{$server['name']}=anytls",

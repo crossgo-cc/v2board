@@ -37,12 +37,10 @@ class Stash
         $proxies = [];
 
         foreach ($servers as $item) {
-            if (($item['type'] ?? null) === 'v2node' && isset($item['protocol'])) {
-                $item['type'] = $item['protocol'];
-            }
             if (!Helper::supportsClientProtocol('stash', $item)) {
                 continue;
             }
+            $item = Helper::normalizeServerProtocol($item);
             if ($item['type'] === 'shadowsocks') {
                 array_push($proxy, self::buildShadowsocks($user['uuid'], $item));
                 array_push($proxies, $item['name']);
@@ -61,10 +59,6 @@ class Stash
             }
             if ($item['type'] === 'tuic') {
                 array_push($proxy, self::buildTuic($user['uuid'], $item));
-                array_push($proxies, $item['name']);
-            }
-            if ($item['type'] === 'hysteria') {
-                array_push($proxy, self::buildHysteria($user['uuid'], $item));
                 array_push($proxies, $item['name']);
             }
             if ($item['type'] === 'hysteria2') {
@@ -144,8 +138,8 @@ class Stash
 
     public static function buildVmess($uuid, $server)
     {
-        $networkSettings = $server['networkSettings'] ?? ($server['network_settings'] ?? []);
-        $tlsSettings = $server['tlsSettings'] ?? ($server['tls_settings'] ?? []);
+        $networkSettings = $server['network_settings'] ?? [];
+        $tlsSettings = $server['tls_settings'] ?? [];
         $array = [];
         $array['name'] = $server['name'];
         $array['type'] = 'vmess';
@@ -159,8 +153,8 @@ class Stash
         if ($server['tls']) {
             $array['tls'] = true;
             if ($tlsSettings) {
-                $allowInsecure = $tlsSettings['allowInsecure'] ?? ($tlsSettings['allow_insecure'] ?? null);
-                $serverName = $tlsSettings['serverName'] ?? ($tlsSettings['server_name'] ?? null);
+                $allowInsecure = $tlsSettings['allow_insecure'] ?? null;
+                $serverName = $tlsSettings['server_name'] ?? null;
                 if (!empty($allowInsecure))
                     $array['skip-cert-verify'] = ($allowInsecure ? true : false);
                 if (!empty($serverName))
@@ -294,8 +288,8 @@ class Stash
                 }
             }
         };
-        $sni = $server['server_name'] ?? ($tlsSettings['server_name'] ?? '');
-        $allowInsecure = $server['allow_insecure'] ?? ($tlsSettings['allow_insecure'] ?? 0);
+        $sni = $tlsSettings['server_name'] ?? '';
+        $allowInsecure = $tlsSettings['allow_insecure'] ?? 0;
         if (!empty($sni)) $array['sni'] = $sni;
         $array['skip-cert-verify'] = $allowInsecure ? true : false;
         return $array;
@@ -317,9 +311,9 @@ class Stash
             //'reduce-rtt' => $server['zero_rtt_handshake'] ? true : false,
             //'udp-relay-mode' => $server['udp_relay_mode'] ?? 'native',
             //congestion-controller' => $server['congestion_control'] ?? 'cubic',
-            'skip-cert-verify' => ($server['insecure'] ?? ($tlsSettings['allow_insecure'] ?? 0)) ? true : false,
+            'skip-cert-verify' => ($tlsSettings['allow_insecure'] ?? 0) ? true : false,
         ];
-        $sni = $server['server_name'] ?? ($tlsSettings['server_name'] ?? '');
+        $sni = $tlsSettings['server_name'] ?? '';
         if ($sni) {
             $array['sni'] = $sni;
         }
@@ -327,52 +321,6 @@ class Stash
         return $array;
     }
 
-    public static function buildHysteria($password, $server)
-    {
-        $array = [];
-        $array['name'] = $server['name'];
-        $array['server'] = $server['host'];
-
-        $parts = explode(",", $server['port']);
-        $firstPart = $parts[0];
-        if (strpos($firstPart, '-') !== false) {
-            $range = explode('-', $firstPart);
-            $firstPort = $range[0];
-        } else {
-            $firstPort = $firstPart;
-        }
-        $array['port'] = (int)$firstPort;
-        if (count($parts) !== 1 || strpos($parts[0], '-') !== false) {
-            $array['ports'] = $server['port'];
-            $array['mport'] = $server['port'];   
-        }
-        $array['udp'] = true;
-        $array['skip-cert-verify'] = $server['insecure'] == 1 ? true : false;
-
-        if (isset($server['server_name'])) $array['sni'] = $server['server_name'];
-
-        if ($server['version'] === 2) {
-            $array['type'] = 'hysteria2';
-            $array['auth'] = $password;
-            if (isset($server['obfs'])){
-                $array['obfs'] = $server['obfs'];
-                $array['obfs-password'] = $server['obfs_password'];
-            }
-        } else {
-            $array['type'] = 'hysteria';
-            $array['auth-str'] = $password;
-            if (isset($server['obfs']) && isset($server['obfs_password'])){
-                $array['obfs'] = $server['obfs_password'];
-            }
-            //Todo:完善客户端上下行
-            $array['up-speed'] = $server['down_mbps'];
-            $array['down-speed'] = $server['up_mbps'];
-            $array['protocol'] = 'udp';
-        }
-
-        return $array;
-    }
-    
     public static function buildHysteria2($password, $server)
     {
         $tlsSettings = $server['tls_settings'] ?? [];
@@ -418,8 +366,8 @@ class Stash
             $array['tls'] = true;
             $tlsSettings = $server['tls_settings'] ?? [];
             $array['client-fingerprint'] = !empty($tlsSettings['fingerprint']) ? $tlsSettings['fingerprint'] : 'chrome';
-            $array['sni'] = $server['server_name'] ?? ($tlsSettings['server_name'] ?? '');
-            $array['skip-cert-verify'] = ($server['insecure'] ?? ($tlsSettings['allow_insecure'] ?? 0)) == 1 ? true : false;
+            $array['sni'] = $tlsSettings['server_name'] ?? '';
+            $array['skip-cert-verify'] = ($tlsSettings['allow_insecure'] ?? 0) == 1 ? true : false;
         }
         return $array; 
     }

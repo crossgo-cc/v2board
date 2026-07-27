@@ -119,7 +119,8 @@ class ClientController extends Controller
         return array_map(function ($name, $index) {
             return [
                 'id' => $index + 1,
-                'type' => 'shadowsocks',
+                'type' => 'v2node',
+                'protocol' => 'shadowsocks',
                 'name' => $name,
                 'host' => '127.0.0.1',
                 'port' => 1,

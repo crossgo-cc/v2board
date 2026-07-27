@@ -30,13 +30,10 @@ class QuantumultX
         header("subscription-userinfo: upload={$upload}; download={$download}; total={$total}; expire={$expire}");
 
         foreach ($servers as $item) {
-            if (($item['type'] ?? null) === 'v2node' && isset($item['protocol'])) {
-                $item['type'] = $item['protocol'];
-            }
-
             if (!Helper::supportsClientProtocol('quantumultx', $item)) {
                 continue;
             }
+            $item = Helper::normalizeServerProtocol($item);
 
             switch ($item['type']) {
                 case 'shadowsocks':
@@ -62,21 +59,6 @@ class QuantumultX
 
     public static function buildShadowsocks($password, $server)
     {
-        // Standardization v2_server_shadowsocks -> v2node format
-        if (isset($server['obfs']) && !empty($server['obfs'])) {
-            $server['network'] = $server['obfs'];
-            $server['network_settings'] = $server['network_settings'] ?? [];
-
-            if (isset($server['obfs_settings']) && is_array($server['obfs_settings'])) {
-                if (!empty($server['obfs_settings']['host'])) {
-                    $server['network_settings']['headers']['Host'] = $server['obfs_settings']['host'];
-                }
-                if (!empty($server['obfs_settings']['path'])) {
-                    $server['network_settings']['path'] = $server['obfs_settings']['path'];
-                }
-            }
-        }
-
         // ss2022 处理
         if (in_array($server['cipher'], ['2022-blake3-aes-128-gcm', '2022-blake3-aes-256-gcm'])) {
             $length = ($server['cipher'] === '2022-blake3-aes-128-gcm') ? 16 : 32;
@@ -119,24 +101,6 @@ class QuantumultX
 
     public static function buildVmess($uuid, $server)
     {
-        // Standardization v2_server_vmess -> v2node format
-        if (isset($server['networkSettings'])) {
-            $legacy = is_array($server['networkSettings']) ? $server['networkSettings'] : [];
-            $current = $server['network_settings'] ?? [];
-            $server['network_settings'] = array_replace_recursive($legacy, $current);
-            unset($server['networkSettings']);
-        }
-
-        // tls 配置只提取 serverName 与 allowInsecure 值
-        if (isset($server['tlsSettings'])) {
-            $legacy = is_array($server['tlsSettings']) ? $server['tlsSettings'] : [];
-            $current = $server['tls_settings'] ?? [];
-            if (isset($legacy['serverName'])) $legacy['server_name'] = $legacy['serverName'];
-            if (isset($legacy['allowInsecure'])) $legacy['allow_insecure'] = $legacy['allowInsecure'];
-            $server['tls_settings'] = array_replace_recursive($legacy, $current);
-            unset($server['tlsSettings']);
-        }
-
         // 配置生成
         $config = [
             "vmess={$server['host']}:{$server['port']}",
@@ -313,18 +277,7 @@ class QuantumultX
 
     public static function buildTrojan($password, $server)
     {
-        // Standardization v2_server_trojan -> v2node format
         $server['tls_settings'] = $server['tls_settings'] ?? [];
-
-        // v2_server_trojan 表：将外层列字段映射到 tls_settings
-        if (isset($server['allow_insecure'])) {
-            $server['tls_settings']['allow_insecure'] = (bool)$server['allow_insecure'];
-        }
-        if (isset($server['server_name'])) {
-            $server['tls_settings']['server_name'] = $server['server_name'];
-        }
-        unset($server['allow_insecure']);
-        unset($server['server_name']);
 
         // 配置生成
         $config = [
@@ -381,8 +334,8 @@ class QuantumultX
     public static function buildAnyTLS($password, $server)
     {
         $tlsSettings = $server['tls_settings'] ?? [];
-        $sni = $server['server_name'] ?? ($tlsSettings['server_name'] ?? null);
-        $allowInsecure = $server['insecure'] ?? ($server['allow_insecure'] ?? ($tlsSettings['allow_insecure'] ?? false));
+        $sni = $tlsSettings['server_name'] ?? null;
+        $allowInsecure = $tlsSettings['allow_insecure'] ?? false;
 
         $config = [
             "anytls={$server['host']}:{$server['port']}",

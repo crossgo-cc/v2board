@@ -29,7 +29,7 @@ class Shadowrocket
         $uri .= "STATUS=🚀↑:{$upload}GB,↓:{$download}GB,TOT:{$totalTraffic}GB💡Expires:{$expiredDate}\r\n";
 
         foreach ($this->servers as $server) {
-            if ($server['type'] === 'vmess' || ($server['type'] === 'v2node' && $server['protocol'] === 'vmess')) {
+            if (($server['type'] ?? null) === 'v2node' && ($server['protocol'] ?? null) === 'vmess') {
                 if (!Helper::supportsClientProtocol('shadowrocket', $server)) {
                     continue;
                 }
@@ -51,12 +51,12 @@ class Shadowrocket
         ];
         if ($server['tls']) {
             $config['tls'] = 1;
-            $tlsSettings = $server['tls_settings'] ?? ($server['tlsSettings'] ?? []);
-            $config['allowInsecure'] = (int)($tlsSettings['allow_insecure'] ?? $tlsSettings['allowInsecure'] ?? 0);
-            $config['peer'] = $tlsSettings['server_name'] ?? $tlsSettings['serverName'] ?? '';
+            $tlsSettings = $server['tls_settings'] ?? [];
+            $config['allowInsecure'] = (int)($tlsSettings['allow_insecure'] ?? 0);
+            $config['peer'] = $tlsSettings['server_name'] ?? '';
         }
         if ($server['network'] === 'tcp') {
-            $tcpSettings = $server['network_settings'] ?? ($server['networkSettings'] ?? []);
+            $tcpSettings = $server['network_settings'] ?? [];
             if (isset($tcpSettings['header']['type']) && !empty($tcpSettings['header']['type']))
                 $config['obfs'] = $tcpSettings['header']['type'];
             if (isset($tcpSettings['header']['request']['path'][0]) && !empty($tcpSettings['header']['request']['path'][0]))
@@ -66,7 +66,7 @@ class Shadowrocket
         }
         if ($server['network'] === 'ws') {
             $config['obfs'] = "websocket";
-            $wsSettings = $server['network_settings'] ?? ($server['networkSettings'] ?? []);
+            $wsSettings = $server['network_settings'] ?? [];
             if (isset($wsSettings['path']) && !empty($wsSettings['path']))
                 $config['path'] = $wsSettings['path'];
             if (isset($wsSettings['headers']['Host']) && !empty($wsSettings['headers']['Host']))
@@ -76,11 +76,11 @@ class Shadowrocket
         }
         if ($server['network'] === 'grpc') {
             $config['obfs'] = "grpc";
-            $grpcSettings = $server['network_settings'] ?? ($server['networkSettings'] ?? []);
+            $grpcSettings = $server['network_settings'] ?? [];
             if (isset($grpcSettings['serviceName']) && !empty($grpcSettings['serviceName']))
                 $config['path'] = $grpcSettings['serviceName'];
             if (isset($tlsSettings)) {
-                $config['host'] = $tlsSettings['server_name'] ?? $tlsSettings['serverName'] ?? '';
+                $config['host'] = $tlsSettings['server_name'] ?? '';
             } else {
                 $config['host'] = $server['host'];
             }

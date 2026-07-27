@@ -37,7 +37,7 @@ class ServerController extends Controller
 
         $this->nodeId = $request->input('node_id');
         $this->serverService = new ServerService();
-        $this->nodeInfo = $this->serverService->getServer($this->nodeId, "v2node");
+        $this->nodeInfo = $this->serverService->getServer($this->nodeId);
 
         // 节点不存在
         if (!$this->nodeInfo) {
