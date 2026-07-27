@@ -189,7 +189,7 @@ class AuthController extends Controller
             } else {
                 $location = url($redirect);
             }
-            return redirect()->to($location)->send();
+            return redirect()->to($location);
         }
 
         if ($request->input('verify')) {

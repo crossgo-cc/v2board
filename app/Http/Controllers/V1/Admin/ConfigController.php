@@ -211,12 +211,15 @@ class ConfigController extends Controller
             }
         }
         Artisan::call('config:cache');
-        if(Cache::has('WEBMANPID')) {
-            $pid = Cache::get('WEBMANPID');
+        if (defined('isWEBMAN') && isWEBMAN && Cache::has('WEBMANPID')) {
+            $pid = (int)Cache::get('WEBMANPID');
             Cache::forget('WEBMANPID');
-            return response([
-                'data' => posix_kill($pid, 15)
-            ]);
+            // 等当前响应进入发送队列后再重启 Webman，避免上游连接被提前断开。
+            if ($pid > 1) {
+                \Workerman\Timer::add(0.1, static function () use ($pid) {
+                    posix_kill($pid, 15);
+                }, [], false);
+            }
         }
         return response([
             'data' => true

@@ -13,45 +13,43 @@ class ServerController extends Controller
     private $nodeId;
     private $serverService;
 
-    public function __construct(Request $request)
+    public function __construct()
     {
-        $token = $request->input('token');
-
-        // token 为空（业务失败，不抛异常）
-        if (empty($token)) {
-            response()->json([
-                'status' => 'fail',
-                'message' => 'token is null'
-            ], 200)->send();
-            exit;
-        }
-
-        // token 错误
-        if ($token !== config('v2board.server_token')) {
-            response()->json([
-                'status' => 'fail',
-                'message' => 'token is error'
-            ], 200)->send();
-            exit;
-        }
-
-        $this->nodeId = $request->input('node_id');
         $this->serverService = new ServerService();
-        $this->nodeInfo = $this->serverService->getServer($this->nodeId);
-
-        // 节点不存在
-        if (!$this->nodeInfo) {
-            response()->json([
-                'status' => 'fail',
-                'message' => 'server is not exist'
-            ], 200)->send();
-            exit;
-        }
     }
 
     // 后端获取配置
     public function config(Request $request)
     {
+        $token = $request->input('token');
+
+        // token 为空（业务失败，不抛异常）
+        if (empty($token)) {
+            return response()->json([
+                'status' => 'fail',
+                'message' => 'token is null'
+            ], 200);
+        }
+
+        // token 错误
+        if ($token !== config('v2board.server_token')) {
+            return response()->json([
+                'status' => 'fail',
+                'message' => 'token is error'
+            ], 200);
+        }
+
+        $this->nodeId = $request->input('node_id');
+        $this->nodeInfo = $this->serverService->getServer($this->nodeId);
+
+        // 节点不存在
+        if (!$this->nodeInfo) {
+            return response()->json([
+                'status' => 'fail',
+                'message' => 'server is not exist'
+            ], 200);
+        }
+
         $response = [
             'listen_ip' => $this->nodeInfo->listen_ip,
             'server_port' => $this->nodeInfo->server_port,
