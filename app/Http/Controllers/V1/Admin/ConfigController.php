@@ -215,9 +215,9 @@ class ConfigController extends Controller
         if (defined('isWEBMAN') && isWEBMAN && Cache::has('WEBMANPID')) {
             $pid = (int)Cache::get('WEBMANPID');
             Cache::forget('WEBMANPID');
-            // 等当前响应进入发送队列后再重启 Webman，避免上游连接被提前断开。
+            // 等当前响应进入发送队列后再平滑重载 Webman worker。
             if ($pid > 1) {
-                Timer::add(0.1, 'posix_kill', [$pid, \SIGTERM], false);
+                Timer::add(0.1, 'posix_kill', [$pid, \SIGUSR1], false);
             }
         }
         return response([
