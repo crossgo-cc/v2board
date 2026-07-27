@@ -1039,7 +1039,7 @@
                   , t = [];
                 return t.push({
                     title: "Hiddify",
-                    href: "hiddify://import/" + e + "&flag=sing" + "#" + window.settings.title
+                    href: "hiddify://import/" + e + "&flag=sing-box" + "#" + window.settings.title
                 }), t.push({
                     title: "Sing-box",
                     href: "sing-box://import-remote-profile?url=" + encodeURIComponent(e) + "#" + window.settings.title
@@ -1048,38 +1048,23 @@
                     href: "shadowrocket://add/sub://" + window.btoa(e + "&flag=shadowrocket").replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "") + "?remark=" + window.settings.title
                 }),
                 t.push({
-                    title: "QuantumultX",
-                    href: "quantumult-x:///update-configuration?remote-resource=" + encodeURI(JSON.stringify({
-                        server_remote: [e + ", tag=" + window.settings.title]
-                    }))
-                }),
-                t.push({
                     title: "Surge",
                     href: "surge:///install-config?url=" + encodeURIComponent(e) + "&name=" + window.settings.title
-                }),
-                t.push({
-                    title: "Stash",
-                    href: "stash://install-config?url=" + encodeURIComponent(e) + "&name=" + window.settings.title
                 })),
-                Object(u["k"])() && t.push({
-                    title: "ClashX",
-                    href: "clash://install-config?url=" + encodeURIComponent(e) + "&name=" + window.settings.title
-                }),
                 Object(u["n"])() && (t.push({
-                    title: "ClashMeta",
-                    href: "clash://install-config?url=" + encodeURIComponent(e + "&flag=meta") + "&name=" + window.settings.title
+                    title: "Clash Verge Rev",
+                    href: "clash://install-config?url=" + encodeURIComponent(e + "&flag=mihomo") + "&name=" + window.settings.title,
+                    icon: "https://cdn.jsdmirror.com/gh/clash-verge-rev/clash-verge-rev@main/src-tauri/icons/icon.png"
                 })),
-                Object(u["g"])() && (t.push({
-                    title: "NekoBox For Android",
-                    href: "clash://install-config?url=" + encodeURIComponent(e + "&flag=meta") + "&name=" + window.settings.title
-                }) && t.push({
-                    title: "ClashMeta For Android",
-                    href: "clash://install-config?url=" + encodeURIComponent(e + "&flag=meta") + "&name=" + window.settings.title
+                (Object(u["k"])() || Object(u["n"])() || Object(u["g"])()) && t.push({
+                    title: "FlClash",
+                    href: "clash://install-config?url=" + encodeURIComponent(e + "&flag=mihomo") + "&name=" + window.settings.title,
+                    icon: "https://cdn.jsdmirror.com/gh/chen08209/FlClash@main/assets/images/icon.png"
                 }),
-                t.push({
-                    title: "Surfboard",
-                    href: "surge:///install-config?url=" + encodeURIComponent(e) + "&name=" + window.settings.title
-                })),
+                Object(u["g"])() && t.push({
+                    title: "ClashMeta For Android",
+                    href: "clashmeta://install-config?url=" + encodeURIComponent(e + "&flag=mihomo") + "&name=" + window.settings.title
+                }),
                 c.a.createElement("div", {
                     className: v.a.oneClickSubscribe,
                     ref: "subscribeBox"
@@ -1115,7 +1100,7 @@
                             window.location.href = e.href
                         }
                     }, c.a.createElement("div", null, c.a.createElement("img", {
-                        src: "".concat((null === (t = window.settings) || void 0 === t ? void 0 : t.assets_path) || "", "/./images/icon/").concat(e.title, ".png")
+                        src: e.icon || "".concat((null === (t = window.settings) || void 0 === t ? void 0 : t.assets_path) || "", "/./images/icon/").concat(e.title, ".png")
                     })), c.a.createElement("div", null, Object(p["formatMessage"])({
                         id: "\u5bfc\u5165\u5230"
                     }), " ", e.title))

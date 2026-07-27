@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\V1\Client;
 
 use App\Http\Controllers\Controller;
+use App\Protocols\ClientProtocols;
+use App\Protocols\Mihomo;
 use App\Services\ServerService;
 use App\Services\UserService;
 use App\Utils\Helper;
@@ -30,9 +32,8 @@ class AppController extends Controller
         }
         $proxy = [];
         $proxies = [];
-
         foreach ($servers as $item) {
-            if (!Helper::supportsClientProtocol('clash', $item)) {
+            if (!ClientProtocols::supports(ClientProtocols::MIHOMO, $item)) {
                 continue;
             }
             $item = Helper::normalizeServerProtocol($item);
@@ -44,15 +45,15 @@ class AppController extends Controller
                     'chacha20-ietf-poly1305'
                 ])
             ) {
-                array_push($proxy, \App\Protocols\Clash::buildShadowsocks($user['uuid'], $item));
+                array_push($proxy, Mihomo::buildShadowsocks($user['uuid'], $item));
                 array_push($proxies, $item['name']);
             }
             if ($item['type'] === 'vmess') {
-                array_push($proxy, \App\Protocols\Clash::buildVmess($user['uuid'], $item));
+                array_push($proxy, Mihomo::buildVmess($user['uuid'], $item));
                 array_push($proxies, $item['name']);
             }
             if ($item['type'] === 'trojan') {
-                array_push($proxy, \App\Protocols\Clash::buildTrojan($user['uuid'], $item));
+                array_push($proxy, Mihomo::buildTrojan($user['uuid'], $item));
                 array_push($proxies, $item['name']);
             }
         }

@@ -2,27 +2,19 @@
 
 namespace App\Protocols;
 
+use Illuminate\Http\Response;
 use App\Utils\Helper;
 
-class General
+class General extends AbstractProtocol
 {
-    public $flag = 'general';
-    private $servers;
-    private $user;
 
-    public function __construct($user, $servers)
-    {
-        $this->user = $user;
-        $this->servers = $servers;
-    }
-
-    public function handle()
+    public function handle(): Response
     {
         $uri = '';
 
         foreach ($this->servers as $server) {
-            $uri .= Helper::buildUri($this->user['uuid'], $server, 'general');
+            $uri .= Helper::buildUri($this->user['uuid'], $server);
         }
-        return base64_encode($uri);
+        return $this->response(base64_encode($uri));
     }
 }

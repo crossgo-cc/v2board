@@ -6,164 +6,6 @@ use Illuminate\Support\Facades\Cache;
 
 class Helper
 {
-    private const BASIC_SS_CIPHERS = [
-        'aes-128-gcm',
-        'aes-192-gcm',
-        'aes-256-gcm',
-        'chacha20-ietf-poly1305',
-    ];
-
-    private const VLESS_ENCRYPTION_CLIENTS = [
-        'general',
-        'mihomo',
-        'shadowrocket',
-        'v2rayn',
-        'v2rayng',
-        'v2raytun',
-        'passwall',
-    ];
-
-    private const CLIENT_ALIASES = [
-        'meta' => 'mihomo',
-        'clashmeta' => 'mihomo',
-        'clash-meta' => 'mihomo',
-        'verge' => 'mihomo',
-        'nyanpasu' => 'mihomo',
-        'quantumult x' => 'quantumultx',
-        'quantumult%20x' => 'quantumultx',
-        'sing' => 'singbox',
-        'sing-box' => 'singbox',
-    ];
-
-    private const CLIENT_PROTOCOL_SUPPORT = [
-        'general' => [
-            'shadowsocks' => true,
-            'vmess' => true,
-            'vless' => true,
-            'trojan' => true,
-            'hysteria2' => true,
-            'tuic' => true,
-            'anytls' => true,
-        ],
-        'clash' => [
-            'shadowsocks' => ['networks' => ['tcp', 'http'], 'strict_cipher' => true],
-            'vmess' => ['networks' => ['tcp', 'ws', 'grpc']],
-            'trojan' => ['networks' => ['tcp', 'ws', 'grpc']],
-        ],
-        'mihomo' => [
-            'shadowsocks' => ['networks' => ['tcp', 'http']],
-            'vmess' => ['networks' => ['tcp', 'ws', 'grpc', 'httpupgrade']],
-            'vless' => ['networks' => ['tcp', 'ws', 'grpc', 'httpupgrade', 'xhttp']],
-            'trojan' => ['networks' => ['tcp', 'ws', 'grpc', 'httpupgrade']],
-            'tuic' => true,
-            'hysteria2' => true,
-            'anytls' => ['networks' => ['tcp'], 'no_reality' => true],
-        ],
-        'stash' => [
-            'shadowsocks' => ['networks' => ['tcp', 'http']],
-            'vmess' => ['networks' => ['tcp', 'ws', 'grpc']],
-            'vless' => ['networks' => ['tcp', 'ws', 'grpc']],
-            'trojan' => ['networks' => ['tcp', 'ws', 'grpc']],
-            'tuic' => true,
-            'hysteria2' => true,
-            'anytls' => ['networks' => ['tcp'], 'no_reality' => true],
-        ],
-        'singbox' => [
-            'shadowsocks' => ['networks' => ['tcp', 'http']],
-            'vmess' => ['networks' => ['tcp', 'ws', 'grpc', 'httpupgrade']],
-            'vless' => ['networks' => ['tcp', 'ws', 'grpc', 'httpupgrade']],
-            'trojan' => ['networks' => ['tcp', 'ws', 'grpc', 'httpupgrade']],
-            'tuic' => true,
-            'hysteria2' => true,
-            'anytls' => ['networks' => ['tcp']],
-        ],
-        'singbox-old' => [
-            '_extends' => 'singbox',
-            'anytls' => false,
-        ],
-        'quantumultx' => [
-            'shadowsocks' => ['networks' => ['tcp', 'http']],
-            'vmess' => ['networks' => ['tcp', 'ws']],
-            'vless' => ['networks' => ['tcp', 'ws']],
-            'trojan' => ['networks' => ['tcp', 'ws']],
-            'anytls' => ['networks' => ['tcp']],
-        ],
-        'loon' => [
-            'shadowsocks' => ['networks' => ['tcp', 'http']],
-            'vmess' => ['networks' => ['tcp', 'ws']],
-            'vless' => ['networks' => ['tcp', 'ws']],
-            'trojan' => ['networks' => ['tcp', 'ws']],
-            'hysteria2' => true,
-        ],
-        'surge' => [
-            'shadowsocks' => ['networks' => ['tcp', 'http']],
-            'vmess' => ['networks' => ['tcp', 'ws']],
-            'trojan' => ['networks' => ['tcp', 'ws']],
-            'tuic' => true,
-            'hysteria2' => true,
-            'anytls' => ['networks' => ['tcp'], 'no_reality' => true],
-        ],
-        'surfboard' => [
-            'shadowsocks' => ['networks' => ['tcp', 'http'], 'strict_cipher' => true],
-            'vmess' => ['networks' => ['tcp', 'ws']],
-            'trojan' => ['networks' => ['tcp', 'ws']],
-            'hysteria2' => true,
-            'anytls' => ['networks' => ['tcp'], 'no_reality' => true],
-        ],
-        'shadowrocket' => [
-            'shadowsocks' => ['networks' => ['tcp', 'http']],
-            'vmess' => ['networks' => ['tcp', 'ws', 'grpc']],
-            'vless' => ['networks' => ['tcp', 'ws', 'grpc', 'kcp', 'httpupgrade', 'xhttp']],
-            'trojan' => ['networks' => ['tcp', 'ws', 'grpc']],
-            'hysteria2' => true,
-            'tuic' => true,
-            'anytls' => ['networks' => ['tcp'], 'no_reality' => true],
-        ],
-        'v2rayn' => [
-            'shadowsocks' => ['networks' => ['tcp', 'http']],
-            'vmess' => ['networks' => ['tcp', 'ws', 'grpc', 'kcp', 'httpupgrade', 'xhttp']],
-            'vless' => ['networks' => ['tcp', 'ws', 'grpc', 'kcp', 'httpupgrade', 'xhttp']],
-            'trojan' => ['networks' => ['tcp', 'ws', 'grpc']],
-            'hysteria2' => true,
-            'tuic' => true,
-            'anytls' => ['networks' => ['tcp']],
-        ],
-        'v2rayng' => [
-            'shadowsocks' => ['networks' => ['tcp', 'http']],
-            'vmess' => ['networks' => ['tcp', 'ws', 'grpc', 'kcp', 'httpupgrade', 'xhttp']],
-            'vless' => ['networks' => ['tcp', 'ws', 'grpc', 'kcp', 'httpupgrade', 'xhttp']],
-            'trojan' => ['networks' => ['tcp', 'ws', 'grpc']],
-            'hysteria2' => true,
-        ],
-        'v2raytun' => [
-            '_extends' => 'v2rayng',
-        ],
-        'passwall' => [
-            'shadowsocks' => ['networks' => ['tcp', 'http']],
-            'vmess' => ['networks' => ['tcp', 'ws', 'grpc', 'kcp', 'httpupgrade', 'xhttp']],
-            'vless' => ['networks' => ['tcp', 'ws', 'grpc', 'kcp', 'httpupgrade', 'xhttp']],
-            'trojan' => ['networks' => ['tcp', 'ws', 'grpc']],
-            'hysteria2' => true,
-            'tuic' => true,
-            'anytls' => ['networks' => ['tcp']],
-        ],
-        'ssrplus' => [
-            'shadowsocks' => ['networks' => ['tcp', 'http']],
-            'vmess' => ['networks' => ['tcp', 'ws', 'grpc', 'kcp']],
-            'vless' => ['networks' => ['tcp', 'ws', 'grpc', 'kcp']],
-            'trojan' => ['networks' => ['tcp', 'ws', 'grpc']],
-        ],
-        'sagernet' => [
-            'shadowsocks' => ['networks' => ['tcp', 'http']],
-            'vmess' => ['networks' => ['tcp', 'ws', 'grpc', 'kcp']],
-            'vless' => ['networks' => ['tcp', 'ws', 'grpc', 'kcp']],
-            'trojan' => ['networks' => ['tcp', 'ws', 'grpc']],
-        ],
-        'shadowsocks' => [
-            'shadowsocks' => ['networks' => ['tcp'], 'strict_cipher' => true, 'no_obfs' => true],
-        ],
-    ];
-
     public static function uuidToBase64($uuid, $length)
     {
         return base64_encode(substr($uuid, 0, $length));
@@ -335,96 +177,9 @@ class Helper
         return $server;
     }
 
-    public static function supportsClientProtocol(string $client, array $server): bool
+    public static function buildUri($uuid, $server)
     {
         if (($server['type'] ?? null) !== 'v2node') {
-            return false;
-        }
-        $server = self::normalizeServerProtocol($server);
-        $client = self::normalizeClientName($client);
-        if (!isset(self::CLIENT_PROTOCOL_SUPPORT[$client])) {
-            $client = 'general';
-        }
-        $type = self::serverType($server);
-
-        if ($type === '') {
-            return false;
-        }
-
-        return self::matchesSupportRule($client, $type, $server);
-    }
-
-    private static function normalizeClientName(string $client): string
-    {
-        $client = strtolower($client);
-
-        return self::CLIENT_ALIASES[$client] ?? $client;
-    }
-
-    private static function matchesSupportRule(string $client, string $type, array $server): bool
-    {
-        $rule = self::supportRule($client, $type);
-        if ($rule === true) {
-            $rule = [];
-        }
-        if (!is_array($rule)) {
-            return false;
-        }
-        if (isset($rule['networks']) && !self::serverNetworkIn($server, $rule['networks'])) {
-            return false;
-        }
-        if (!empty($rule['strict_cipher']) && !in_array($server['cipher'] ?? '', self::BASIC_SS_CIPHERS, true)) {
-            return false;
-        }
-        if (!empty($rule['no_obfs']) && !empty($server['obfs'])) {
-            return false;
-        }
-        if (!empty($rule['no_reality']) && (int)($server['tls'] ?? 0) === 2) {
-            return false;
-        }
-        if ($type === 'vless' && !empty($server['encryption'])) {
-            return in_array($client, self::VLESS_ENCRYPTION_CLIENTS, true);
-        }
-
-        return true;
-    }
-
-    private static function supportRule(string $client, string $type)
-    {
-        $rules = self::CLIENT_PROTOCOL_SUPPORT[$client] ?? self::CLIENT_PROTOCOL_SUPPORT['general'];
-        if (array_key_exists($type, $rules)) {
-            return $rules[$type];
-        }
-        if (isset($rules['_extends'])) {
-            return self::supportRule($rules['_extends'], $type);
-        }
-
-        return false;
-    }
-
-    private static function serverType(array $server): string
-    {
-        return strtolower((string)($server['type'] ?? ''));
-    }
-
-    private static function serverNetwork(array $server): string
-    {
-        $network = strtolower((string)($server['network'] ?? 'tcp'));
-        return $network === '' ? 'tcp' : $network;
-    }
-
-    private static function serverNetworkIn(array $server, array $networks): bool
-    {
-        return in_array(self::serverNetwork($server), $networks, true);
-    }
-
-
-    public static function buildUri($uuid, $server, $client = null)
-    {
-        if (($server['type'] ?? null) !== 'v2node') {
-            return '';
-        }
-        if ($client !== null && !self::supportsClientProtocol($client, $server)) {
             return '';
         }
 
@@ -471,7 +226,7 @@ class Helper
             $uri .= "?plugin=obfs-local;obfs=http;obfs-host={$server['obfs-host']};path={$server['obfs-path']}";
         } else if ((($server['network'] ?? null) == 'http') && isset($server['network_settings']['Host'])) {
             $path = $server['network_settings']['path'] ?? '/';
-            $uri .= "?plugin=obfs-local;obfs=tls;obfs-host={$server['network_settings']['Host']};path={$path}";
+            $uri .= "?plugin=obfs-local;obfs=http;obfs-host={$server['network_settings']['Host']};path={$path}";
         }
         return $uri."#{$name}\r\n";
     }
@@ -537,8 +292,7 @@ class Helper
             case 'xhttp':
                 $config['path'] = $networkSettings['path'] ?? null;
                 $config['host'] = $networkSettings['host'] ?? null;
-                $config['mode'] = $networkSettings['mode'] ?? 'auto';
-                $config['extra'] = isset($networkSettings['extra']) ? json_encode($networkSettings['extra'], JSON_UNESCAPED_SLASHES) : null;
+                $config['type'] = $networkSettings['mode'] ?? 'auto';
                 break;
         }
 
@@ -645,7 +399,7 @@ class Helper
             $uri .= "&obfs={$server['obfs']}&obfs-password={$obfs_password}";
         }
         if (count($parts) !== 1 || strpos($parts[0], '-') !== false) {
-            $uri .= "&mport={$server['mport']}";
+            $uri .= '&mport=' . ($server['mport'] ?? $server['port']);
         }
         return "{$uri}#{$name}\r\n";
     }
@@ -656,10 +410,10 @@ class Helper
         $config = [
             'sni' => $tlsSettings['server_name'] ?? '',
             'alpn'=> 'h3',
-            'congestion_control' => $server['congestion_control'],
+            'congestion_control' => $server['congestion_control'] ?? 'cubic',
             'allow_insecure' => $tlsSettings['allow_insecure'] ?? 0,
-            'disable_sni' => $server['disable_sni'],
-            'udp_relay_mode' => $server['udp_relay_mode'],
+            'disable_sni' => $server['disable_sni'] ?? 0,
+            'udp_relay_mode' => $server['udp_relay_mode'] ?? 'native',
         ];
 
         $remote = self::formatHost($server['host']);
@@ -807,10 +561,10 @@ class Helper
         $config['extra'] = isset($settings['extra']) ? json_encode($settings['extra'], JSON_UNESCAPED_SLASHES) : null;
     }
 
-    public static function buildClashWsOptions(array $server, bool $httpUpgrade = false): array
+    public static function buildMihomoHttpUpgradeOptions(array $server): array
     {
         $settings = $server['network_settings'] ?? [];
-        $options = $httpUpgrade ? ['v2ray-http-upgrade' => true] : [];
+        $options = ['v2ray-http-upgrade' => true];
 
         if (!empty($settings['path'])) {
             $options['path'] = $settings['path'];

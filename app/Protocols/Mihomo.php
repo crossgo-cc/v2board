@@ -2,29 +2,23 @@
 
 namespace App\Protocols;
 
+use Illuminate\Http\Response;
 use App\Utils\Helper;
 use Symfony\Component\Yaml\Yaml;
 
-class ClashMeta
+class Mihomo extends AbstractProtocol
 {
-    public $flag = 'meta';
-    private $servers;
-    private $user;
 
-    public function __construct($user, $servers)
-    {
-        $this->user = $user;
-        $this->servers = $servers;
-    }
-
-    public function handle()
+    public function handle(): Response
     {
         $servers = $this->servers;
         $user = $this->user;
         $appName = config('v2board.app_name', 'V2Board');
-        header("subscription-userinfo: upload={$user['u']}; download={$user['d']}; total={$user['transfer_enable']}; expire={$user['expired_at']}");
-        header('profile-update-interval: 24');
-        header("content-disposition:attachment;filename*=UTF-8''".rawurlencode($appName));
+        $headers = [
+            'subscription-userinfo' => $this->userInfoHeader(),
+            'profile-update-interval' => '2',
+            'content-disposition' => "attachment;filename*=UTF-8''" . rawurlencode($appName),
+        ];
         $defaultConfig = base_path() . '/resources/rules/default.clash.yaml';
         $customConfig = base_path() . '/resources/rules/custom.clash.yaml';
         if (\File::exists($customConfig)) {
@@ -36,9 +30,6 @@ class ClashMeta
         $proxies = [];
 
         foreach ($servers as $item) {
-            if (!Helper::supportsClientProtocol('mihomo', $item)) {
-                continue;
-            }
             $item = Helper::normalizeServerProtocol($item);
             switch ($item['type']) {
                 case 'shadowsocks':
@@ -102,19 +93,15 @@ class ClashMeta
 
         $yaml = Yaml::dump($config, 2, 4, Yaml::DUMP_EMPTY_ARRAY_AS_SEQUENCE);
         $yaml = str_replace('$app_name', config('v2board.app_name', 'V2Board'), $yaml);
-        return $yaml;
+        return $this->response($yaml, $headers);
     }
 
     public static function buildShadowsocks($password, $server)
     {
-        if ($server['cipher'] === '2022-blake3-aes-128-gcm') {
-            $serverKey = Helper::getServerKey($server['created_at'], 16);
-            $userKey = Helper::uuidToBase64($password, 16);
-            $password = "{$serverKey}:{$userKey}";
-        }
-        if ($server['cipher'] === '2022-blake3-aes-256-gcm') {
-            $serverKey = Helper::getServerKey($server['created_at'], 32);
-            $userKey = Helper::uuidToBase64($password, 32);
+        if (strpos($server['cipher'], '2022-blake3') !== false) {
+            $length = $server['cipher'] === '2022-blake3-aes-128-gcm' ? 16 : 32;
+            $serverKey = Helper::getServerKey($server['created_at'], $length);
+            $userKey = Helper::uuidToBase64($password, $length);
             $password = "{$serverKey}:{$userKey}";
         }
         $array = [];
@@ -173,10 +160,17 @@ class ClashMeta
             if ($tlsSettings) {
                 $allowInsecure = $tlsSettings['allow_insecure'] ?? null;
                 $serverName = $tlsSettings['server_name'] ?? null;
+                $array['client-fingerprint'] = $tlsSettings['fingerprint'] ?? 'chrome';
                 if (!empty($allowInsecure))
                     $array['skip-cert-verify'] = ($allowInsecure ? true : false);
                 if (!empty($serverName))
                     $array['servername'] = $serverName;
+                if ((int)$server['tls'] === 2) {
+                    $array['reality-opts'] = [
+                        'public-key' => $tlsSettings['public_key'],
+                        'short-id' => $tlsSettings['short_id'] ?? '',
+                    ];
+                }
                 if (!empty($tlsSettings['ech'])) {
                     if ($tlsSettings['ech'] === 'cloudflare') {
                         $array['ech-opts'] = [
@@ -224,7 +218,7 @@ class ClashMeta
         }
         if ($network === 'httpupgrade') {
             $array['network'] = 'ws';
-            $array['ws-opts'] = Helper::buildClashWsOptions($server, true);
+            $array['ws-opts'] = Helper::buildMihomoHttpUpgradeOptions($server);
         }
 
         return $array;
@@ -254,8 +248,8 @@ class ClashMeta
                    $array['servername'] = $tlsSettings['server_name'];
                 if ($server['tls'] == 2) {
                    $array['reality-opts'] = [];
-                   $array['reality-opts']['public-key'] = $tlsSettings['public_key'];
-                   $array['reality-opts']['short-id'] = $tlsSettings['short_id'];
+                   $array['reality-opts']['public-key'] = $tlsSettings['public_key'] ?? '';
+                   $array['reality-opts']['short-id'] = $tlsSettings['short_id'] ?? '';
                 }
                 if (!empty($tlsSettings['ech'])) {
                     if ($tlsSettings['ech'] === 'cloudflare') {
@@ -303,7 +297,7 @@ class ClashMeta
         }
         if ($server['network'] === 'httpupgrade') {
             $array['network'] = 'ws';
-            $array['ws-opts'] = Helper::buildClashWsOptions($server, true);
+            $array['ws-opts'] = Helper::buildMihomoHttpUpgradeOptions($server);
         }
         if ($server['network'] === 'xhttp') {
             $array['network'] = 'xhttp';
@@ -365,11 +359,18 @@ class ClashMeta
         };
         if (($server['network'] ?? null) === 'httpupgrade') {
             $array['network'] = 'ws';
-            $array['ws-opts'] = Helper::buildClashWsOptions($server, true);
+            $array['ws-opts'] = Helper::buildMihomoHttpUpgradeOptions($server);
         }
         $tlsSettings = $server['tls_settings'] ?? [];
         $array['sni'] = $tlsSettings['server_name'] ?? '';
         $array['skip-cert-verify'] = ($tlsSettings['allow_insecure'] ?? 0) == 1 ? true : false;
+        $array['client-fingerprint'] = $tlsSettings['fingerprint'] ?? 'chrome';
+        if ((int)($server['tls'] ?? 0) === 2) {
+            $array['reality-opts'] = [
+                'public-key' => $tlsSettings['public_key'],
+                'short-id' => $tlsSettings['short_id'] ?? '',
+            ];
+        }
         if (!empty($tlsSettings['ech'])) {
             if ($tlsSettings['ech'] === 'cloudflare') {
                 $array['ech-opts'] = [
@@ -396,8 +397,8 @@ class ClashMeta
             'uuid' => $password,
             'password' => $password,
             'alpn' => ['h3'],
-            'disable-sni' => $server['disable_sni'] ? true : false,
-            'reduce-rtt' => $server['zero_rtt_handshake'] ? true : false,
+            'disable-sni' => !empty($server['disable_sni']),
+            'reduce-rtt' => !empty($server['zero_rtt_handshake']),
             'udp-relay-mode' => $server['udp_relay_mode'] ?? 'native',
             'congestion-controller' => $server['congestion_control'] ?? 'cubic',
         ];
@@ -426,6 +427,19 @@ class ClashMeta
         $tlsSettings = $server['tls_settings'] ?? [];
         $array['sni'] = $tlsSettings['server_name'] ?? '';
         $array['skip-cert-verify'] = ($tlsSettings['allow_insecure'] ?? 0) == 1 ? true : false;
+        if (!empty($tlsSettings['ech'])) {
+            if ($tlsSettings['ech'] === 'cloudflare') {
+                $array['ech-opts'] = [
+                    'enable' => true,
+                    'query-server-name' => 'cloudflare-ech.com',
+                ];
+            } elseif ($tlsSettings['ech'] === 'custom' && !empty($tlsSettings['ech_config'])) {
+                $array['ech-opts'] = [
+                    'enable' => true,
+                    'config' => is_array($tlsSettings['ech_config']) ? $tlsSettings['ech_config'] : [$tlsSettings['ech_config']],
+                ];
+            }
+        }
         return $array;
     }
 
@@ -452,9 +466,14 @@ class ClashMeta
         $array['port'] = (int)$firstPort;
         if (count($parts) !== 1 || strpos($parts[0], '-') !== false) {
             $array['ports'] = $server['port'];
-            $array['mport'] = $server['port'];
         }
-        if (isset($server['obfs'])){
+        if (!empty($server['up_mbps'])) {
+            $array['up'] = $server['up_mbps'] . ' Mbps';
+        }
+        if (!empty($server['down_mbps'])) {
+            $array['down'] = $server['down_mbps'] . ' Mbps';
+        }
+        if (!empty($server['obfs'])){
             $array['obfs'] = $server['obfs'];
             $array['obfs-password'] = $server['obfs_password'];
         }

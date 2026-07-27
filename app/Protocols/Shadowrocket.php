@@ -2,21 +2,13 @@
 
 namespace App\Protocols;
 
+use Illuminate\Http\Response;
 use App\Utils\Helper;
 
-class Shadowrocket
+class Shadowrocket extends AbstractProtocol
 {
-    public $flag = 'shadowrocket';
-    private $servers;
-    private $user;
 
-    public function __construct($user, $servers)
-    {
-        $this->user = $user;
-        $this->servers = $servers;
-    }
-
-    public function handle()
+    public function handle(): Response
     {
         $user = $this->user;
 
@@ -30,15 +22,12 @@ class Shadowrocket
 
         foreach ($this->servers as $server) {
             if (($server['type'] ?? null) === 'v2node' && ($server['protocol'] ?? null) === 'vmess') {
-                if (!Helper::supportsClientProtocol('shadowrocket', $server)) {
-                    continue;
-                }
                 $uri .= self::buildVmess($user['uuid'], $server);
             } else {
-                $uri .= Helper::buildUri($this->user['uuid'], $server, 'shadowrocket');
+                $uri .= Helper::buildUri($this->user['uuid'], $server);
             }
         }
-        return base64_encode($uri);
+        return $this->response(base64_encode($uri));
     }
 
     public static function buildVmess($uuid, $server)

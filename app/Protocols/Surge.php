@@ -2,35 +2,22 @@
 
 namespace App\Protocols;
 
+use Illuminate\Http\Response;
 use App\Utils\Helper;
 
-class Surge
+class Surge extends AbstractProtocol
 {
-    public $flag = 'surge';
-    private $servers;
-    private $user;
 
-    public function __construct($user, $servers)
-    {
-        $this->user = $user;
-        $this->servers = $servers;
-    }
-
-    public function handle()
+    public function handle(): Response
     {
         $servers = $this->servers;
         $user = $this->user;
 
         $appName = config('v2board.app_name', 'V2Board');
-        header("content-disposition:attachment;filename*=UTF-8''".rawurlencode($appName).".conf");
-
         $proxies = '';
         $proxyGroup = '';
 
         foreach ($servers as $item) {
-            if (!Helper::supportsClientProtocol('surge', $item)) {
-                continue;
-            }
             $item = Helper::normalizeServerProtocol($item);
             if ($item['type'] === 'shadowsocks') {
                 // [Proxy]
@@ -45,11 +32,6 @@ class Surge
             }elseif ($item['type'] === 'trojan') {
                 // [Proxy]
                 $proxies .= self::buildTrojan($user['uuid'], $item);
-                // [Proxy Group]
-                $proxyGroup .= $item['name'] . ', ';
-            }elseif ($item['type'] === 'tuic') {
-                // [Proxy]
-                $proxies .= self::buildTuic($user['uuid'], $item);
                 // [Proxy Group]
                 $proxyGroup .= $item['name'] . ', ';
             }elseif ($item['type'] === 'hysteria2') {
@@ -90,7 +72,9 @@ class Surge
         $subscribeInfo = "title={$appName}订阅信息, content=上传流量：{$upload}GB\\n下载流量：{$download}GB\\n剩余流量：{$useTraffic}GB\\n套餐流量：{$totalTraffic}GB\\n到期时间：{$expireDate}";
         $config = str_replace('$subscribe_info', $subscribeInfo, $config);
 
-        return $config;
+        return $this->response($config, [
+            'content-disposition' => "attachment;filename*=UTF-8''" . rawurlencode($appName) . '.conf',
+        ]);
     }
 
     public static function buildShadowsocks($password, $server)
@@ -112,7 +96,7 @@ class Surge
         $config[] = "encrypt-method={$server['cipher']}";
         $config[] = "password={$password}";
 
-        if (isset($server['obfs']) && $server['obfs'] === 'http') {
+        if (isset($server['obfs']) && in_array($server['obfs'], ['http', 'tls'], true)) {
             $config[] = "obfs={$server['obfs']}";
             if (isset($server['obfs-host']) && !empty($server['obfs-host'])) {
                 $config[] = "obfs-host={$server['obfs-host']}";
@@ -120,9 +104,18 @@ class Surge
             if (isset($server['obfs-path'])) {
                 $config[] = "obfs-uri={$server['obfs-path']}";
             }
+        } elseif (($server['network'] ?? null) === 'http') {
+            $networkSettings = $server['network_settings'] ?? [];
+            $config[] = 'obfs=http';
+            if (!empty($networkSettings['Host'])) {
+                $config[] = "obfs-host={$networkSettings['Host']}";
+            }
+            if (isset($networkSettings['path'])) {
+                $config[] = "obfs-uri={$networkSettings['path']}";
+            }
         }
         $config[] = 'fast-open=false';
-        $config[] = 'udp=true';
+        $config[] = 'udp-relay=true';
         $uri = implode(',', $config);
         $uri .= "\r\n";
 
@@ -205,32 +198,6 @@ class Surge
         return $uri;
     }
 
-    public static function buildTuic($password, $server)
-    {
-        $tlsSettings = $server['tls_settings'] ?? [];
-        $sni = $tlsSettings['server_name'] ?? '';
-        $allowInsecure = ($tlsSettings['allow_insecure'] ?? 0) == 1 ? 'true' : 'false';
-
-        $config = [
-            "{$server['name']}=tuic",
-            "{$server['host']}",
-            "{$server['port']}",
-            "skip-cert-verify={$allowInsecure}",
-            "uuid={$password}",
-            "password={$password}",
-            "alpn=h3",
-            "version=5",
-        ];
-
-        if ($sni) {
-            $config[] = "sni={$sni}";
-        }
-
-        $uri = implode(', ', $config);
-        $uri .= "\r\n";
-        return $uri;
-    }
-
     //参考文档: https://manual.nssurge.com/policy/proxy.html
     public static function buildHysteria($password, $server)
     {
@@ -252,11 +219,19 @@ class Surge
             "{$server['host']}",
             "{$firstPort}",
             "password={$password}",
-            "download-bandwidth={$server['up_mbps']}",
             $sni ? "sni={$sni}" : "",
-            // 'tfo=true', 
             'udp-relay=true'
         ];
+        if (!empty($server['down_mbps'])) {
+            $config[] = "download-bandwidth={$server['down_mbps']}";
+        }
+        if (count($parts) !== 1 || strpos($parts[0], '-') !== false) {
+            $config[] = 'port-hopping=' . str_replace(',', ';', $server['port']);
+        }
+        if (!empty($server['obfs_password'])) {
+            $obfs = ($server['obfs'] ?? 'salamander') === 'gecko' ? 'gecko' : 'salamander';
+            $config[] = "{$obfs}-password={$server['obfs_password']}";
+        }
         if ($insecure !== null) {
             array_push($config, $insecure ? 'skip-cert-verify=true' : 'skip-cert-verify=false');
         }

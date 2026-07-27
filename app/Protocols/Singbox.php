@@ -1,42 +1,33 @@
 <?php
-namespace App\Protocols\Singbox;
+namespace App\Protocols;
 
+use Illuminate\Http\Response;
 use App\Utils\Helper;
 
-class SingboxOld
+class Singbox extends AbstractProtocol
 {
-    public $flag = 'sing';
-    private $servers;
-    private $user;
     private $config;
 
-    public function __construct($user, $servers, array $options = null)
-    {
-        $this->user = $user;
-        $this->servers = $servers;
-    }
-
-    public function handle()
+    public function handle(): Response
     {
         $appName = config('v2board.app_name', 'V2Board');
         $this->config = $this->loadConfig();
         $proxies = $this->buildProxies();
         $outbounds = $this->addProxies($proxies);
         $this->config['outbounds'] = $outbounds;
-        $user = $this->user;
-
-        return response(json_encode($this->config, JSON_UNESCAPED_SLASHES), 200)
-            ->header('Content-Type', 'application/json')
-            ->header('subscription-userinfo', "upload={$user['u']}; download={$user['d']}; total={$user['transfer_enable']}; expire={$user['expired_at']}")
-            ->header('profile-update-interval', '24')
-            ->header('Profile-Title', 'base64:' . base64_encode($appName))
-            ->header('Content-Disposition', 'attachment; filename="' . $appName . '"');
+        return $this->response(json_encode($this->config, JSON_UNESCAPED_SLASHES), [
+            'Content-Type' => 'application/json',
+            'subscription-userinfo' => $this->userInfoHeader(),
+            'profile-update-interval' => '2',
+            'Profile-Title' => 'base64:' . base64_encode($appName),
+            'Content-Disposition' => 'attachment; filename="' . $appName . '"',
+        ]);
     }
 
     protected function loadConfig()
     {
-        $defaultConfig = base_path('resources/rules/default.sing-box.old.json');
-        $customConfig = base_path('resources/rules/custom.sing-box.old.json');
+        $defaultConfig = base_path('resources/rules/default.sing-box.json');
+        $customConfig = base_path('resources/rules/custom.sing-box.json');
         $jsonData = file_exists($customConfig) ? file_get_contents($customConfig) : file_get_contents($defaultConfig);
 
         return json_decode($jsonData, true);
@@ -47,33 +38,36 @@ class SingboxOld
         $proxies = [];
     
         foreach ($this->servers as $item) {
-            if (!Helper::supportsClientProtocol('singbox-old', $item)) {
-                continue;
-            }
             $item = Helper::normalizeServerProtocol($item);
-            if ($item['type'] === 'shadowsocks') {
-                $ssConfig = $this->buildShadowsocks($this->user['uuid'], $item);
-                $proxies[] = $ssConfig;
-            }
-            if ($item['type'] === 'trojan') {
-                $trojanConfig = $this->buildTrojan($this->user['uuid'], $item);
-                $proxies[] = $trojanConfig;
-            }
-            if ($item['type'] === 'vmess') {
-                $vmessConfig = $this->buildVmess($this->user['uuid'], $item);
-                $proxies[] = $vmessConfig;
-            }
-            if ($item['type'] === 'vless') {
-                $vlessConfig = $this->buildVless($this->user['uuid'], $item);
-                $proxies[] = $vlessConfig;
-            }
-            if ($item['type'] === 'tuic') {
-                $tuicConfig = $this->buildTuic($this->user['uuid'], $item);
-                $proxies[] = $tuicConfig;
-            }
-            if ($item['type'] === 'hysteria2') {
-                $hysteriaConfig = $this->buildHysteria2($this->user['uuid'], $item, $this->user);
-                $proxies[] = $hysteriaConfig;
+            switch ($item['type']) {
+                case 'shadowsocks':
+                    $ssConfig = $this->buildShadowsocks($this->user['uuid'], $item);
+                    $proxies[] = $ssConfig;
+                    break;
+                case 'trojan':
+                    $trojanConfig = $this->buildTrojan($this->user['uuid'], $item);
+                    $proxies[] = $trojanConfig;
+                    break;
+                case 'vmess':
+                    $vmessConfig = $this->buildVmess($this->user['uuid'], $item);
+                    $proxies[] = $vmessConfig;
+                    break;
+                case 'vless':
+                    $vlessConfig = $this->buildVless($this->user['uuid'], $item);
+                    $proxies[] = $vlessConfig;
+                    break;
+                case 'tuic':
+                    $tuicConfig = $this->buildTuic($this->user['uuid'], $item);
+                    $proxies[] = $tuicConfig;
+                    break;
+                case 'anytls':
+                    $anytlsConfig = $this->buildAnyTLS($this->user['uuid'], $item);
+                    $proxies[] = $anytlsConfig;
+                    break;
+                case 'hysteria2':
+                    $hysteria2Config = $this->buildHysteria2($this->user['uuid'], $item);
+                    $proxies[] = $hysteria2Config;
+                    break;
             }
         }
     
@@ -107,6 +101,7 @@ class SingboxOld
         $array['server_port'] = $server['port'];
         $array['method'] = $server['cipher'];
         $array['password'] = $password;
+        $array['domain_resolver'] = 'local';
         if (isset($server['obfs']) && $server['obfs'] === 'http') {
             $array['plugin'] = 'obfs-local';
             $plugin_opts_parts = [];
@@ -143,13 +138,27 @@ class SingboxOld
         $array['security'] = 'auto';
         $array['alter_id'] = 0;
         $array['transport']= [];
+        $array['domain_resolver'] = 'local';
 
         if ($server['tls']) {
             $tlsConfig = [];
             $tlsConfig['enabled'] = true;
             $tlsSettings = $server['tls_settings'] ?? [];
-            $tlsConfig['insecure'] = $config['allowInsecure'] = ((int)($tlsSettings['allow_insecure'] ?? 0)) == 1 ? true : false;
+            $tlsConfig['insecure'] = ($tlsSettings['allow_insecure'] ?? 0) == 1 ? true : false;
             $tlsConfig['server_name'] = $tlsSettings['server_name'] ?? '';
+            if (!empty($tlsSettings['ech'])) {
+                if ($tlsSettings['ech'] === 'cloudflare') {
+                    $tlsConfig['ech'] = [
+                        'enabled' => true,
+                        'query_server_name' => 'cloudflare-ech.com'
+                    ];
+                } elseif ($tlsSettings['ech'] === 'custom' && !empty($tlsSettings['ech_config'])) {
+                    $tlsConfig['ech'] = [
+                        'enabled' => true,
+                        'config' => is_array($tlsSettings['ech_config']) ? $tlsSettings['ech_config'] : [$tlsSettings['ech_config']]
+                    ];
+                }
+            }
             $array['tls'] = $tlsConfig;
         }
         if ($server['network'] === 'tcp') {
@@ -186,6 +195,7 @@ class SingboxOld
             "server" => $server['host'],
             "server_port" => $server['port'],
             "uuid" => $password,
+            "domain_resolver" => "local",
             "packet_encoding" => "xudp"
         ];
 
@@ -202,8 +212,8 @@ class SingboxOld
                 if ($server['tls'] == 2) {
                     $tlsConfig['reality'] = [
                         'enabled' => true,
-                        'public_key' => $tlsSettings['public_key'],
-                        'short_id' => $tlsSettings['short_id']
+                        'public_key' => $tlsSettings['public_key'] ?? '',
+                        'short_id' => $tlsSettings['short_id'] ?? ''
                     ];
                 }
                 $fingerprints = $tlsSettings['fingerprint'] ?? 'chrome';
@@ -211,6 +221,19 @@ class SingboxOld
                     "enabled" => true,
                     "fingerprint" => $fingerprints
                 ];
+                if (!empty($tlsSettings['ech'])) {
+                    if ($tlsSettings['ech'] === 'cloudflare') {
+                        $tlsConfig['ech'] = [
+                            'enabled' => true,
+                            'query_server_name' => 'cloudflare-ech.com'
+                        ];
+                    } elseif ($tlsSettings['ech'] === 'custom' && !empty($tlsSettings['ech_config'])) {
+                        $tlsConfig['ech'] = [
+                            'enabled' => true,
+                            'config' => is_array($tlsSettings['ech_config']) ? $tlsSettings['ech_config'] : [$tlsSettings['ech_config']]
+                        ];
+                    }
+                }
             }
             $array['tls'] = $tlsConfig;
         }
@@ -253,13 +276,28 @@ class SingboxOld
         $array['server'] = $server['host'];
         $array['server_port'] = $server['port'];
         $array['password'] = $password;
+        $array['domain_resolver'] = 'local';
 
         $tlsSettings = $server['tls_settings'] ?? [];
-        $array['tls'] = [
+        $tlsConfig = [
             'enabled' => true,
             'insecure' => ($tlsSettings['allow_insecure'] ?? 0) == 1 ? true : false,
             'server_name' => $tlsSettings['server_name'] ?? ''
         ];
+        if (!empty($tlsSettings['ech'])) {
+            if ($tlsSettings['ech'] === 'cloudflare') {
+                $tlsConfig['ech'] = [
+                    'enabled' => true,
+                    'query_server_name' => 'cloudflare-ech.com'
+                ];
+            } elseif ($tlsSettings['ech'] === 'custom' && !empty($tlsSettings['ech_config'])) {
+                $tlsConfig['ech'] = [
+                    'enabled' => true,
+                    'config' => is_array($tlsSettings['ech_config']) ? $tlsSettings['ech_config'] : [$tlsSettings['ech_config']]
+                ];
+            }
+        }
+        $array['tls'] = $tlsConfig;
 
         if(isset($server['network']) && in_array($server['network'], ["grpc", "ws"])){
             $array['transport']['type'] = $server['network'];
@@ -269,7 +307,9 @@ class SingboxOld
             }
             // ws配置
             if($server['network'] === "ws") {
-                $array['transport']['path'] = $server['network_settings']['path'] ?? '/';
+                if(isset($server['network_settings']['path'])) {
+                    $array['transport']['path'] = $server['network_settings']['path'] ?? '/';
+                }
                 if(isset($server['network_settings']['headers']['Host'])){
                     $array['transport']['headers'] = ['Host' => array($server['network_settings']['headers']['Host'])];
                 }
@@ -295,21 +335,73 @@ class SingboxOld
         $array['password'] = $password;
         $array['congestion_control'] = $server['congestion_control'] ?? 'cubic';
         $array['udp_relay_mode'] = $server['udp_relay_mode'] ?? 'native';
-        $array['zero_rtt_handshake'] = $server['zero_rtt_handshake'] ? true : false;
+        $array['zero_rtt_handshake'] = !empty($server['zero_rtt_handshake']);
+        $array['domain_resolver'] = 'local';
 
         $tlsSettings = $server['tls_settings'] ?? [];
         $array['tls'] = [
             'enabled' => true,
             'insecure' => ($tlsSettings['allow_insecure'] ?? 0) == 1 ? true : false,
             'alpn' => ['h3'],
-            'disable_sni' => $server['disable_sni'] ? true : false,
+            'disable_sni' => !empty($server['disable_sni']),
         ];
         $array['tls']['server_name'] = $tlsSettings['server_name'] ?? '';
 
         return $array;
     }
 
-    protected function buildHysteria2($password, $server, $user)
+    protected function buildAnyTLS($password, $server)
+    {
+        $array = [];
+        $array['tag'] = $server['name'];
+        $array['type'] = 'anytls';
+        $array['server'] = $server['host'];
+        $array['server_port'] = $server['port'];
+        $array['password'] = $password;
+        $array['domain_resolver'] = 'local';
+
+        $tlsSettings = $server['tls_settings'] ?? [];
+        $tlsConfig = [
+            'enabled' => true,
+            'insecure' => ($tlsSettings['allow_insecure'] ?? 0) == 1 ? true : false,
+            'alpn' => [
+                'h2',
+                'http/1.1',
+            ],
+            'server_name' => $tlsSettings['server_name'] ?? ''
+        ];
+        if ($tlsSettings) {
+            if ($server['tls'] == 2) {
+                $tlsConfig['reality'] = [
+                    'enabled' => true,
+                    'public_key' => $tlsSettings['public_key'] ?? '',
+                    'short_id' => $tlsSettings['short_id'] ?? ''
+                ];
+            }
+            $tlsConfig['utls'] = [
+                "enabled" => true,
+                "fingerprint" => $tlsSettings['fingerprint'] ?? 'chrome'
+            ];
+            if (!empty($tlsSettings['ech'])) {
+                if ($tlsSettings['ech'] === 'cloudflare') {
+                    $tlsConfig['ech'] = [
+                        'enabled' => true,
+                        'query_server_name' => 'cloudflare-ech.com',
+                    ];
+                } elseif ($tlsSettings['ech'] === 'custom' && !empty($tlsSettings['ech_config'])) {
+                    $tlsConfig['ech'] = [
+                        'enabled' => true,
+                        'config' => is_array($tlsSettings['ech_config']) ? $tlsSettings['ech_config'] : [$tlsSettings['ech_config']],
+                    ];
+                }
+            }
+        }
+        $array['tls'] = $tlsConfig;
+
+        return $array;
+    }
+
+    protected function buildHysteria2($password, $server)
     {
         $parts = explode(",",$server['port']);
         $firstPart = $parts[0];
@@ -328,11 +420,37 @@ class SingboxOld
                 'insecure' => ($tlsSettings['allow_insecure'] ?? 0) == 1 ? true : false,
                 'server_name' => $tlsSettings['server_name'] ?? ''
             ],
+            'domain_resolver' => 'local',
             'password' => $password,
             'tag' => $server['name'],
             'type' => 'hysteria2'
         ];
-        if (isset($server['obfs'])) {
+        $serverPorts = [];
+        foreach ($parts as $index => $port) {
+            $port = trim($port);
+            if (preg_match('/^(\d+)-(\d+)$/', $port, $matches)) {
+                $start = (int)$matches[1];
+                $end = (int)$matches[2];
+                if ($start >= 1 && $end <= 65535 && $start <= $end) {
+                    $serverPorts[] = "{$start}:{$end}";
+                }
+            } elseif ($index !== 0 && ctype_digit($port)) {
+                $singlePort = (int)$port;
+                if ($singlePort >= 1 && $singlePort <= 65535) {
+                    $serverPorts[] = "{$singlePort}:{$singlePort}";
+                }
+            }
+        }
+        if (!empty($serverPorts)) {
+            $array['server_ports'] = $serverPorts;
+        }
+        if (!empty($server['up_mbps'])) {
+            $array['up_mbps'] = (int)$server['up_mbps'];
+        }
+        if (!empty($server['down_mbps'])) {
+            $array['down_mbps'] = (int)$server['down_mbps'];
+        }
+        if (!empty($server['obfs'])) {
             $array['obfs']['type'] = $server['obfs'];
             $array['obfs']['password'] = $server['obfs_password'];
         }
