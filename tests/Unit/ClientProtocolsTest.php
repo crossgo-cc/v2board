@@ -115,13 +115,14 @@ class ClientProtocolsTest extends TestCase
 
         $this->assertMatchesRegularExpression('/Object\(u\["k"\]\)\(\) && !Object\(u\["j"\]\)\(\)/', $frontend);
         $this->assertMatchesRegularExpression('/indexOf\("linux"\) && !p\(\)/', $frontend);
-        $this->assertMatchesRegularExpression('/\(n \|\| r \|\| o \|\| i \|\| a\) && t\.push\(\{\s+title: "Hiddify"/', $subscribeBox);
+        $this->assertMatchesRegularExpression('/\(isAppleMobile \|\| isMacOS \|\| isAndroid \|\| isWindows \|\| isLinux\) && t\.push\(\{\s+title: "Hiddify"/', $subscribeBox);
         $this->assertStringNotContainsString('title: "Sing-box"', $subscribeBox);
         $this->assertStringNotContainsString('sing-box://import-remote-profile', $subscribeBox);
-        $this->assertMatchesRegularExpression('/\(n \|\| r\) && \(t\.push\(\{\s+title: "Shadowrocket".*title: "Surge"/s', $subscribeBox);
-        $this->assertMatchesRegularExpression('/\(r \|\| i \|\| a\) && t\.push\(\{\s+title: "Clash Verge Rev"/', $subscribeBox);
-        $this->assertMatchesRegularExpression('/\(r \|\| i \|\| a \|\| o\) && t\.push\(\{\s+title: "FlClash"/', $subscribeBox);
-        $this->assertMatchesRegularExpression('/o && t\.push\(\{\s+title: "ClashMeta For Android"/', $subscribeBox);
+        $this->assertMatchesRegularExpression('/\(isAppleMobile \|\| isMacOS\) && \(t\.push\(\{\s+title: "Shadowrocket".*title: "Surge"/s', $subscribeBox);
+        $this->assertMatchesRegularExpression('/\(isMacOS \|\| isWindows \|\| isLinux\) && t\.push\(\{\s+title: "Clash Verge Rev"/', $subscribeBox);
+        $this->assertMatchesRegularExpression('/\(isMacOS \|\| isWindows \|\| isLinux \|\| isAndroid\) && t\.push\(\{\s+title: "FlClash"/', $subscribeBox);
+        $this->assertMatchesRegularExpression('/isAndroid && t\.push\(\{\s+title: "ClashMeta For Android"/', $subscribeBox);
+        $this->assertDoesNotMatchRegularExpression('/,\s*[ai]\s*=/', $subscribeBox);
     }
 
     /**

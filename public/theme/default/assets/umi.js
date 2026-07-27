@@ -1037,15 +1037,15 @@
             renderSubscribeBox() {
                 var e = this.props.subscribeUrl
                   , t = []
-                  , n = Object(u["i"])() || Object(u["j"])()
-                  , r = Object(u["k"])() && !Object(u["j"])()
-                  , o = Object(u["g"])()
-                  , i = Object(u["n"])()
-                  , a = Object(u["s"])();
-                return (n || r || o || i || a) && t.push({
+                  , isAppleMobile = Object(u["i"])() || Object(u["j"])()
+                  , isMacOS = Object(u["k"])() && !Object(u["j"])()
+                  , isAndroid = Object(u["g"])()
+                  , isWindows = Object(u["n"])()
+                  , isLinux = Object(u["s"])();
+                return (isAppleMobile || isMacOS || isAndroid || isWindows || isLinux) && t.push({
                     title: "Hiddify",
                     href: "hiddify://import/" + e + "&flag=sing-box" + "#" + window.settings.title
-                }), (n || r) && (t.push({
+                }), (isAppleMobile || isMacOS) && (t.push({
                     title: "Shadowrocket",
                     href: "shadowrocket://add/sub://" + window.btoa(e + "&flag=shadowrocket").replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "") + "?remark=" + window.settings.title
                 }),
@@ -1053,17 +1053,17 @@
                     title: "Surge",
                     href: "surge:///install-config?url=" + encodeURIComponent(e + "&flag=surge") + "&name=" + window.settings.title
                 })),
-                (r || i || a) && t.push({
+                (isMacOS || isWindows || isLinux) && t.push({
                     title: "Clash Verge Rev",
                     href: "clash://install-config?url=" + encodeURIComponent(e + "&flag=mihomo") + "&name=" + window.settings.title,
                     icon: "https://cdn.jsdmirror.com/gh/clash-verge-rev/clash-verge-rev@main/src-tauri/icons/icon.png"
                 }),
-                (r || i || a || o) && t.push({
+                (isMacOS || isWindows || isLinux || isAndroid) && t.push({
                     title: "FlClash",
                     href: "clash://install-config?url=" + encodeURIComponent(e + "&flag=mihomo") + "&name=" + window.settings.title,
                     icon: "https://cdn.jsdmirror.com/gh/chen08209/FlClash@main/assets/images/icon.png"
                 }),
-                o && t.push({
+                isAndroid && t.push({
                     title: "ClashMeta For Android",
                     href: "clashmeta://install-config?url=" + encodeURIComponent(e + "&flag=mihomo") + "&name=" + window.settings.title
                 }),
