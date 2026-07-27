@@ -146,7 +146,7 @@ class Singbox extends AbstractProtocol
             $tlsSettings = $server['tls_settings'] ?? [];
             $tlsConfig['insecure'] = ($tlsSettings['allow_insecure'] ?? 0) == 1 ? true : false;
             $tlsConfig['server_name'] = $tlsSettings['server_name'] ?? '';
-            if (!empty($tlsSettings['ech'])) {
+            if ((int)($server['tls'] ?? 0) === 1 && !empty($tlsSettings['ech'])) {
                 if ($tlsSettings['ech'] === 'cloudflare') {
                     $tlsConfig['ech'] = [
                         'enabled' => true,
@@ -221,7 +221,7 @@ class Singbox extends AbstractProtocol
                     "enabled" => true,
                     "fingerprint" => $fingerprints
                 ];
-                if (!empty($tlsSettings['ech'])) {
+                if ((int)($server['tls'] ?? 0) === 1 && !empty($tlsSettings['ech'])) {
                     if ($tlsSettings['ech'] === 'cloudflare') {
                         $tlsConfig['ech'] = [
                             'enabled' => true,
@@ -284,7 +284,7 @@ class Singbox extends AbstractProtocol
             'insecure' => ($tlsSettings['allow_insecure'] ?? 0) == 1 ? true : false,
             'server_name' => $tlsSettings['server_name'] ?? ''
         ];
-        if (!empty($tlsSettings['ech'])) {
+        if ((int)($server['tls'] ?? 0) === 1 && !empty($tlsSettings['ech'])) {
             if ($tlsSettings['ech'] === 'cloudflare') {
                 $tlsConfig['ech'] = [
                     'enabled' => true,
@@ -382,7 +382,7 @@ class Singbox extends AbstractProtocol
                 "enabled" => true,
                 "fingerprint" => $tlsSettings['fingerprint'] ?? 'chrome'
             ];
-            if (!empty($tlsSettings['ech'])) {
+            if ((int)($server['tls'] ?? 0) === 1 && !empty($tlsSettings['ech'])) {
                 if ($tlsSettings['ech'] === 'cloudflare') {
                     $tlsConfig['ech'] = [
                         'enabled' => true,

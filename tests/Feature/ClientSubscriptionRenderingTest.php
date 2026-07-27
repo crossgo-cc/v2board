@@ -171,6 +171,7 @@ class ClientSubscriptionRenderingTest extends TestCase
                         'public_key' => 'public-key',
                         'short_id' => '01234567',
                         'fingerprint' => 'chrome',
+                        'ech' => 'cloudflare',
                     ],
                 ]),
                 array_merge($this->server('anytls', 'invalid-anytls-reality'), [
@@ -187,8 +188,32 @@ class ClientSubscriptionRenderingTest extends TestCase
 
         $this->assertStringContainsString('valid-vmess-reality', $response->getContent());
         $this->assertStringContainsString('reality-opts', $response->getContent());
+        $this->assertStringNotContainsString('ech-opts', $response->getContent());
         $this->assertStringNotContainsString('invalid-anytls-reality', $response->getContent());
         $this->assertStringNotContainsString('invalid-vision-ws', $response->getContent());
+    }
+
+    public function testSingboxIgnoresEchFieldsOnRealityNodes()
+    {
+        $response = $this->render(
+            'SFA/1.13.14',
+            $this->user(),
+            [
+                array_merge($this->server('anytls', 'anytls-reality'), [
+                    'tls' => 2,
+                    'tls_settings' => [
+                        'public_key' => 'public-key',
+                        'short_id' => '01234567',
+                        'ech' => 'cloudflare',
+                    ],
+                ]),
+            ]
+        );
+        $config = json_decode($response->getContent(), true);
+        $outbounds = array_column($config['outbounds'], null, 'tag');
+
+        $this->assertTrue($outbounds['anytls-reality']['tls']['reality']['enabled']);
+        $this->assertArrayNotHasKey('ech', $outbounds['anytls-reality']['tls']);
     }
 
     public function testMihomoIgnoresVlessOnlyFieldsOnAnyTlsNodes()

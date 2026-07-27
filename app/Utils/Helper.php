@@ -326,7 +326,7 @@ class Helper
                 $config['sid'] = $tlsSettings['short_id'] ?? '';
             }
         }
-        if (!empty($tlsSettings['ech'])) {
+        if ((int)($server['tls'] ?? 0) === 1 && !empty($tlsSettings['ech'])) {
             if ($tlsSettings['ech'] === 'cloudflare') {
                 $config['ech'] = 'cloudflare-ech.com+https://doh.pub/dns-query';
             } elseif ($tlsSettings['ech'] === 'custom' && !empty($tlsSettings['ech_config'])) {
@@ -371,7 +371,7 @@ class Helper
                 }
             }
         }
-        if (!empty($tlsSettings['ech'])) {
+        if ((int)($server['tls'] ?? 0) === 1 && !empty($tlsSettings['ech'])) {
             if ($tlsSettings['ech'] === 'cloudflare') {
                 $config['ech'] = 'cloudflare-ech.com+https://doh.pub/dns-query';
             } elseif ($tlsSettings['ech'] === 'custom' && !empty($tlsSettings['ech_config'])) {

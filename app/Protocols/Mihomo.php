@@ -171,7 +171,7 @@ class Mihomo extends AbstractProtocol
                         'short-id' => $tlsSettings['short_id'] ?? '',
                     ];
                 }
-                if (!empty($tlsSettings['ech'])) {
+                if ((int)($server['tls'] ?? 0) === 1 && !empty($tlsSettings['ech'])) {
                     if ($tlsSettings['ech'] === 'cloudflare') {
                         $array['ech-opts'] = [
                             'enable' => true,
@@ -251,7 +251,7 @@ class Mihomo extends AbstractProtocol
                    $array['reality-opts']['public-key'] = $tlsSettings['public_key'] ?? '';
                    $array['reality-opts']['short-id'] = $tlsSettings['short_id'] ?? '';
                 }
-                if (!empty($tlsSettings['ech'])) {
+                if ((int)($server['tls'] ?? 0) === 1 && !empty($tlsSettings['ech'])) {
                     if ($tlsSettings['ech'] === 'cloudflare') {
                         $array['ech-opts'] = [
                             'enable' => true,
@@ -371,7 +371,7 @@ class Mihomo extends AbstractProtocol
                 'short-id' => $tlsSettings['short_id'] ?? '',
             ];
         }
-        if (!empty($tlsSettings['ech'])) {
+        if ((int)($server['tls'] ?? 0) === 1 && !empty($tlsSettings['ech'])) {
             if ($tlsSettings['ech'] === 'cloudflare') {
                 $array['ech-opts'] = [
                     'enable' => true,
@@ -427,7 +427,7 @@ class Mihomo extends AbstractProtocol
         $tlsSettings = $server['tls_settings'] ?? [];
         $array['sni'] = $tlsSettings['server_name'] ?? '';
         $array['skip-cert-verify'] = ($tlsSettings['allow_insecure'] ?? 0) == 1 ? true : false;
-        if (!empty($tlsSettings['ech'])) {
+        if ((int)($server['tls'] ?? 0) === 1 && !empty($tlsSettings['ech'])) {
             if ($tlsSettings['ech'] === 'cloudflare') {
                 $array['ech-opts'] = [
                     'enable' => true,

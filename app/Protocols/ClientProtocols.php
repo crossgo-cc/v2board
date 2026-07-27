@@ -168,8 +168,8 @@ final class ClientProtocols
         ) {
             return false;
         }
-        if (!empty($tlsSettings['ech'])) {
-            if ($tls !== 1 || empty($rule['ech'])) {
+        if ($tls === 1 && !empty($tlsSettings['ech'])) {
+            if (empty($rule['ech'])) {
                 return false;
             }
             if ($tlsSettings['ech'] !== 'cloudflare'

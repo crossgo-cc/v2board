@@ -140,6 +140,44 @@ class ClientProtocolsTest extends TestCase
         $this->assertSame($supported, ClientProtocols::supports($client, $server));
     }
 
+    /**
+     * @dataProvider irrelevantProtocolFieldsProvider
+     */
+    public function testItIgnoresFieldsOwnedByOtherProtocols($client, $server)
+    {
+        $server = array_merge([
+            'type' => 'v2node',
+            'network' => 'tcp',
+            'tls' => 0,
+            'flow' => 'xtls-rprx-vision',
+            'encryption' => 'unsupported-encryption',
+            'encryption_settings' => ['mode' => 'invalid'],
+            'cipher' => 'unsupported-cipher',
+            'obfs' => 'unsupported-obfs',
+            'obfs_password' => '',
+        ], $server);
+
+        $this->assertTrue(ClientProtocols::supports($client, $server));
+    }
+
+    public function irrelevantProtocolFieldsProvider()
+    {
+        return [
+            ['general', ['protocol' => 'vmess']],
+            ['mihomo', ['protocol' => 'vmess']],
+            ['mihomo', ['protocol' => 'anytls', 'tls' => 1]],
+            ['sing-box', ['protocol' => 'tuic', 'tls' => 1]],
+            ['surge', ['protocol' => 'anytls', 'tls' => 1]],
+            ['shadowrocket', ['protocol' => 'tuic', 'tls' => 1]],
+            ['general', ['protocol' => 'vmess', 'tls_settings' => ['ech' => 'invalid']]],
+            ['mihomo', [
+                'protocol' => 'vmess',
+                'tls' => 2,
+                'tls_settings' => ['public_key' => 'key', 'ech' => 'invalid'],
+            ]],
+        ];
+    }
+
     public function capabilityProvider()
     {
         return [
