@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Cache;
+use Workerman\Timer;
 
 class ConfigController extends Controller
 {
@@ -216,9 +217,7 @@ class ConfigController extends Controller
             Cache::forget('WEBMANPID');
             // 等当前响应进入发送队列后再重启 Webman，避免上游连接被提前断开。
             if ($pid > 1) {
-                \Workerman\Timer::add(0.1, static function () use ($pid) {
-                    posix_kill($pid, 15);
-                }, [], false);
+                Timer::add(0.1, 'posix_kill', [$pid, \SIGTERM], false);
             }
         }
         return response([
