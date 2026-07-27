@@ -191,6 +191,31 @@ class ClientSubscriptionRenderingTest extends TestCase
         $this->assertStringNotContainsString('invalid-vision-ws', $response->getContent());
     }
 
+    public function testMihomoIgnoresVlessOnlyFieldsOnAnyTlsNodes()
+    {
+        $response = $this->render(
+            'clash.meta/1.19',
+            $this->user(),
+            [
+                array_merge($this->server('anytls', 'anytls-with-stale-fields'), [
+                    'tls' => 1,
+                    'flow' => 'xtls-rprx-vision',
+                    'encryption_settings' => [
+                        'mode' => 'native',
+                        'rtt' => '0rtt',
+                        'password' => 'unused',
+                    ],
+                ]),
+            ]
+        );
+        $config = Yaml::parse($response->getContent());
+
+        $this->assertSame('anytls-with-stale-fields', $config['proxies'][0]['name']);
+        $this->assertSame('anytls', $config['proxies'][0]['type']);
+        $this->assertArrayNotHasKey('flow', $config['proxies'][0]);
+        $this->assertArrayNotHasKey('encryption', $config['proxies'][0]);
+    }
+
     public function testEmptyHysteriaObfsDoesNotRequirePassword()
     {
         $server = array_merge($this->server('hysteria2', 'hysteria-no-obfs'), [

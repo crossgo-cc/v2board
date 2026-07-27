@@ -190,9 +190,8 @@ final class ClientProtocols
         if ($type === 'hysteria2' && !empty($server['obfs']) && empty($server['obfs_password'])) {
             return false;
         }
-        if (!empty($server['flow']) && (
-            $type !== 'vless'
-            || $server['flow'] !== 'xtls-rprx-vision'
+        if ($type === 'vless' && !empty($server['flow']) && (
+            $server['flow'] !== 'xtls-rprx-vision'
             || $tls === 0
             || self::network($server) !== 'tcp'
         )) {

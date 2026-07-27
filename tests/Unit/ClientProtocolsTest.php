@@ -168,6 +168,7 @@ class ClientProtocolsTest extends TestCase
             ['mihomo', ['protocol' => 'vmess', 'network' => 'ws', 'tls' => 2, 'tls_settings' => ['public_key' => 'key']], false],
             ['mihomo', ['protocol' => 'vless', 'network' => 'xhttp', 'tls' => 2, 'tls_settings' => ['public_key' => 'key']], true],
             ['mihomo', ['protocol' => 'anytls', 'tls' => 2, 'tls_settings' => ['public_key' => 'key']], false],
+            ['mihomo', ['protocol' => 'anytls', 'tls' => 1, 'flow' => 'xtls-rprx-vision'], true],
             ['mihomo', ['protocol' => 'vless', 'flow' => 'xtls-rprx-vision', 'tls' => 1], true],
             ['mihomo', ['protocol' => 'vless', 'network' => 'ws', 'flow' => 'xtls-rprx-vision', 'tls' => 1], false],
             ['mihomo', ['protocol' => 'hysteria2', 'tls' => 1, 'obfs' => 'gecko'], false],
