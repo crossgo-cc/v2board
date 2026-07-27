@@ -1045,9 +1045,6 @@
                 return (n || r || o || i || a) && t.push({
                     title: "Hiddify",
                     href: "hiddify://import/" + e + "&flag=sing-box" + "#" + window.settings.title
-                }), (n || r || o) && t.push({
-                    title: "Sing-box",
-                    href: "sing-box://import-remote-profile?url=" + encodeURIComponent(e + "&flag=sing-box") + "#" + window.settings.title
                 }), (n || r) && (t.push({
                     title: "Shadowrocket",
                     href: "shadowrocket://add/sub://" + window.btoa(e + "&flag=shadowrocket").replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "") + "?remark=" + window.settings.title
