@@ -108,6 +108,21 @@ class ClientProtocolsTest extends TestCase
         }
     }
 
+    public function testFrontendImportLinksFollowSupportedPlatforms()
+    {
+        $frontend = file_get_contents(dirname(__DIR__, 2) . '/public/theme/default/assets/umi.js');
+        $subscribeBox = substr($frontend, strpos($frontend, 'renderSubscribeBox()'), 5000);
+
+        $this->assertMatchesRegularExpression('/Object\(u\["k"\]\)\(\) && !Object\(u\["j"\]\)\(\)/', $frontend);
+        $this->assertMatchesRegularExpression('/indexOf\("linux"\) && !p\(\)/', $frontend);
+        $this->assertMatchesRegularExpression('/\(n \|\| r \|\| o \|\| i \|\| a\) && t\.push\(\{\s+title: "Hiddify"/', $subscribeBox);
+        $this->assertMatchesRegularExpression('/\(n \|\| r \|\| o\) && t\.push\(\{\s+title: "Sing-box"/', $subscribeBox);
+        $this->assertMatchesRegularExpression('/\(n \|\| r\) && \(t\.push\(\{\s+title: "Shadowrocket".*title: "Surge"/s', $subscribeBox);
+        $this->assertMatchesRegularExpression('/\(r \|\| i \|\| a\) && t\.push\(\{\s+title: "Clash Verge Rev"/', $subscribeBox);
+        $this->assertMatchesRegularExpression('/\(r \|\| i \|\| a \|\| o\) && t\.push\(\{\s+title: "FlClash"/', $subscribeBox);
+        $this->assertMatchesRegularExpression('/o && t\.push\(\{\s+title: "ClashMeta For Android"/', $subscribeBox);
+    }
+
     /**
      * @dataProvider capabilityProvider
      */

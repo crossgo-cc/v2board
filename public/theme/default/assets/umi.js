@@ -1036,14 +1036,19 @@
             }
             renderSubscribeBox() {
                 var e = this.props.subscribeUrl
-                  , t = [];
-                return t.push({
+                  , t = []
+                  , n = Object(u["i"])() || Object(u["j"])()
+                  , r = Object(u["k"])() && !Object(u["j"])()
+                  , o = Object(u["g"])()
+                  , i = Object(u["n"])()
+                  , a = Object(u["s"])();
+                return (n || r || o || i || a) && t.push({
                     title: "Hiddify",
                     href: "hiddify://import/" + e + "&flag=sing-box" + "#" + window.settings.title
-                }), t.push({
+                }), (n || r || o) && t.push({
                     title: "Sing-box",
                     href: "sing-box://import-remote-profile?url=" + encodeURIComponent(e + "&flag=sing-box") + "#" + window.settings.title
-                }), (Object(u["i"])() || Object(u["j"])()) && (t.push({
+                }), (n || r) && (t.push({
                     title: "Shadowrocket",
                     href: "shadowrocket://add/sub://" + window.btoa(e + "&flag=shadowrocket").replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "") + "?remark=" + window.settings.title
                 }),
@@ -1051,17 +1056,17 @@
                     title: "Surge",
                     href: "surge:///install-config?url=" + encodeURIComponent(e + "&flag=surge") + "&name=" + window.settings.title
                 })),
-                Object(u["n"])() && (t.push({
+                (r || i || a) && t.push({
                     title: "Clash Verge Rev",
                     href: "clash://install-config?url=" + encodeURIComponent(e + "&flag=mihomo") + "&name=" + window.settings.title,
                     icon: "https://cdn.jsdmirror.com/gh/clash-verge-rev/clash-verge-rev@main/src-tauri/icons/icon.png"
-                })),
-                (Object(u["k"])() || Object(u["n"])() || Object(u["g"])()) && t.push({
+                }),
+                (r || i || a || o) && t.push({
                     title: "FlClash",
                     href: "clash://install-config?url=" + encodeURIComponent(e + "&flag=mihomo") + "&name=" + window.settings.title,
                     icon: "https://cdn.jsdmirror.com/gh/chen08209/FlClash@main/assets/images/icon.png"
                 }),
-                Object(u["g"])() && t.push({
+                o && t.push({
                     title: "ClashMeta For Android",
                     href: "clashmeta://install-config?url=" + encodeURIComponent(e + "&flag=mihomo") + "&name=" + window.settings.title
                 }),
@@ -60212,6 +60217,9 @@
         n.d(t, "o", function() {
             return _
         }),
+        n.d(t, "s", function() {
+            return C
+        }),
         n.d(t, "d", function() {
             return k
         });
@@ -60247,6 +60255,9 @@
         }
         function h() {
             return -1 !== window.navigator.userAgent.toLowerCase().indexOf("windows")
+        }
+        function C() {
+            return -1 !== window.navigator.userAgent.toLowerCase().indexOf("linux") && !p()
         }
         function m() {
             return -1 !== window.navigator.userAgent.toLowerCase().indexOf("mobile")
