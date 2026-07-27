@@ -82,6 +82,7 @@ class UniProxyController extends Controller
             ], 400);
         }
         $this->updateOnlineUsers($request, $data);
+        ServerService::recordOnlineUsers(array_keys($data));
         $userService = new UserService();
         $userService->trafficFetch($this->nodeInfo->toArray(), $this->nodeType, $data);
 
@@ -345,15 +346,15 @@ class UniProxyController extends Controller
 
             $this->pruneOnlineSources($sources, $now);
             $this->writeAggregatedOnlineUsers($sources, $now);
-            Cache::put($sourcesKey, $sources, 3600);
+            Cache::put($sourcesKey, $sources, ServerService::getOnlineStatusTtl());
         });
     }
 
     private function pruneOnlineSources(array &$sources, int $now)
     {
-        $expiredAt = $now - max(300, (int)config('v2board.server_push_interval', 60) * 3);
+        $expiredAt = $now - ServerService::getOnlineStatusTtl();
         foreach ($sources as $sourceId => $source) {
-            if (!is_array($source) || !isset($source['last_push_at']) || $source['last_push_at'] < $expiredAt) {
+            if (!is_array($source) || !isset($source['last_push_at']) || $source['last_push_at'] <= $expiredAt) {
                 unset($sources[$sourceId]);
             }
         }
@@ -371,8 +372,9 @@ class UniProxyController extends Controller
         }
 
         $serverType = strtoupper($this->nodeType);
-        Cache::put(CacheKey::get("SERVER_{$serverType}_ONLINE_USER", $this->nodeInfo->id), count($onlineUsers), 3600);
-        Cache::put(CacheKey::get("SERVER_{$serverType}_LAST_PUSH_AT", $this->nodeInfo->id), $lastPushAt ?: $now, 3600);
+        $onlineStatusTtl = ServerService::getOnlineStatusTtl();
+        Cache::put(CacheKey::get("SERVER_{$serverType}_ONLINE_USER", $this->nodeInfo->id), count($onlineUsers), $onlineStatusTtl);
+        Cache::put(CacheKey::get("SERVER_{$serverType}_LAST_PUSH_AT", $this->nodeInfo->id), $lastPushAt ?: $now, $onlineStatusTtl);
     }
 
     private function getOnlineSourcesKey(): string

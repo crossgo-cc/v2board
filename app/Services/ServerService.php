@@ -16,9 +16,54 @@ use App\Models\ServerAnytls;
 use App\Utils\CacheKey;
 use App\Utils\Helper;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Redis;
 
 class ServerService
 {
+    private const GLOBAL_ONLINE_USERS_KEY = 'SERVER_GLOBAL_ONLINE_USERS';
+
+    public static function getOnlineStatusTtl(): int
+    {
+        return max(300, (int)config('v2board.server_push_interval', 60) * 3);
+    }
+
+    public static function recordOnlineUsers(array $userIds, ?int $reportedAt = null): void
+    {
+        $reportedAt = $reportedAt ?? time();
+        $expiredAt = $reportedAt - self::getOnlineStatusTtl();
+        Redis::command('zremrangebyscore', [self::GLOBAL_ONLINE_USERS_KEY, '-inf', $expiredAt]);
+
+        $userIds = array_values(array_unique(array_filter(array_map(function ($userId) {
+            return is_numeric($userId) && (int)$userId > 0 ? (string)(int)$userId : null;
+        }, $userIds))));
+        if (empty($userIds)) {
+            return;
+        }
+
+        $arguments = [self::GLOBAL_ONLINE_USERS_KEY];
+        foreach ($userIds as $userId) {
+            $arguments[] = $reportedAt;
+            $arguments[] = $userId;
+        }
+        Redis::command('zadd', $arguments);
+    }
+
+    public static function getOnlineUserCount(?int $now = null): int
+    {
+        $now = $now ?? time();
+        $expiredAt = $now - self::getOnlineStatusTtl();
+        $onlineUserCount = (int)Redis::command('zcount', [
+            self::GLOBAL_ONLINE_USERS_KEY,
+            '(' . $expiredAt,
+            '+inf'
+        ]);
+        if ($onlineUserCount > 0) {
+            return $onlineUserCount;
+        }
+
+        return User::where('t', '>', $expiredAt)->count();
+    }
+
     public function getAvailableVless(User $user): array
     {
         $servers = [];
@@ -406,14 +451,18 @@ class ServerService
 
     private function mergeData(&$servers)
     {
+        $onlineStatusTtl = self::getOnlineStatusTtl();
         foreach ($servers as $k => $v) {
             $serverType = strtoupper($v['type']);
             $servers[$k]['online'] = Cache::get(CacheKey::get("SERVER_{$serverType}_ONLINE_USER", $v['parent_id'] ?? $v['id']));
             $servers[$k]['last_check_at'] = Cache::get(CacheKey::get("SERVER_{$serverType}_LAST_CHECK_AT", $v['parent_id'] ?? $v['id']));
             $servers[$k]['last_push_at'] = Cache::get(CacheKey::get("SERVER_{$serverType}_LAST_PUSH_AT", $v['parent_id'] ?? $v['id']));
+            if (!$servers[$k]['last_push_at'] || (time() - $onlineStatusTtl) >= $servers[$k]['last_push_at']) {
+                $servers[$k]['online'] = 0;
+            }
             if ((time() - 300) >= $servers[$k]['last_check_at']) {
                 $servers[$k]['available_status'] = 0;
-            } else if ((time() - 300) >= $servers[$k]['last_push_at']) {
+            } else if ((time() - $onlineStatusTtl) >= $servers[$k]['last_push_at']) {
                 $servers[$k]['available_status'] = 1;
             } else {
                 $servers[$k]['available_status'] = 2;
