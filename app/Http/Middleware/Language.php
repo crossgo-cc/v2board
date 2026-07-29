@@ -9,9 +9,8 @@ class Language
 {
     public function handle($request, Closure $next)
     {
-        if ($request->header('content-language')) {
-            App::setLocale($request->header('content-language'));
-        }
+        App::setLocale($request->header('content-language') ?: config('app.locale'));
+
         return $next($request);
     }
 }

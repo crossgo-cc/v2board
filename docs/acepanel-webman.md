@@ -1,7 +1,7 @@
 # AcePanel 部署 V2Board Webman 版教程
 
 本文说明如何在 AcePanel 中部署 V2Board，并使用 `webman.php` 以
-`Adapterman + Workerman` 长驻进程模式运行 Laravel。
+`Workerman + Laravel Bridge` 长驻进程模式运行 Laravel。
 
 示例配置：
 
@@ -39,7 +39,7 @@ Redis
 安装：
 
 ```text
-PHP 8.2
+PHP 8.1
 ```
 
 进入：
@@ -71,7 +71,7 @@ posix
 名称：v2board-site
 域名：example.com
 端口：80
-PHP 版本：PHP 8.2
+PHP 版本：PHP 8.1
 网站目录：/opt/ace/sites/v2board-site
 数据库：创建 MySQL 数据库
 ```
@@ -102,7 +102,7 @@ cd /opt/ace/sites/v2board-site/v2board
 执行安装：
 
 ```bash
-sh init.sh
+bash init.sh
 ```
 
 按安装向导完成数据库和管理员账号配置。

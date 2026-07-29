@@ -14,6 +14,8 @@
     git checkout master  
     ./update.sh  
 
+更新脚本会在安全更新依赖前停止 Workerman，完成后请在进程管理器中重新启动项目。
+
 
 按以下步骤配置缓存驱动为redis，然后刷新设置缓存，重启队列:
 
@@ -26,7 +28,7 @@
 
 # **V2Board**
 
-- PHP7.3+
+- PHP8.1+
 - Composer
 - MySQL5.5+
 - Redis

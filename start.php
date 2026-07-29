@@ -53,19 +53,9 @@ global $kernel;
 
 $kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
 
-function run()
+function run(\Workerman\Protocols\Http\Request $request)
 {
     global $kernel;
 
-    ob_start();
-
-    $response = $kernel->handle(
-        $request = Illuminate\Http\Request::capture()
-    );
-
-    $response->send();
-
-    $kernel->terminate($request, $response);
-
-    return ob_get_clean();
+    return \App\Utils\WorkermanLaravelBridge::handle($kernel, $request);
 }

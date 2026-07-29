@@ -37,9 +37,9 @@ class V2boardInstall extends Command
     /**
      * Execute the console command.
      *
-     * @return mixed
+     * @return int
      */
-    public function handle()
+    public function handle(): int
     {
         try {
             $this->info("__     ______  ____                      _  ");
@@ -81,10 +81,8 @@ class V2boardInstall extends Command
             }
             $this->info('正在导入数据库请稍等...');
             foreach ($sql as $item) {
-                try {
-                    DB::select(DB::raw($item));
-                } catch (\Exception $e) {
-                }
+                if (!$item) continue;
+                DB::select(DB::raw($item));
             }
             $this->info('数据库导入完成');
             $email = '';
@@ -102,8 +100,10 @@ class V2boardInstall extends Command
 
             $defaultSecurePath = hash('crc32b', config('app.key'));
             $this->info("访问 http(s)://你的站点/{$defaultSecurePath} 进入管理面板，你可以在用户中心修改你的密码。");
-        } catch (\Exception $e) {
+            return self::SUCCESS;
+        } catch (\Throwable $e) {
             $this->error($e->getMessage());
+            return self::FAILURE;
         }
     }
 

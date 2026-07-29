@@ -39389,8 +39389,7 @@
                                         var e = new FormData;
                                         e.append("id", o),
                                         e.append("message", p.message || ""),
-                                        e.append("image_count", h.length),
-                                        h.forEach((t,n)=>e.append("ticket_image_" + n, t));
+                                        h.forEach(t=>e.append("images[]", t));
                                         return e
                                     }());
                                 case 11:
@@ -53153,8 +53152,7 @@
                 n.append("subject", "[" + k[t] + "] " + S(e.message)),
                 n.append("level", "1"),
                 n.append("message", E(e)),
-                n.append("image_count", this.state.images.length),
-                this.state.images.forEach((e,t)=>n.append("ticket_image_" + t, e.file)),
+                this.state.images.forEach(e=>n.append("images[]", e.file)),
                 this.props.dispatch({
                     type: "ticket/save",
                     formData: n

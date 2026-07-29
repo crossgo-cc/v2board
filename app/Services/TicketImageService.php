@@ -4,10 +4,8 @@ namespace App\Services;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
-use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Str;
-use Illuminate\Validation\ValidationException;
 
 class TicketImageService
 {
@@ -19,42 +17,6 @@ class TicketImageService
     public function __construct(?ClientInterface $client = null)
     {
         $this->client = $client ?: new Client();
-    }
-
-    public static function normalizeRequestImages(Request $request): void
-    {
-        $images = $request->files->get('images', []);
-        $images = is_array($images) ? $images : [$images];
-
-        if ($legacyImage = $request->files->get('images[]')) {
-            $images[] = $legacyImage;
-        }
-        for ($index = 0; $index < 3; $index++) {
-            if ($file = $request->files->get("ticket_image_{$index}")) {
-                $images[] = $file;
-            }
-        }
-
-        if ($images) {
-            $request->files->set('images', $images);
-        }
-    }
-
-    /**
-     * @return UploadedFile[]
-     */
-    public static function requestImages(Request $request): array
-    {
-        $images = $request->file('images', []);
-        $images = is_array($images) ? $images : [$images];
-
-        if ($request->has('image_count') && (int)$request->input('image_count') !== count($images)) {
-            throw ValidationException::withMessages([
-                'images' => ['图片上传不完整，请重新选择后发送'],
-            ]);
-        }
-
-        return $images;
     }
 
     /**

@@ -71586,8 +71586,7 @@
                                         var e = new FormData;
                                         e.append("id", n),
                                         e.append("message", i || ""),
-                                        e.append("image_count", u.length),
-                                        u.forEach((t,n)=>e.append("ticket_image_" + n, t));
+                                        u.forEach(t=>e.append("images[]", t));
                                         return e
                                     }());
                                 case 5:

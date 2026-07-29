@@ -2,16 +2,10 @@
 
 namespace App\Http\Requests\User;
 
-use App\Services\TicketImageService;
 use Illuminate\Foundation\Http\FormRequest;
 
 class TicketSave extends FormRequest
 {
-    protected function prepareForValidation()
-    {
-        TicketImageService::normalizeRequestImages($this);
-    }
-
     /**
      * Get the validation rules that apply to the request.
      *
@@ -23,7 +17,6 @@ class TicketSave extends FormRequest
             'subject' => 'required|string|max:120',
             'level' => 'required|in:0,1,2',
             'message' => 'required|string|max:12000',
-            'image_count' => 'nullable|integer|min:0|max:3',
             'images' => 'nullable|array|max:3',
             'images.*' => 'file|max:2048|mimetypes:image/jpeg,image/png,image/webp,image/gif',
         ];

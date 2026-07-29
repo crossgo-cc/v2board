@@ -228,7 +228,13 @@ class ClientProtocolsTest extends TestCase
 
     public function testProtocolResponseCarriesContentHeadersAndStatus()
     {
-        $protocol = new class([], []) extends AbstractProtocol {
+        $user = [
+            'u' => 1,
+            'd' => 2,
+            'transfer_enable' => 3,
+            'expired_at' => 4,
+        ];
+        $protocol = new class($user, []) extends AbstractProtocol {
             public function handle(): Response
             {
                 return $this->response('content', ['X-Test' => 'value'], 201);
@@ -238,6 +244,10 @@ class ClientProtocolsTest extends TestCase
 
         $this->assertSame('content', $response->getContent());
         $this->assertSame('value', $response->headers->get('X-Test'));
+        $this->assertSame(
+            'upload=1; download=2; total=3; expire=4',
+            $response->headers->get('subscription-userinfo')
+        );
         $this->assertSame(201, $response->getStatusCode());
     }
 

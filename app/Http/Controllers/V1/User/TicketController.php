@@ -53,7 +53,6 @@ class TicketController extends Controller
     public function save(TicketSave $request)
     {
         $ticketImageService = new TicketImageService();
-        $images = TicketImageService::requestImages($request);
         $imageBatch = ['token' => null, 'items' => []];
 
         try {
@@ -87,7 +86,7 @@ class TicketController extends Controller
                 throw new \Exception(__('There are other unresolved tickets'));
             }
 
-            $imageBatch = $ticketImageService->uploadBatch($images);
+            $imageBatch = $ticketImageService->uploadBatch($request->file('images', []));
             $message = $ticketImageService->appendToMessage($request->input('message'), $imageBatch);
 
             DB::beginTransaction();
@@ -122,11 +121,9 @@ class TicketController extends Controller
 
     public function reply(Request $request)
     {
-        TicketImageService::normalizeRequestImages($request);
         $request->validate([
             'id' => 'required|integer',
             'message' => 'nullable|string|max:12000|required_without:images',
-            'image_count' => 'nullable|integer|min:0|max:3',
             'images' => 'nullable|array|max:3|required_without:message',
             'images.*' => 'file|max:2048|mimetypes:image/jpeg,image/png,image/webp,image/gif',
         ], [
@@ -138,7 +135,6 @@ class TicketController extends Controller
             'images.*.mimetypes' => '图片仅支持JPEG、PNG、WebP和GIF格式',
         ]);
 
-        $images = TicketImageService::requestImages($request);
         $ticket = Ticket::where('id', $request->input('id'))
             ->where('user_id', $request->user['id'])
             ->first();
@@ -157,7 +153,7 @@ class TicketController extends Controller
         $ticketService = new TicketService();
 
         try {
-            $imageBatch = $ticketImageService->uploadBatch($images);
+            $imageBatch = $ticketImageService->uploadBatch($request->file('images', []));
             $message = $ticketImageService->appendToMessage((string)$request->input('message'), $imageBatch);
             if (!$ticketService->reply($ticket, $message, $request->user['id'])) {
                 throw new \RuntimeException(__('Ticket reply failed'));
