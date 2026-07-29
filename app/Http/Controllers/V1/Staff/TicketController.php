@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\Ticket;
 use App\Models\TicketMessage;
 use App\Services\TicketService;
+use App\Services\TicketImageService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class TicketController extends Controller
 {
@@ -47,18 +49,44 @@ class TicketController extends Controller
 
     public function reply(Request $request)
     {
-        if (empty($request->input('id'))) {
-            abort(500, '参数错误');
+        $request->validate([
+            'id' => 'required|integer',
+            'message' => 'nullable|string|max:12000|required_without:images',
+            'images' => 'nullable|array|max:3|required_without:message',
+            'images.*' => 'file|max:2048|mimetypes:image/jpeg,image/png,image/webp,image/gif',
+        ], [
+            'message.required_without' => '消息和图片不能同时为空',
+            'message.max' => '消息内容不能超过12000个字符',
+            'images.required_without' => '消息和图片不能同时为空',
+            'images.max' => '每条消息最多上传3张图片',
+            'images.*.max' => '单张图片不能超过2MB',
+            'images.*.mimetypes' => '图片仅支持JPEG、PNG、WebP和GIF格式',
+        ]);
+
+        if (!Ticket::where('id', $request->input('id'))->exists()) {
+            abort(500, '工单不存在');
         }
-        if (empty($request->input('message'))) {
-            abort(500, '消息不能为空');
-        }
+
+        $ticketImageService = new TicketImageService();
+        $imageBatch = ['token' => null, 'items' => []];
         $ticketService = new TicketService();
-        $ticketService->replyByAdmin(
-            $request->input('id'),
-            $request->input('message'),
-            $request->user['id']
-        );
+
+        try {
+            $imageBatch = $ticketImageService->uploadBatch($request->file('images', []));
+            $message = $ticketImageService->appendToMessage((string)$request->input('message'), $imageBatch);
+            $ticketService->replyByAdmin(
+                $request->input('id'),
+                $message,
+                $request->user['id']
+            );
+        } catch (\Throwable $e) {
+            if (DB::transactionLevel() > 0) {
+                DB::rollBack();
+            }
+            $ticketImageService->cleanup($imageBatch);
+            abort(500, $e->getMessage());
+        }
+
         return response([
             'data' => true
         ]);

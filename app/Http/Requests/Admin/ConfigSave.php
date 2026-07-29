@@ -16,6 +16,7 @@ class ConfigSave extends FormRequest
         'ticket_status' => 'in:0,1,2',
         'ticket_reply_email_notify_enable' => 'in:0,1',
         'ticket_notify_email' => 'nullable|array',
+        'ticket_image_auth_token' => 'nullable|string|max:128',
         'invite_force' => 'in:0,1',
         'invite_commission' => 'integer',
         'invite_gen_limit' => 'integer',

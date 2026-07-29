@@ -73,7 +73,8 @@ class ConfigController extends Controller
             'ticket' => [
                 'ticket_status' => config('v2board.ticket_status', 0),
                 'ticket_reply_email_notify_enable' => (int)config('v2board.ticket_reply_email_notify_enable', 1),
-                'ticket_notify_email' => config('v2board.ticket_notify_email', [])
+                'ticket_notify_email' => config('v2board.ticket_notify_email', []),
+                'ticket_image_auth_token' => config('v2board.ticket_image_auth_token', '')
             ],
             'deposit' => [
                 'deposit_bounus' => config('v2board.deposit_bounus', [])

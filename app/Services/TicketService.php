@@ -57,7 +57,11 @@ class TicketService {
             abort(500, '工单回复失败');
         }
         DB::commit();
-        $this->sendEmailNotify($ticket, $ticketMessage);
+        try {
+            $this->sendEmailNotify($ticket, $ticketMessage);
+        } catch (\Throwable $e) {
+            report($e);
+        }
     }
 
     public function sendAdminEmailNotify(Ticket $ticket, string $message, $userId = null, string $action = 'new')

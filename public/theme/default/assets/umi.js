@@ -18409,7 +18409,24 @@
     FPmv: function(e, t, n) {
         "use strict";
         n.r(t);
-        var r, o = n("p0pE"), i = n.n(o), a = n("q1tI"), s = n.n(a), c = n("/MKj"), u = n("wd/R"), l = n.n(u), f = n("Y2fQ"), p = n("NfUx"), d = n.n(p);
+        var r, o = n("p0pE"), i = n.n(o), a = n("q1tI"), s = n.n(a), c = n("/MKj"), u = n("wd/R"), l = n.n(u), f = n("Y2fQ"), p = n("NfUx"), d = n.n(p), v = n("1M3H"), y = n.n(v), g = new y.a({
+            html: !1,
+            linkify: !0,
+            breaks: !0
+        });
+        g.renderer.rules.image = function(e, t, n, r, o) {
+            var i = e[t].attrGet("src") || "";
+            return /^https:\/\/i\.111666\.best\/image\//.test(i) ? (e[t].attrSet("loading", "lazy"),
+            e[t].attrSet("decoding", "async"),
+            e[t].attrSet("referrerpolicy", "no-referrer"),
+            o.renderToken(e, t, n)) : ""
+        }
+        ;
+        function b(e) {
+            return {
+                __html: g.render(e || "")
+            }
+        }
         class h extends s.a.Component {
             constructor() {
                 super(...arguments),
@@ -18443,32 +18460,69 @@
                         className: "text-right ml-4"
                     }, s.a.createElement("div", {
                         className: "d-inline-block bg-gray-lighter px-3 py-2 mb-2 mw-100 rounded text-left"
-                    }, e.message))) : s.a.createElement("div", null, s.a.createElement("div", {
+                    }, s.a.createElement("div", {
+                        className: "ticket-markdown custom-html-style",
+                        dangerouslySetInnerHTML: b(e.message)
+                    })))) : s.a.createElement("div", null, s.a.createElement("div", {
                         className: "font-size-sm text-muted my-2"
                     }, l()(1e3 * e.created_at).format("YYYY/MM/DD HH:mm")), s.a.createElement("div", {
                         className: "mr-4"
                     }, s.a.createElement("div", {
                         className: "d-inline-block bg-success-lighter px-3 py-2 mb-2 mw-100 rounded text-left"
-                    }, e.message)))
+                    }, s.a.createElement("div", {
+                        className: "ticket-markdown custom-html-style",
+                        dangerouslySetInnerHTML: b(e.message)
+                    }))))
                 }
                 )), s.a.createElement("div", {
                     className: "js-chat-form block-content p-2 bg-body-dark ".concat(d.a.input)
-                }, s.a.createElement("input", {
+                }, s.a.createElement("textarea", {
                     onKeyDown: e=>this.props.onKeyDown(e, ()=>{
                         this.refs.message && (this.refs.message.value = "")
                     }
                     ),
                     ref: "message",
-                    type: "text",
+                    rows: 3,
                     className: "js-chat-input bg-body-dark border-0 form-control form-control-alt",
                     placeholder: Object(f["formatMessage"])({
                         id: "\u8f93\u5165\u5185\u5bb9\u56de\u590d\u5de5\u5355..."
                     }),
                     onChange: e=>this.props.onChange(e)
-                })))
+                }), s.a.createElement("div", {
+                    className: "ticket-composer-tools"
+                }, s.a.createElement("label", {
+                    className: "btn btn-sm btn-alt-primary mb-0"
+                }, "+", s.a.createElement("input", {
+                    type: "file",
+                    accept: "image/jpeg,image/png,image/webp,image/gif",
+                    multiple: !0,
+                    style: {
+                        display: "none"
+                    },
+                    onChange: e=>this.props.onFiles(e)
+                })), s.a.createElement("span", {
+                    className: "text-muted ml-2"
+                }, "Ctrl/Cmd + Enter \u53d1\u9001")), s.a.createElement("div", {
+                    className: "ticket-image-previews"
+                }, (this.props.images || []).map((e,t)=>s.a.createElement("div", {
+                    className: "ticket-image-preview",
+                    key: e.preview
+                }, s.a.createElement("img", {
+                    src: e.preview,
+                    alt: "\u9644\u4ef6\u9884\u89c8"
+                }), s.a.createElement("button", {
+                    type: "button",
+                    onClick: ()=>this.props.onRemove(t)
+                }, "\xd7"))))))
             }
         }
         class m extends s.a.Component {
+            constructor(e) {
+                super(e),
+                this.state = {
+                    images: []
+                }
+            }
             componentDidMount() {
                 this.fetchData(),
                 r = (()=>setTimeout(()=>{
@@ -18479,7 +18533,39 @@
                 r()
             }
             componentWillUnmount() {
-                r = void 0
+                r = void 0,
+                this.state.images.forEach(e=>URL.revokeObjectURL(e.preview))
+            }
+            selectImages(e) {
+                var t = Array.from(e.target.files || [])
+                  , n = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+                if (this.state.images.length + t.length > 3)
+                    return e.target.value = "",
+                    void window.alert("\u6bcf\u6761\u56de\u590d\u6700\u591a\u4e0a\u4f203\u5f20\u56fe\u7247");
+                if (t.some(e=>e.size > 2097152 || -1 === n.indexOf(e.type)))
+                    return e.target.value = "",
+                    void window.alert("\u56fe\u7247\u4ec5\u652f\u6301JPEG\u3001PNG\u3001WebP\u548cGIF\uff0c\u5355\u5f20\u4e0d\u8d85\u8fc72MB");
+                this.setState({
+                    images: this.state.images.concat(t.map(e=>({
+                        file: e,
+                        preview: URL.createObjectURL(e)
+                    })))
+                }),
+                e.target.value = ""
+            }
+            clearImages() {
+                this.state.images.forEach(e=>URL.revokeObjectURL(e.preview)),
+                this.setState({
+                    images: []
+                })
+            }
+            removeImage(e) {
+                var t = this.state.images.slice();
+                URL.revokeObjectURL(t[e].preview),
+                t.splice(e, 1),
+                this.setState({
+                    images: t
+                })
             }
             fetchData() {
                 this.props.dispatch({
@@ -18491,7 +18577,11 @@
                 this.props.dispatch({
                     type: "ticket/reply",
                     id: this.props.match.params.ticket_id,
-                    complete: ()=>e()
+                    images: this.state.images.map(e=>e.file),
+                    complete: ()=>{
+                        this.clearImages(),
+                        e()
+                    }
                 })
             }
             render() {
@@ -18502,9 +18592,12 @@
                 return s.a.createElement(h, {
                     ticket: t,
                     onKeyDown: (e,t)=>{
-                        13 !== e.keyCode || r || this.reply(t)
+                        13 !== e.keyCode || !e.ctrlKey && !e.metaKey || r || this.reply(t)
                     }
                     ,
+                    images: this.state.images,
+                    onFiles: e=>this.selectImages(e),
+                    onRemove: e=>this.removeImage(e),
                     onChange: e=>{
                         this.props.dispatch({
                             type: "ticket/setState",
@@ -39205,6 +39298,7 @@
                     })()
                 },
                 save(e, t) {
+                    var f = e.formData;
                     return u().mark(function e() {
                         var n, r, o, i, s;
                         return u().wrap(function(e) {
@@ -39217,7 +39311,7 @@
                                     r(e=>e.ticket);
                                 case 3:
                                     return o = e.sent,
-                                    i = o.saveData,
+                                    i = f || o.saveData,
                                     e.next = 7,
                                     Object(a["b"])("/user/ticket/save", i);
                                 case 7:
@@ -39249,6 +39343,7 @@
                     })()
                 },
                 reply(e, t) {
+                    var h = e.images || [];
                     return u().mark(function n() {
                         var o, s, c, l, f, p, d;
                         return u().wrap(function(n) {
@@ -39274,9 +39369,13 @@
                                 case 8:
                                     return r["a"].loading("\u53d1\u9001\u4e2d"),
                                     n.next = 11,
-                                    Object(a["b"])("/user/ticket/reply", i()({
-                                        id: o
-                                    }, p));
+                                    Object(a["b"])("/user/ticket/reply", function() {
+                                        var e = new FormData;
+                                        e.append("id", o),
+                                        e.append("message", p.message || ""),
+                                        h.forEach(t=>e.append("images[]", t));
+                                        return e
+                                    }());
                                 case 11:
                                     return d = n.sent,
                                     r["a"].destroy(),
@@ -52617,6 +52716,11 @@
         }
         function b(e, t) {
             var n = !(arguments.length > 2 && void 0 !== arguments[2]) || arguments[2];
+            if ("undefined" !== typeof FormData && t instanceof FormData)
+                return m(e, {
+                    method: "POST",
+                    body: t
+                }, n);
             return m(e, {
                 method: "POST",
                 headers: {
@@ -52936,10 +53040,36 @@
           , g = n("wd/R")
           , b = n.n(g)
           , w = n("Y2fQ");
+        var k = {
+            technical: "\u6280\u672f\u652f\u6301",
+            payment: "\u8ba2\u5355\u652f\u4ed8",
+            other: "\u5176\u4ed6\u54a8\u8be2"
+        };
+        function O(e) {
+            return String(e || "").replace(/([\\`*_{}\[\]()#+\-.!|>])/g, "\\$1").replace(/\r?\n/g, " ")
+        }
+        function S(e) {
+            var t = String(e || "").trim().split(/\r?\n/)[0].trim()
+              , n = Array.from(t);
+            return n.length > 16 ? n.slice(0, 16).join("") + "\u2026" : t
+        }
+        function E(e) {
+            var t = e.category
+              , n = ["## \u5de5\u5355\u4fe1\u606f", "", "- **\u5de5\u5355\u7c7b\u578b**\uff1a" + k[t]];
+            if ("technical" === t) {
+                e.client_info && n.push("- **\u5ba2\u6237\u7aef\u53ca\u7248\u672c**\uff1a" + O(e.client_info));
+                e.operator && n.push("- **\u7f51\u7edc\u8fd0\u8425\u5546**\uff1a" + O(e.operator));
+                e.node && n.push("- **\u6d89\u53ca\u8282\u70b9**\uff1a" + O(e.node))
+            }
+            "payment" === t && e.order_no && n.push("- **\u8ba2\u5355\u53f7**\uff1a" + O(e.order_no));
+            return n.concat(["", "## \u8be6\u7ec6\u63cf\u8ff0", "", e.message || ""]).join("\n")
+        }
         class x extends m.a.Component {
             constructor(e) {
                 super(e),
-                this.state = {}
+                this.state = {
+                    images: []
+                }
             }
             setSaveData(e, t) {
                 var n = this.props.ticket.saveData;
@@ -52957,14 +53087,59 @@
                     type: "ticket/fetch"
                 })
             }
+            componentDidUpdate(e) {
+                e.ticket.newTicketModalVisible && !this.props.ticket.newTicketModalVisible && this.clearImages()
+            }
             componentWillUnmount() {
+                this.clearImages(),
                 this.props.dispatch({
                     type: "ticket/empty"
                 })
             }
+            clearImages() {
+                this.state.images.forEach(e=>URL.revokeObjectURL(e.preview)),
+                this.state.images.length && this.setState({
+                    images: []
+                })
+            }
+            selectImages(e) {
+                var t = Array.from(e.target.files || [])
+                  , n = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+                if (this.state.images.length + t.length > 3)
+                    return e.target.value = "",
+                    void window.alert("\u6bcf\u6761\u5de5\u5355\u6700\u591a\u4e0a\u4f203\u5f20\u56fe\u7247");
+                if (t.some(e=>e.size > 2097152 || -1 === n.indexOf(e.type)))
+                    return e.target.value = "",
+                    void window.alert("\u56fe\u7247\u4ec5\u652f\u6301JPEG\u3001PNG\u3001WebP\u548cGIF\uff0c\u5355\u5f20\u4e0d\u8d85\u8fc72MB");
+                this.setState({
+                    images: this.state.images.concat(t.map(e=>({
+                        file: e,
+                        preview: URL.createObjectURL(e)
+                    })))
+                }),
+                e.target.value = ""
+            }
+            removeImage(e) {
+                var t = this.state.images.slice();
+                URL.revokeObjectURL(t[e].preview),
+                t.splice(e, 1),
+                this.setState({
+                    images: t
+                })
+            }
             save() {
+                var e = this.props.ticket.saveData
+                  , t = e.category
+                  , n = new FormData;
+                if (!t || !String(e.message || "").trim())
+                    return void window.alert("\u8bf7\u9009\u62e9\u5de5\u5355\u7c7b\u578b\u5e76\u586b\u5199\u8be6\u7ec6\u63cf\u8ff0");
+                n.append("subject", "[" + k[t] + "] " + S(e.message)),
+                n.append("level", "1"),
+                n.append("message", E(e)),
+                this.state.images.forEach(e=>n.append("images[]", e.file)),
                 this.props.dispatch({
-                    type: "ticket/save"
+                    type: "ticket/save",
+                    formData: n
                 })
             }
             close(e) {
@@ -53136,51 +53311,72 @@
                     })
                 }, m.a.createElement("div", null, m.a.createElement("div", {
                     className: "form-group"
-                }, m.a.createElement("label", {
-                    for: "example-text-input-alt"
-                }, Object(w["formatMessage"])({
-                    id: "\u4e3b\u9898"
-                })), m.a.createElement(s["a"], {
-                    placeholder: Object(w["formatMessage"])({
-                        id: "\u8bf7\u8f93\u5165\u5de5\u5355\u4e3b\u9898"
-                    }),
-                    onChange: e=>this.setSaveData("subject", e.target.value),
-                    value: r.subject
-                })), m.a.createElement("div", {
-                    className: "form-group"
-                }, m.a.createElement("label", {
-                    for: "example-text-input-alt"
-                }, Object(w["formatMessage"])({
-                    id: "\u5de5\u5355\u7b49\u7ea7"
-                })), m.a.createElement(a["a"], {
-                    placeholder: Object(w["formatMessage"])({
-                        id: "\u8bf7\u9009\u62e9\u5de5\u5355\u7b49\u7ea7"
-                    }),
+                }, m.a.createElement("label", null, "\u5de5\u5355\u7c7b\u578b"), m.a.createElement(a["a"], {
+                    placeholder: "\u8bf7\u9009\u62e9\u5de5\u5355\u7c7b\u578b",
                     style: {
                         width: "100%"
                     },
-                    onChange: e=>this.setSaveData("level", e),
-                    value: r.level
-                }, h.map((e,t)=>{
-                    return m.a.createElement(a["a"].Option, {
-                        key: t,
-                        value: t
-                    }, e)
-                }
-                ))), m.a.createElement("div", {
+                    onChange: e=>this.setSaveData("category", e),
+                    value: r.category
+                }, Object.keys(k).map(e=>m.a.createElement(a["a"].Option, {
+                    key: e,
+                    value: e
+                }, k[e])))), "technical" === r.category ? m.a.createElement(m.a.Fragment, null, m.a.createElement("div", {
                     className: "form-group"
-                }, m.a.createElement("label", {
-                    for: "example-text-input-alt"
-                }, Object(w["formatMessage"])({
-                    id: "\u6d88\u606f"
-                })), m.a.createElement(s["a"].TextArea, {
+                }, m.a.createElement("label", null, "\u5ba2\u6237\u7aef\u53ca\u7248\u672c"), m.a.createElement(s["a"], {
+                    placeholder: "\u4f8b\u5982 Clash Verge 2.4.2",
+                    onChange: e=>this.setSaveData("client_info", e.target.value),
+                    value: r.client_info
+                })), m.a.createElement("div", {
+                    className: "form-group"
+                }, m.a.createElement("label", null, "\u7f51\u7edc\u8fd0\u8425\u5546"), m.a.createElement(s["a"], {
+                    placeholder: "\u4f8b\u5982\u4e2d\u56fd\u7535\u4fe1\u3001\u4e2d\u56fd\u79fb\u52a8",
+                    onChange: e=>this.setSaveData("operator", e.target.value),
+                    value: r.operator
+                })), m.a.createElement("div", {
+                    className: "form-group"
+                }, m.a.createElement("label", null, "\u6d89\u53ca\u8282\u70b9"), m.a.createElement(s["a"], {
+                    placeholder: "\u8bf7\u8f93\u5165\u6d89\u53ca\u8282\u70b9",
+                    onChange: e=>this.setSaveData("node", e.target.value),
+                    value: r.node
+                }))) : null, "payment" === r.category ? m.a.createElement("div", {
+                    className: "form-group"
+                }, m.a.createElement("label", null, "\u8ba2\u5355\u53f7"), m.a.createElement(s["a"], {
+                    placeholder: "\u8bf7\u8f93\u5165\u8ba2\u5355\u53f7",
+                    onChange: e=>this.setSaveData("order_no", e.target.value),
+                    value: r.order_no
+                })) : null, m.a.createElement("div", {
+                    className: "form-group"
+                }, m.a.createElement("label", null, "\u8be6\u7ec6\u63cf\u8ff0"), m.a.createElement(s["a"].TextArea, {
                     rows: 5,
-                    placeholder: Object(w["formatMessage"])({
-                        id: "\u8bf7\u63cf\u8ff0\u4f60\u9047\u5230\u7684\u95ee\u9898"
-                    }),
+                    placeholder: "\u8bf7\u8be6\u7ec6\u63cf\u8ff0\u60c5\u51b5",
                     onChange: e=>this.setSaveData("message", e.target.value),
                     value: r.message
-                })))))
+                })), m.a.createElement("div", {
+                    className: "form-group"
+                }, m.a.createElement("label", {
+                    className: "btn btn-sm btn-alt-primary mb-2",
+                    title: "\u6dfb\u52a0\u56fe\u7247"
+                }, "+", m.a.createElement("input", {
+                    type: "file",
+                    accept: "image/jpeg,image/png,image/webp,image/gif",
+                    multiple: !0,
+                    style: {
+                        display: "none"
+                    },
+                    onChange: e=>this.selectImages(e)
+                })), m.a.createElement("div", {
+                    className: "ticket-image-previews"
+                }, this.state.images.map((e,t)=>m.a.createElement("div", {
+                    className: "ticket-image-preview",
+                    key: e.preview
+                }, m.a.createElement("img", {
+                    src: e.preview,
+                    alt: "\u9644\u4ef6\u9884\u89c8"
+                }), m.a.createElement("button", {
+                    type: "button",
+                    onClick: ()=>this.removeImage(t)
+                }, "\xd7"))))))))
             }
         }
         t["default"] = Object(y["c"])(e=>{

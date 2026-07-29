@@ -6075,6 +6075,15 @@
                     placeholder: "\u8bf7\u8f93\u5165\u901a\u77e5\u90ae\u7bb1\uff0c\u591a\u4e2a\u90ae\u7bb1\u7528\u9017\u53f7\u6216\u6362\u884c\u5206\u9694",
                     defaultValue: (e.ticket.ticket_notify_email || []).join("\n"),
                     onChange: e=>this.set("ticket", "ticket_notify_email", e.target.value.split(/[\n,]+/))
+                })), f.a.createElement(m, {
+                    title: "\u5de5\u5355\u56fe\u5e8a Token",
+                    description: "\u53ef\u9009\uff0c\u4f5c\u4e3a\u56fe\u7247\u5220\u9664\u51ed\u636e\uff1b\u7559\u7a7a\u65f6\u6bcf\u6b21\u53d1\u9001\u81ea\u52a8\u968f\u673a\u751f\u6210\u3002"
+                }, f.a.createElement("input", {
+                    type: "text",
+                    className: "form-control",
+                    placeholder: "\u7559\u7a7a\u5219\u81ea\u52a8\u968f\u673a\u751f\u6210",
+                    defaultValue: e.ticket.ticket_image_auth_token,
+                    onChange: e=>this.set("ticket", "ticket_image_auth_token", e.target.value)
                 })))), f.a.createElement(s["a"].TabPane, {
                     tab: "\u9080\u8bf7&\u4f63\u91d1",
                     key: "invite"
@@ -25794,7 +25803,24 @@
         n("PArb")), l = (n("5Dmo"),
         n("3S7+")), c = (n("Pwec"),
         n("CtXQ")), u = n("wd/R"), h = n.n(u), f = (n("Y2fQ"),
-        n("NfUx")), d = n.n(f), p = n("CgOb"), m = n("X0q5");
+        n("NfUx")), d = n.n(f), p = n("CgOb"), m = n("X0q5"), w = n("1M3H"), x = n.n(w), O = new x.a({
+            html: !1,
+            linkify: !0,
+            breaks: !0
+        });
+        O.renderer.rules.image = function(e, t, n, r, i) {
+            var o = e[t].attrGet("src") || "";
+            return /^https:\/\/i\.111666\.best\/image\//.test(o) ? (e[t].attrSet("loading", "lazy"),
+            e[t].attrSet("decoding", "async"),
+            e[t].attrSet("referrerpolicy", "no-referrer"),
+            i.renderToken(e, t, n)) : ""
+        }
+        ;
+        function E(e) {
+            return {
+                __html: O.render(e || "")
+            }
+        }
         class g extends o.a.Component {
             constructor() {
                 super(...arguments),
@@ -25847,27 +25873,58 @@
                         className: "text-right ml-4"
                     }, o.a.createElement("div", {
                         className: "d-inline-block bg-gray-lighter px-3 py-2 mb-2 mw-100 rounded text-left"
-                    }, e.message))) : o.a.createElement("div", null, o.a.createElement("div", {
+                    }, o.a.createElement("div", {
+                        className: "ticket-markdown custom-html-style",
+                        dangerouslySetInnerHTML: E(e.message)
+                    })))) : o.a.createElement("div", null, o.a.createElement("div", {
                         className: "font-size-sm text-muted my-2"
                     }, h()(1e3 * e.created_at).format("YYYY/MM/DD HH:mm")), o.a.createElement("div", {
                         className: "mr-4"
                     }, o.a.createElement("div", {
                         className: "d-inline-block bg-success-lighter px-3 py-2 mb-2 mw-100 rounded text-left"
-                    }, e.message)))
+                    }, o.a.createElement("div", {
+                        className: "ticket-markdown custom-html-style",
+                        dangerouslySetInnerHTML: E(e.message)
+                    }))))
                 }
                 )), o.a.createElement("div", {
                     className: "js-chat-form block-content p-2 bg-body-dark ".concat(d.a.input)
-                }, o.a.createElement("input", {
+                }, o.a.createElement("textarea", {
                     onKeyDown: e=>this.props.onKeyDown(e, ()=>{
                         this.refs.message && (this.refs.message.value = "")
                     }
                     ),
                     ref: "message",
-                    type: "text",
+                    rows: 3,
                     className: "js-chat-input bg-body-dark border-0 form-control form-control-alt",
                     placeholder: "\u8f93\u5165\u5185\u5bb9\u56de\u590d\u5de5\u5355...",
                     onChange: e=>this.props.onChange(e)
-                })))
+                }), o.a.createElement("div", {
+                    className: "ticket-composer-tools"
+                }, o.a.createElement("label", {
+                    className: "btn btn-sm btn-alt-primary mb-0"
+                }, "+", o.a.createElement("input", {
+                    type: "file",
+                    accept: "image/jpeg,image/png,image/webp,image/gif",
+                    multiple: !0,
+                    style: {
+                        display: "none"
+                    },
+                    onChange: e=>this.props.onFiles(e)
+                })), o.a.createElement("span", {
+                    className: "text-muted ml-2"
+                }, "Ctrl/Cmd + Enter \u53d1\u9001")), o.a.createElement("div", {
+                    className: "ticket-image-previews"
+                }, (this.props.images || []).map((e,t)=>o.a.createElement("div", {
+                    className: "ticket-image-preview",
+                    key: e.preview
+                }, o.a.createElement("img", {
+                    src: e.preview,
+                    alt: "\u9644\u4ef6\u9884\u89c8"
+                }), o.a.createElement("button", {
+                    type: "button",
+                    onClick: ()=>this.props.onRemove(t)
+                }, "\xd7"))))))
             }
         }
         class v extends o.a.Component {
@@ -25875,7 +25932,8 @@
                 super(e),
                 this.state = {
                     message: void 0,
-                    submit: {}
+                    submit: {},
+                    images: []
                 }
             }
             componentDidMount() {
@@ -25899,14 +25957,48 @@
                 , 5e3)
             }
             componentWillUnmount() {
-                clearTimeout(r)
+                clearTimeout(r),
+                this.state.images.forEach(e=>URL.revokeObjectURL(e.preview))
+            }
+            selectImages(e) {
+                var t = Array.from(e.target.files || [])
+                  , n = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+                if (this.state.images.length + t.length > 3)
+                    return e.target.value = "",
+                    void window.alert("\u6bcf\u6761\u56de\u590d\u6700\u591a\u4e0a\u4f203\u5f20\u56fe\u7247");
+                if (t.some(e=>e.size > 2097152 || -1 === n.indexOf(e.type)))
+                    return e.target.value = "",
+                    void window.alert("\u56fe\u7247\u4ec5\u652f\u6301JPEG\u3001PNG\u3001WebP\u548cGIF\uff0c\u5355\u5f20\u4e0d\u8d85\u8fc72MB");
+                this.setState({
+                    images: this.state.images.concat(t.map(e=>({
+                        file: e,
+                        preview: URL.createObjectURL(e)
+                    })))
+                }),
+                e.target.value = ""
+            }
+            clearImages() {
+                this.state.images.forEach(e=>URL.revokeObjectURL(e.preview)),
+                this.setState({
+                    images: []
+                })
+            }
+            removeImage(e) {
+                var t = this.state.images.slice();
+                URL.revokeObjectURL(t[e].preview),
+                t.splice(e, 1),
+                this.setState({
+                    images: t
+                })
             }
             reply(e) {
                 this.props.dispatch({
                     type: "ticket/reply",
                     id: this.props.match.params.ticket_id,
                     msg: this.state.message,
+                    images: this.state.images.map(e=>e.file),
                     callback: ()=>{
+                        this.clearImages(),
                         e()
                     }
                 })
@@ -25920,9 +26012,12 @@
                     ticket: n,
                     user: e,
                     onKeyDown: (e,t)=>{
-                        13 !== e.keyCode || r || this.reply(t)
+                        13 !== e.keyCode || !e.ctrlKey && !e.metaKey || r || this.reply(t)
                     }
                     ,
+                    images: this.state.images,
+                    onFiles: e=>this.selectImages(e),
+                    onRemove: e=>this.removeImage(e),
                     onChange: e=>{
                         this.setState({
                             message: e.target.value
@@ -71440,7 +71535,8 @@
                     var n = e.id
                       , i = e.msg
                       , o = e.callback
-                      , l = t.put;
+                      , l = t.put
+                      , u = e.images || [];
                     return s().mark(function e() {
                         var t;
                         return s().wrap(function(e) {
@@ -71457,10 +71553,13 @@
                                     });
                                 case 3:
                                     return e.next = 5,
-                                    Object(a["b"])("/" + window.settings.secure_path + "/ticket/reply", {
-                                        id: n,
-                                        message: i
-                                    });
+                                    Object(a["b"])("/" + window.settings.secure_path + "/ticket/reply", function() {
+                                        var e = new FormData;
+                                        e.append("id", n),
+                                        e.append("message", i || ""),
+                                        u.forEach(t=>e.append("images[]", t));
+                                        return e
+                                    }());
                                 case 5:
                                     return t = e.sent,
                                     e.next = 8,
@@ -96060,6 +96159,11 @@
         }
         function v(e, t) {
             var n = arguments.length > 2 && void 0 !== arguments[2] && arguments[2];
+            if ("undefined" !== typeof FormData && t instanceof FormData)
+                return d(e, {
+                    method: "POST",
+                    body: t
+                });
             return d(e, {
                 method: "POST",
                 headers: {

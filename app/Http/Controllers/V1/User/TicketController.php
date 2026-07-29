@@ -11,6 +11,7 @@ use App\Models\Plan;
 use App\Models\Order;
 use App\Services\TelegramService;
 use App\Services\TicketService;
+use App\Services\TicketImageService;
 use App\Models\Ticket;
 use App\Models\TicketMessage;
 use App\Utils\Dict;
@@ -51,12 +52,10 @@ class TicketController extends Controller
 
     public function save(TicketSave $request)
     {
-        try {
-            DB::beginTransaction();
-            if ((int)Ticket::where('status', 0)->where('user_id', $request->user['id'])->lockForUpdate()->count()) {
-                throw new \Exception(__('There are other unresolved tickets'));
-            }
+        $ticketImageService = new TicketImageService();
+        $imageBatch = ['token' => null, 'items' => []];
 
+        try {
             // 获取工单状态
             $ticketStatus = config('v2board.ticket_status', 0);
 
@@ -83,36 +82,59 @@ class TicketController extends Controller
                     throw new \Exception(__('未知的工单状态'));
             }
 
+            if ((int)Ticket::where('status', 0)->where('user_id', $request->user['id'])->count()) {
+                throw new \Exception(__('There are other unresolved tickets'));
+            }
+
+            $imageBatch = $ticketImageService->uploadBatch($request->file('images', []));
+            $message = $ticketImageService->appendToMessage($request->input('message'), $imageBatch);
+
+            DB::beginTransaction();
+            if ((int)Ticket::where('status', 0)->where('user_id', $request->user['id'])->lockForUpdate()->count()) {
+                throw new \Exception(__('There are other unresolved tickets'));
+            }
+
             $ticketData = $request->only(['subject', 'level']) + ['user_id' => $request->user['id']];
             $ticket = Ticket::create($ticketData);
 
             TicketMessage::create([
                 'user_id' => $request->user['id'],
                 'ticket_id' => $ticket->id,
-                'message' => $request->input('message')
+                'message' => $message
             ]);
 
             DB::commit();
-            $this->sendNotify($ticket, $request->input('message'),$request->user['id']);
-            $ticketService = new TicketService();
-            $ticketService->sendAdminEmailNotify($ticket, $request->input('message'), $request->user['id'], 'new');
-            return response([
-                'data' => true
-            ]);
-        } catch (\Exception $e) {
-            DB::rollBack();
+        } catch (\Throwable $e) {
+            if (DB::transactionLevel() > 0) {
+                DB::rollBack();
+            }
+            $ticketImageService->cleanup($imageBatch);
             abort(500, $e->getMessage());
         }
+
+        $ticketService = new TicketService();
+        $this->sendTicketNotifications($ticketService, $ticket, $message, $request->user['id'], 'new');
+        return response([
+            'data' => true
+        ]);
     }
 
     public function reply(Request $request)
     {
-        if (empty($request->input('id'))) {
-            abort(500, __('Invalid parameter'));
-        }
-        if (empty($request->input('message'))) {
-            abort(500, __('Message cannot be empty'));
-        }
+        $request->validate([
+            'id' => 'required|integer',
+            'message' => 'nullable|string|max:12000|required_without:images',
+            'images' => 'nullable|array|max:3|required_without:message',
+            'images.*' => 'file|max:2048|mimetypes:image/jpeg,image/png,image/webp,image/gif',
+        ], [
+            'message.required_without' => '消息和图片不能同时为空',
+            'message.max' => '消息内容不能超过12000个字符',
+            'images.required_without' => '消息和图片不能同时为空',
+            'images.max' => '每条消息最多上传3张图片',
+            'images.*.max' => '单张图片不能超过2MB',
+            'images.*.mimetypes' => '图片仅支持JPEG、PNG、WebP和GIF格式',
+        ]);
+
         $ticket = Ticket::where('id', $request->input('id'))
             ->where('user_id', $request->user['id'])
             ->first();
@@ -125,18 +147,26 @@ class TicketController extends Controller
         if ($request->user['id'] == $this->getLastMessage($ticket->id)->user_id) {
             abort(500, __('Please wait for the technical enginneer to reply'));
         }
+
+        $ticketImageService = new TicketImageService();
+        $imageBatch = ['token' => null, 'items' => []];
         $ticketService = new TicketService();
-        if (
-			!$ticketService->reply(
-				$ticket,
-				$request->input('message'),
-				$request->user['id']
-			)
-		) {
-            abort(500, __('Ticket reply failed'));
+
+        try {
+            $imageBatch = $ticketImageService->uploadBatch($request->file('images', []));
+            $message = $ticketImageService->appendToMessage((string)$request->input('message'), $imageBatch);
+            if (!$ticketService->reply($ticket, $message, $request->user['id'])) {
+                throw new \RuntimeException(__('Ticket reply failed'));
+            }
+        } catch (\Throwable $e) {
+            if (DB::transactionLevel() > 0) {
+                DB::rollBack();
+            }
+            $ticketImageService->cleanup($imageBatch);
+            abort(500, $e->getMessage());
         }
-        $this->sendNotify($ticket, $request->input('message'), $request->user['id']);
-        $ticketService->sendAdminEmailNotify($ticket, $request->input('message'), $request->user['id'], 'reply');
+
+        $this->sendTicketNotifications($ticketService, $ticket, $message, $request->user['id'], 'reply');
         return response([
             'data' => true
         ]);
@@ -225,6 +255,8 @@ class TicketController extends Controller
 
     private function sendNotify(Ticket $ticket, string $message, $userid = null)
 	{
+		$ticketSubject = $this->escapeTelegramMarkdown($ticket->subject);
+		$message = $this->escapeTelegramMarkdown($message);
 		$telegramService = new TelegramService();
 		if (!empty($userid)) {
 			$user = User::find($userid);
@@ -257,15 +289,44 @@ class TicketController extends Controller
 
 				$money = $user->balance / 100;
 				$affmoney = $user->commission_balance / 100;
-				$telegramService->sendMessageWithAdmin("📮工单提醒 #{$ticket->id}\n———————————————\n邮箱：\n`{$user->email}`\n用户位置：\n`{$location}`\nIP:\n{$ip_address}\n套餐与流量：\n`{$planName} of {$transfer_enable}/{$remaining_traffic}`\n上传/下载：\n`{$u}/{$d}`\n到期时间：\n`{$expired_at}`\n余额/佣金余额：\n`{$money}/{$affmoney}`\n主题：\n`{$ticket->subject}`\n内容：\n {$message} ", true);
+				$telegramService->sendMessageWithAdmin("📮工单提醒 #{$ticket->id}\n———————————————\n邮箱：\n`{$user->email}`\n用户位置：\n`{$location}`\nIP:\n{$ip_address}\n套餐与流量：\n`{$planName} of {$transfer_enable}/{$remaining_traffic}`\n上传/下载：\n`{$u}/{$d}`\n到期时间：\n`{$expired_at}`\n余额/佣金余额：\n`{$money}/{$affmoney}`\n主题：\n{$ticketSubject}\n内容：\n {$message} ", true);
 			} else {
 				// Handle case where user data is not found
 				$telegramService->sendMessageWithAdmin("User data not found for user ID: {$userid}", true);
 			}
 		} else {
-			$telegramService->sendMessageWithAdmin("📮工单提醒 #{$ticket->id}\n———————————————\n主题：\n`{$ticket->subject}`\n内容：\n {$message} ", true);
+			$telegramService->sendMessageWithAdmin("📮工单提醒 #{$ticket->id}\n———————————————\n主题：\n{$ticketSubject}\n内容：\n {$message} ", true);
 		}
 	}
+
+    private function sendTicketNotifications(
+        TicketService $ticketService,
+        Ticket $ticket,
+        string $message,
+        int $userId,
+        string $action
+    ): void {
+        try {
+            $this->sendNotify($ticket, $message, $userId);
+        } catch (\Throwable $e) {
+            report($e);
+        }
+
+        try {
+            $ticketService->sendAdminEmailNotify($ticket, $message, $userId, $action);
+        } catch (\Throwable $e) {
+            report($e);
+        }
+    }
+
+    private function escapeTelegramMarkdown(string $text): string
+    {
+        return str_replace(
+            ['\\', '`', '*', '['],
+            ['\\\\', '\\`', '\\*', '\\['],
+            $text
+        );
+    }
 
     private function getFlowData($b)
     {
