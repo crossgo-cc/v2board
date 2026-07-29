@@ -25856,7 +25856,7 @@
         });
         O.renderer.rules.image = function(e, t, n, r, i) {
             var o = e[t].attrGet("src") || "";
-            return /^https:\/\/i\.111666\.best\/image\//.test(o) ? (e[t].attrSet("loading", "lazy"),
+            return /^https:\/\/(?:i\.111666\.best\/image\/|[^/?#]+(?:\/[^?#]*)?\/ticket-images\/)/.test(o) ? (e[t].attrSet("loading", "lazy"),
             e[t].attrSet("decoding", "async"),
             e[t].attrSet("referrerpolicy", "no-referrer"),
             i.renderToken(e, t, n)) : ""

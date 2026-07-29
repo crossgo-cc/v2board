@@ -18416,7 +18416,7 @@
         });
         g.renderer.rules.image = function(e, t, n, r, o) {
             var i = e[t].attrGet("src") || "";
-            return /^https:\/\/i\.111666\.best\/image\//.test(i) ? (e[t].attrSet("loading", "lazy"),
+            return /^https:\/\/(?:i\.111666\.best\/image\/|[^/?#]+(?:\/[^?#]*)?\/ticket-images\/)/.test(i) ? (e[t].attrSet("loading", "lazy"),
             e[t].attrSet("decoding", "async"),
             e[t].attrSet("referrerpolicy", "no-referrer"),
             o.renderToken(e, t, n)) : ""
