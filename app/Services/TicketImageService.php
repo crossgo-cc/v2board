@@ -5,11 +5,11 @@ namespace App\Services;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Str;
 
 class TicketImageService
 {
-    private const HOST = 'https://i.111666.best';
+    private const API_HOST = 'https://api.nodeimage.com';
+    private const CDN_HOST = 'cdn.nodeimage.com';
     private const MAX_MESSAGE_BYTES = 60000;
 
     private $client;
@@ -30,7 +30,7 @@ class TicketImageService
 
         $token = trim((string)config('v2board.ticket_image_auth_token', ''));
         if ($token === '') {
-            $token = Str::random(32);
+            throw new \RuntimeException('请先在后台配置 NodeImage API Key');
         }
 
         $batch = ['token' => $token, 'items' => []];
@@ -80,9 +80,13 @@ class TicketImageService
         }
 
         foreach ($batch['items'] as $item) {
+            if (empty($item['id'])) {
+                continue;
+            }
+
             try {
-                $this->client->request('DELETE', $item['url'], [
-                    'headers' => ['Auth-Token' => $batch['token']],
+                $this->client->request('DELETE', self::API_HOST . '/api/image/' . rawurlencode($item['id']), [
+                    'headers' => ['X-API-Key' => $batch['token']],
                     'connect_timeout' => 5,
                     'timeout' => 10,
                     'http_errors' => false,
@@ -102,10 +106,10 @@ class TicketImageService
         }
 
         try {
-            $response = $this->client->request('POST', self::HOST . '/image', [
+            $response = $this->client->request('POST', self::API_HOST . '/api/upload', [
                 'headers' => [
                     'Accept' => 'application/json',
-                    'Auth-Token' => $token,
+                    'X-API-Key' => $token,
                 ],
                 'multipart' => [[
                     'name' => 'image',
@@ -123,32 +127,37 @@ class TicketImageService
             }
         }
 
-        if ($response->getStatusCode() !== 200) {
-            throw new \RuntimeException('图床暂时不可用，请稍后重试');
+        $statusCode = $response->getStatusCode();
+        if ($statusCode === 401 || $statusCode === 403) {
+            throw new \RuntimeException('NodeImage API Key 无效或无权限');
+        }
+        if ($statusCode < 200 || $statusCode >= 300) {
+            throw new \RuntimeException('NodeImage 暂时不可用，请稍后重试');
         }
 
         $payload = json_decode((string)$response->getBody(), true);
-        if (!is_array($payload) || empty($payload['ok']) || empty($payload['src'])) {
-            throw new \RuntimeException('图床返回了无效结果');
+        $image = is_array($payload['data'] ?? null) ? $payload['data'] : $payload;
+        $id = is_array($image) ? (string)($image['id'] ?? $image['image_id'] ?? '') : '';
+        $url = is_array($image) ? (string)($image['url'] ?? $image['direct_url'] ?? '') : '';
+
+        if ($id === '' || !preg_match('/^[A-Za-z0-9_-]{1,128}$/', $id) || $url === '') {
+            throw new \RuntimeException('NodeImage 返回了无效结果');
         }
 
-        return ['url' => $this->normalizeUrl((string)$payload['src'])];
+        return ['id' => $id, 'url' => $this->normalizeUrl($url)];
     }
 
-    private function normalizeUrl(string $src): string
+    private function normalizeUrl(string $url): string
     {
-        $url = preg_match('#^https?://#i', $src)
-            ? $src
-            : self::HOST . '/' . ltrim($src, '/');
         $parts = parse_url($url);
 
         if (
             !$parts
             || ($parts['scheme'] ?? '') !== 'https'
-            || ($parts['host'] ?? '') !== 'i.111666.best'
-            || strpos($parts['path'] ?? '', '/image/') !== 0
+            || ($parts['host'] ?? '') !== self::CDN_HOST
+            || strpos($parts['path'] ?? '', '/i/') !== 0
         ) {
-            throw new \RuntimeException('图床返回了不受支持的图片地址');
+            throw new \RuntimeException('NodeImage 返回了不受支持的图片地址');
         }
 
         return $url;

@@ -20,7 +20,7 @@ class TicketImageServiceTest extends TestCase
         Config::set('v2board.ticket_image_auth_token', 'configured-test-token');
         $history = [];
         $service = $this->makeService([
-            new Response(200, [], '{"ok":true,"src":"/image/example.png"}'),
+            new Response(200, [], '{"id":"example","url":"https://cdn.nodeimage.com/i/example.webp","filename":"example.png"}'),
         ], $history);
 
         $batch = $service->uploadBatch([
@@ -28,32 +28,49 @@ class TicketImageServiceTest extends TestCase
         ]);
 
         $this->assertSame('configured-test-token', $batch['token']);
-        $this->assertSame('https://i.111666.best/image/example.png', $batch['items'][0]['url']);
+        $this->assertSame('example', $batch['items'][0]['id']);
+        $this->assertSame('https://cdn.nodeimage.com/i/example.webp', $batch['items'][0]['url']);
         $this->assertSame(
-            "问题描述\n\n## 附加图片\n\n![附件 1](https://i.111666.best/image/example.png)",
+            "问题描述\n\n## 附加图片\n\n![附件 1](https://cdn.nodeimage.com/i/example.webp)",
             $service->appendToMessage('问题描述', $batch)
         );
-        $this->assertSame('configured-test-token', $history[0]['request']->getHeaderLine('Auth-Token'));
+        $this->assertSame('configured-test-token', $history[0]['request']->getHeaderLine('X-API-Key'));
     }
 
-    public function testItUsesOneRandomTokenForUploadAndCleanup(): void
+    public function testItRequiresAnApiKey(): void
     {
         Config::set('v2board.ticket_image_auth_token', '');
         $history = [];
+        $service = $this->makeService([], $history);
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('请先在后台配置 NodeImage API Key');
+
+        $service->uploadBatch([
+            UploadedFile::fake()->create('random.png', 1, 'image/png'),
+        ]);
+    }
+
+    public function testItDeletesUploadedImageById(): void
+    {
+        Config::set('v2board.ticket_image_auth_token', 'delete-test-token');
+        $history = [];
         $service = $this->makeService([
-            new Response(200, [], '{"ok":true,"src":"/image/random.png"}'),
-            new Response(200, [], '{"ok":true}'),
+            new Response(200, [], '{"id":"delete-id","url":"https://cdn.nodeimage.com/i/delete-id.webp"}'),
+            new Response(200, [], '{"success":true}'),
         ], $history);
 
         $batch = $service->uploadBatch([
-            UploadedFile::fake()->create('random.png', 1, 'image/png'),
+            UploadedFile::fake()->create('delete.png', 1, 'image/png'),
         ]);
         $service->cleanup($batch);
 
-        $this->assertSame(32, strlen($batch['token']));
-        $this->assertSame($batch['token'], $history[0]['request']->getHeaderLine('Auth-Token'));
-        $this->assertSame($batch['token'], $history[1]['request']->getHeaderLine('Auth-Token'));
+        $this->assertSame('delete-test-token', $history[1]['request']->getHeaderLine('X-API-Key'));
         $this->assertSame('DELETE', $history[1]['request']->getMethod());
+        $this->assertSame(
+            'https://api.nodeimage.com/api/image/delete-id',
+            (string)$history[1]['request']->getUri()
+        );
     }
 
     public function testItCleansUpUploadedImagesWhenTheBatchFails(): void
@@ -61,7 +78,7 @@ class TicketImageServiceTest extends TestCase
         Config::set('v2board.ticket_image_auth_token', 'cleanup-test-token');
         $history = [];
         $service = $this->makeService([
-            new Response(200, [], '{"ok":true,"src":"/image/first.png"}'),
+            new Response(200, [], '{"id":"first","url":"https://cdn.nodeimage.com/i/first.webp"}'),
             new Response(503),
             new Response(200, [], '{"ok":true}'),
         ], $history);
@@ -73,13 +90,13 @@ class TicketImageServiceTest extends TestCase
             ]);
             $this->fail('批量上传失败时应抛出异常');
         } catch (\RuntimeException $e) {
-            $this->assertSame('图床暂时不可用，请稍后重试', $e->getMessage());
+            $this->assertSame('NodeImage 暂时不可用，请稍后重试', $e->getMessage());
         }
 
         $this->assertCount(3, $history);
         $this->assertSame('DELETE', $history[2]['request']->getMethod());
         $this->assertSame(
-            'https://i.111666.best/image/first.png',
+            'https://api.nodeimage.com/api/image/first',
             (string)$history[2]['request']->getUri()
         );
     }
@@ -89,11 +106,11 @@ class TicketImageServiceTest extends TestCase
         Config::set('v2board.ticket_image_auth_token', 'url-test-token');
         $history = [];
         $service = $this->makeService([
-            new Response(200, [], '{"ok":true,"src":"https://example.com/image/file.png"}'),
+            new Response(200, [], '{"id":"file","url":"https://example.com/image/file.png"}'),
         ], $history);
 
         $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('图床返回了不受支持的图片地址');
+        $this->expectExceptionMessage('NodeImage 返回了不受支持的图片地址');
 
         $service->uploadBatch([
             UploadedFile::fake()->create('file.png', 1, 'image/png'),
@@ -108,7 +125,7 @@ class TicketImageServiceTest extends TestCase
                 $request->getBody()->close();
 
                 return Create::promiseFor(
-                    new Response(200, [], '{"ok":true,"src":"/image/stream.png"}')
+                    new Response(200, [], '{"id":"stream","url":"https://cdn.nodeimage.com/i/stream.webp"}')
                 );
             },
         ]);
@@ -119,7 +136,7 @@ class TicketImageServiceTest extends TestCase
         ]);
 
         $this->assertSame(
-            'https://i.111666.best/image/stream.png',
+            'https://cdn.nodeimage.com/i/stream.webp',
             $batch['items'][0]['url']
         );
     }

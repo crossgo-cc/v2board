@@ -6086,12 +6086,12 @@
                     defaultValue: (e.ticket.ticket_notify_email || []).join("\n"),
                     onChange: e=>this.set("ticket", "ticket_notify_email", e.target.value.split(/[\n,]+/))
                 })), f.a.createElement(m, {
-                    title: "\u5de5\u5355\u56fe\u5e8a Token",
-                    description: "\u53ef\u9009\uff0c\u4f5c\u4e3a\u56fe\u7247\u5220\u9664\u51ed\u636e\uff1b\u7559\u7a7a\u65f6\u6bcf\u6b21\u53d1\u9001\u81ea\u52a8\u968f\u673a\u751f\u6210\u3002"
+                    title: "NodeImage API Key",
+                    description: "\u7528\u4e8e\u5de5\u5355\u56fe\u7247\u4e0a\u4f20\u548c\u5931\u8d25\u56de\u6eda\u5220\u9664\uff0c\u8bf7\u5728 NodeImage \u540e\u53f0\u521b\u5efa\u5e76\u586b\u5199\u3002"
                 }, f.a.createElement("input", {
-                    type: "text",
+                    type: "password",
                     className: "form-control",
-                    placeholder: "\u7559\u7a7a\u5219\u81ea\u52a8\u968f\u673a\u751f\u6210",
+                    placeholder: "\u8bf7\u8f93\u5165 NodeImage API Key",
                     defaultValue: e.ticket.ticket_image_auth_token,
                     onChange: e=>this.set("ticket", "ticket_image_auth_token", e.target.value)
                 })))), f.a.createElement(s["a"].TabPane, {
