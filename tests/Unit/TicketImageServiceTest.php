@@ -8,12 +8,61 @@ use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Response;
+use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Validation\ValidationException;
 use Tests\TestCase;
 
 class TicketImageServiceTest extends TestCase
 {
+    public function testItNormalizesWorkermanImageFields(): void
+    {
+        $request = Request::create('/', 'POST', ['image_count' => '2'], [], [
+            'ticket_image_0' => UploadedFile::fake()->create('first.png', 1, 'image/png'),
+            'ticket_image_1' => UploadedFile::fake()->create('second.png', 1, 'image/png'),
+        ]);
+
+        TicketImageService::normalizeRequestImages($request);
+        $images = TicketImageService::requestImages($request);
+
+        $this->assertCount(2, $images);
+        $this->assertSame('first.png', $images[0]->getClientOriginalName());
+        $this->assertSame('second.png', $images[1]->getClientOriginalName());
+    }
+
+    public function testItKeepsStandardPhpImageFields(): void
+    {
+        $request = Request::create('/', 'POST', ['image_count' => '1'], [], [
+            'images' => [UploadedFile::fake()->create('standard.png', 1, 'image/png')],
+        ]);
+
+        TicketImageService::normalizeRequestImages($request);
+        $images = TicketImageService::requestImages($request);
+
+        $this->assertCount(1, $images);
+        $this->assertSame('standard.png', $images[0]->getClientOriginalName());
+    }
+
+    public function testItRejectsAnIncompleteImageRequest(): void
+    {
+        $request = Request::create('/', 'POST', ['image_count' => '2'], [], [
+            'ticket_image_0' => UploadedFile::fake()->create('first.png', 1, 'image/png'),
+        ]);
+
+        TicketImageService::normalizeRequestImages($request);
+
+        try {
+            TicketImageService::requestImages($request);
+            $this->fail('图片数量不一致时应拒绝请求');
+        } catch (ValidationException $e) {
+            $this->assertSame(
+                ['图片上传不完整，请重新选择后发送'],
+                $e->errors()['images']
+            );
+        }
+    }
+
     public function testItUploadsAndAppendsImageMarkdown(): void
     {
         Config::set('v2board.ticket_image_auth_token', 'configured-test-token');

@@ -58,9 +58,11 @@ class TicketController extends Controller
 
     public function reply(Request $request)
     {
+        TicketImageService::normalizeRequestImages($request);
         $request->validate([
             'id' => 'required|integer',
             'message' => 'nullable|string|max:12000|required_without:images',
+            'image_count' => 'nullable|integer|min:0|max:3',
             'images' => 'nullable|array|max:3|required_without:message',
             'images.*' => 'file|max:2048|mimetypes:image/jpeg,image/png,image/webp,image/gif',
         ], [
@@ -72,6 +74,7 @@ class TicketController extends Controller
             'images.*.mimetypes' => '图片仅支持JPEG、PNG、WebP和GIF格式',
         ]);
 
+        $images = TicketImageService::requestImages($request);
         if (!Ticket::where('id', $request->input('id'))->exists()) {
             abort(500, '工单不存在');
         }
@@ -81,7 +84,7 @@ class TicketController extends Controller
         $ticketService = new TicketService();
 
         try {
-            $imageBatch = $ticketImageService->uploadBatch($request->file('images', []));
+            $imageBatch = $ticketImageService->uploadBatch($images);
             $message = $ticketImageService->appendToMessage((string)$request->input('message'), $imageBatch);
             $ticketService->replyByAdmin(
                 $request->input('id'),
