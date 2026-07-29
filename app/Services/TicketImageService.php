@@ -118,7 +118,9 @@ class TicketImageService
                 'allow_redirects' => false,
             ]);
         } finally {
-            fclose($stream);
+            if (is_resource($stream)) {
+                fclose($stream);
+            }
         }
 
         if ($response->getStatusCode() !== 200) {

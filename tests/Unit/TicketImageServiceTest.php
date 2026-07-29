@@ -7,6 +7,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
+use GuzzleHttp\Promise\Create;
 use GuzzleHttp\Psr7\Response;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Config;
@@ -97,6 +98,30 @@ class TicketImageServiceTest extends TestCase
         $service->uploadBatch([
             UploadedFile::fake()->create('file.png', 1, 'image/png'),
         ]);
+    }
+
+    public function testItHandlesHttpClientClosingUploadStream(): void
+    {
+        Config::set('v2board.ticket_image_auth_token', 'stream-test-token');
+        $client = new Client([
+            'handler' => function ($request) {
+                $request->getBody()->close();
+
+                return Create::promiseFor(
+                    new Response(200, [], '{"ok":true,"src":"/image/stream.png"}')
+                );
+            },
+        ]);
+        $service = new TicketImageService($client);
+
+        $batch = $service->uploadBatch([
+            UploadedFile::fake()->create('stream.png', 1, 'image/png'),
+        ]);
+
+        $this->assertSame(
+            'https://i.111666.best/image/stream.png',
+            $batch['items'][0]['url']
+        );
     }
 
     private function makeService(array $responses, array &$history): TicketImageService
