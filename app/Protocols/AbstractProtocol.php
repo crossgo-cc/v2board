@@ -19,7 +19,10 @@ abstract class AbstractProtocol
 
     protected function response(string $content, array $headers = [], int $status = 200): Response
     {
-        return new Response($content, $status, $headers);
+        return new Response($content, $status, array_merge([
+            'subscription-userinfo' => $this->userInfoHeader(),
+            'profile-update-interval' => (string)config('v2board.subscribe_update_interval', 2),
+        ], $headers));
     }
 
     protected function userInfoHeader(): string

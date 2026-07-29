@@ -6001,6 +6001,16 @@
                     checked: parseInt(r.show_info_to_server_enable),
                     onChange: e=>this.set("subscribe", "show_info_to_server_enable", e ? 1 : 0)
                 })), f.a.createElement(m, {
+                    title: "\u8ba2\u9605\u66f4\u65b0\u95f4\u9694\uff08\u5c0f\u65f6\uff09",
+                    description: "\u5ba2\u6237\u7aef\u81ea\u52a8\u66f4\u65b0\u8ba2\u9605\u7684\u65f6\u95f4\u95f4\u9694\uff0c\u6700\u5c0f\u4e3a 1 \u5c0f\u65f6\u3002"
+                }, f.a.createElement("input", {
+                    type: "number",
+                    min: 1,
+                    className: "form-control",
+                    placeholder: "\u8bf7\u8f93\u5165",
+                    defaultValue: r.subscribe_update_interval,
+                    onChange: e=>this.set("subscribe", "subscribe_update_interval", e.target.value)
+                })), f.a.createElement(m, {
                     title: "\u8ba2\u9605\u94fe\u63a5\u751f\u6548\u6a21\u5f0f",
                     description: "\u7528\u6237\u83b7\u53d6\u8ba2\u9605\u94fe\u63a5\u540e\u7684\u6709\u6548\u671f\u3002"
                 }, f.a.createElement("select", {

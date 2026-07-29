@@ -44,13 +44,34 @@ class ClientSubscriptionRenderingTest extends TestCase
         ];
     }
 
-    public function testProfileUpdateIntervalIsTwoHours()
+    public function testProfileUpdateIntervalUsesConfiguredHours()
     {
-        foreach (['clash.meta/1.19', 'SFA/1.13'] as $userAgent) {
+        $_SERVER['HTTP_HOST'] = 'example.com';
+
+        foreach (['unknown-client', 'clash.meta/1.19', 'SFA/1.13', 'Shadowrocket/2.2', 'Surge/5.0'] as $userAgent) {
             $response = $this->render($userAgent, $this->user(), []);
 
             $this->assertSame('2', $response->headers->get('profile-update-interval'));
         }
+
+        config(['v2board.subscribe_update_interval' => 6]);
+
+        foreach (['unknown-client', 'clash.meta/1.19', 'SFA/1.13', 'Shadowrocket/2.2', 'Surge/5.0'] as $userAgent) {
+            $response = $this->render($userAgent, $this->user(), []);
+
+            $this->assertSame('6', $response->headers->get('profile-update-interval'));
+        }
+    }
+
+    public function testShadowrocketUsesGeneralVlessUriRendering()
+    {
+        $response = $this->render('Shadowrocket/2.2', $this->user(), [
+            $this->server('vless', 'shadowrocket-vless'),
+        ]);
+        $content = base64_decode($response->getContent());
+
+        $this->assertStringContainsString('vless://', $content);
+        $this->assertStringContainsString('#shadowrocket-vless', $content);
     }
 
     public function testClashVergeUserAgentProducesMihomoYaml()

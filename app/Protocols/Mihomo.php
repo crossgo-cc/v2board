@@ -15,8 +15,6 @@ class Mihomo extends AbstractProtocol
         $user = $this->user;
         $appName = config('v2board.app_name', 'V2Board');
         $headers = [
-            'subscription-userinfo' => $this->userInfoHeader(),
-            'profile-update-interval' => '2',
             'content-disposition' => "attachment;filename*=UTF-8''" . rawurlencode($appName),
         ];
         $defaultConfig = base_path() . '/resources/rules/default.clash.yaml';

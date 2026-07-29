@@ -17,8 +17,6 @@ class Singbox extends AbstractProtocol
         $this->config['outbounds'] = $outbounds;
         return $this->response(json_encode($this->config, JSON_UNESCAPED_SLASHES), [
             'Content-Type' => 'application/json',
-            'subscription-userinfo' => $this->userInfoHeader(),
-            'profile-update-interval' => '2',
             'Profile-Title' => 'base64:' . base64_encode($appName),
             'Content-Disposition' => 'attachment; filename="' . $appName . '"',
         ]);

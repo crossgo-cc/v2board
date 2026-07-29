@@ -6,7 +6,6 @@ use App\Protocols\AbstractProtocol;
 use App\Protocols\ClientProtocols;
 use App\Protocols\General;
 use App\Protocols\Mihomo;
-use App\Protocols\Shadowrocket;
 use App\Protocols\Singbox;
 use App\Protocols\Surge;
 use Illuminate\Http\Response;
@@ -29,7 +28,6 @@ class ClientProtocolsTest extends TestCase
     public function maintainedClientProvider()
     {
         return [
-            ['Shadowrocket/2.2 CFNetwork/1492.0.1 Darwin/23.3.0', 'shadowrocket', Shadowrocket::class],
             ['SFA/1.13.0 (100; sing-box 1.13.0; language en_US)', 'sing-box', Singbox::class],
             ['SFI/1.13.0 (Build 100; sing-box 1.13.0; language en_US)', 'sing-box', Singbox::class],
             ['SFM/1.13.0 (Build 100; sing-box 1.13.0; language en_US)', 'sing-box', Singbox::class],
@@ -84,6 +82,7 @@ class ClientProtocolsTest extends TestCase
             ['not-surge/5.0'],
             ['mihomo-preview'],
             ['unknown-client'],
+            ['Shadowrocket/2.2 CFNetwork/1492.0.1 Darwin/23.3.0'],
         ];
     }
 
@@ -98,7 +97,7 @@ class ClientProtocolsTest extends TestCase
 
     public function testExplicitFlagsSelectProfiles()
     {
-        $this->assertSame('shadowrocket', ClientProtocols::match('shadowrocket')['name']);
+        $this->assertSame('general', ClientProtocols::match('shadowrocket')['name']);
         $this->assertSame('sing-box', ClientProtocols::match('sing-box')['name']);
         $this->assertSame('surge', ClientProtocols::match('surge')['name']);
         $this->assertSame('mihomo', ClientProtocols::match('mihomo')['name']);
@@ -173,7 +172,7 @@ class ClientProtocolsTest extends TestCase
             ['mihomo', ['protocol' => 'anytls', 'tls' => 1]],
             ['sing-box', ['protocol' => 'tuic', 'tls' => 1]],
             ['surge', ['protocol' => 'anytls', 'tls' => 1]],
-            ['shadowrocket', ['protocol' => 'tuic', 'tls' => 1]],
+            ['general', ['protocol' => 'tuic', 'tls' => 1]],
             ['general', ['protocol' => 'vmess', 'tls_settings' => ['ech' => 'invalid']]],
             ['mihomo', [
                 'protocol' => 'vmess',
@@ -221,8 +220,8 @@ class ClientProtocolsTest extends TestCase
             ['sing-box', ['protocol' => 'vless', 'encryption' => 'mlkem768x25519plus', 'encryption_settings' => ['password' => 'key']], false],
             ['mihomo', ['protocol' => 'vless', 'tls' => 1, 'tls_settings' => ['ech' => 'custom']], false],
             ['mihomo', ['protocol' => 'vless', 'tls' => 1, 'tls_settings' => ['ech' => 'custom', 'ech_config' => 'config']], true],
-            ['shadowrocket', ['protocol' => 'anytls', 'tls' => 2], false],
-            ['shadowrocket', ['protocol' => 'vless', 'network' => 'kcp'], true],
+            ['general', ['protocol' => 'anytls', 'tls' => 2], false],
+            ['general', ['protocol' => 'vless', 'network' => 'kcp'], true],
             ['mihomo', ['protocol' => 'wireguard'], false],
         ];
     }

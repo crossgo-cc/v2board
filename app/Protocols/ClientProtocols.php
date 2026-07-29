@@ -10,7 +10,6 @@ final class ClientProtocols
     public const MIHOMO = 'mihomo';
     public const SING_BOX = 'sing-box';
     public const SURGE = 'surge';
-    public const SHADOWROCKET = 'shadowrocket';
 
     private const MODERN_SS_CIPHERS = [
         'aes-128-gcm',
@@ -38,12 +37,6 @@ final class ClientProtocols
     ];
 
     private const PROFILES = [
-        self::SHADOWROCKET => [
-            'renderer' => Shadowrocket::class,
-            'flags' => ['shadowrocket'],
-            'user_agent_prefixes' => ['shadowrocket/'],
-            'subscription_info' => true,
-        ],
         self::SING_BOX => [
             'renderer' => Singbox::class,
             'flags' => ['sing-box'],
@@ -108,15 +101,6 @@ final class ClientProtocols
             'vmess' => ['networks' => ['tcp', 'ws'], 'tls' => [0, 1]],
             'trojan' => ['networks' => ['tcp', 'ws'], 'tls' => [1]],
             'hysteria2' => ['networks' => ['tcp'], 'tls' => [1], 'obfs' => ['', 'salamander', 'gecko']],
-            'anytls' => ['networks' => ['tcp'], 'tls' => [1]],
-        ],
-        self::SHADOWROCKET => [
-            'shadowsocks' => ['networks' => ['tcp', 'http'], 'tls' => [0], 'obfs' => ['', 'http'], 'ciphers' => self::MODERN_SS_CIPHERS],
-            'vmess' => ['networks' => ['tcp', 'ws', 'grpc'], 'tls' => [0, 1]],
-            'vless' => ['networks' => ['tcp', 'ws', 'grpc', 'kcp', 'httpupgrade', 'xhttp'], 'tls' => [0, 1, 2], 'reality_networks' => ['tcp', 'grpc', 'xhttp'], 'ech' => true],
-            'trojan' => ['networks' => ['tcp', 'ws', 'grpc'], 'tls' => [1, 2], 'reality_networks' => ['tcp', 'grpc'], 'ech' => true],
-            'hysteria2' => ['networks' => ['tcp'], 'tls' => [1], 'obfs' => ['', 'salamander', 'gecko']],
-            'tuic' => ['networks' => ['tcp'], 'tls' => [1]],
             'anytls' => ['networks' => ['tcp'], 'tls' => [1]],
         ],
     ];
