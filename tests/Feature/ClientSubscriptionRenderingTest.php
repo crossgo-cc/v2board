@@ -64,6 +64,25 @@ class ClientSubscriptionRenderingTest extends TestCase
         $this->assertSame('verge-node', $config['proxies'][0]['name']);
     }
 
+    public function testMaintainedMihomoClientUserAgentsProduceMihomoYaml()
+    {
+        foreach ([
+            'Clash Plus/v1.2.7 ClashMeta Platform/android',
+            'ClashMeta/1.19.15; mihomo/1.19.15',
+            'FlClash X/v0.8.92 core/v1.19.11 Platform/android',
+            'GUI.for.Clash/v1.26.1',
+            'koala-clash/1.3.1',
+        ] as $userAgent) {
+            $response = $this->render($userAgent, $this->user(), [
+                $this->server('vmess', 'mihomo-node'),
+            ]);
+            $config = Yaml::parse($response->getContent());
+
+            $this->assertIsArray($config);
+            $this->assertSame('mihomo-node', $config['proxies'][0]['name']);
+        }
+    }
+
     public function testSurgeDoesNotReceiveUnsupportedVlessNodes()
     {
         $_SERVER['HTTP_HOST'] = 'example.com';
