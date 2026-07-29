@@ -25840,7 +25840,9 @@
             }
             render() {
                 var e, t, n = this.props.ticket;
-                return o.a.createElement("div", null, o.a.createElement("div", {
+                return o.a.createElement("div", {
+                    className: "ticket-chat-page"
+                }, o.a.createElement("div", {
                     className: "block-content-full bg-gray-lighter p-3"
                 }, o.a.createElement("span", {
                     className: d.a.tag
@@ -25912,8 +25914,16 @@
                     },
                     onChange: e=>this.props.onFiles(e)
                 })), o.a.createElement("span", {
-                    className: "text-muted ml-2"
-                }, "Ctrl/Cmd + Enter \u53d1\u9001")), o.a.createElement("div", {
+                    className: "text-muted ml-2 ticket-send-shortcut"
+                }, "Ctrl/Cmd + Enter \u53d1\u9001"), o.a.createElement("button", {
+                    type: "button",
+                    className: "btn btn-sm btn-primary ml-auto ticket-send-button",
+                    disabled: this.props.sending,
+                    onClick: ()=>this.props.onSend(()=>{
+                        this.refs.message && (this.refs.message.value = "")
+                    }
+                    )
+                }, this.props.sending ? "\u53d1\u9001\u4e2d..." : "\u53d1\u9001")), o.a.createElement("div", {
                     className: "ticket-image-previews"
                 }, (this.props.images || []).map((e,t)=>o.a.createElement("div", {
                     className: "ticket-image-preview",
@@ -25966,6 +25976,9 @@
                 if (this.state.images.length + t.length > 3)
                     return e.target.value = "",
                     void window.alert("\u6bcf\u6761\u56de\u590d\u6700\u591a\u4e0a\u4f203\u5f20\u56fe\u7247");
+                if (t.some(e=>0 === e.size))
+                    return e.target.value = "",
+                    void window.alert("\u56fe\u7247\u6587\u4ef6\u4e3a\u7a7a\uff0c\u8bf7\u91cd\u65b0\u9009\u62e9");
                 if (t.some(e=>e.size > 2097152 || -1 === n.indexOf(e.type)))
                     return e.target.value = "",
                     void window.alert("\u56fe\u7247\u4ec5\u652f\u6301JPEG\u3001PNG\u3001WebP\u548cGIF\uff0c\u5355\u5f20\u4e0d\u8d85\u8fc72MB");
@@ -25998,6 +26011,9 @@
                     msg: this.state.message,
                     images: this.state.images.map(e=>e.file),
                     callback: ()=>{
+                        this.setState({
+                            message: ""
+                        }),
                         this.clearImages(),
                         e()
                     }
@@ -26012,9 +26028,12 @@
                     ticket: n,
                     user: e,
                     onKeyDown: (e,t)=>{
-                        13 !== e.keyCode || !e.ctrlKey && !e.metaKey || r || this.reply(t)
+                        13 !== e.keyCode || !e.ctrlKey && !e.metaKey || (e.preventDefault(),
+                        r || this.reply(t))
                     }
                     ,
+                    sending: r,
+                    onSend: e=>r || this.reply(e),
                     images: this.state.images,
                     onFiles: e=>this.selectImages(e),
                     onRemove: e=>this.removeImage(e),

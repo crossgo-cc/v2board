@@ -2,6 +2,35 @@
     overflow-wrap: anywhere;
 }
 
+.ticket-chat-page {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    height: 100dvh;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.ticket-chat-page .js-chat-messages {
+    position: static;
+    flex: 1 1 auto;
+    min-height: 0;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+}
+
+.ticket-chat-page .js-chat-form {
+    position: static;
+    flex: 0 0 auto;
+    max-height: 45vh;
+    max-height: 45dvh;
+    padding-bottom: max(0.5rem, env(safe-area-inset-bottom)) !important;
+    overflow-y: auto;
+}
+
 .ticket-markdown > :last-child {
     margin-bottom: 0;
 }
@@ -30,7 +59,12 @@
 .ticket-composer-tools {
     display: flex;
     align-items: center;
+    gap: 0.5rem;
     margin-top: 0.5rem;
+}
+
+.ticket-send-button {
+    min-width: 68px;
 }
 
 .ticket-image-previews {
@@ -65,4 +99,10 @@
     background: #e74c3c;
     border: 0;
     border-radius: 50%;
+}
+
+@media (max-width: 767.98px) {
+    .ticket-send-shortcut {
+        display: none;
+    }
 }
