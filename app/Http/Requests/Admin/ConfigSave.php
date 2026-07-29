@@ -16,7 +16,11 @@ class ConfigSave extends FormRequest
         'ticket_status' => 'in:0,1,2',
         'ticket_reply_email_notify_enable' => 'in:0,1',
         'ticket_notify_email' => 'nullable|array',
-        'ticket_image_auth_token' => 'nullable|string|max:128',
+        'ticket_image_r2_account_id' => ['nullable', 'regex:/^[a-fA-F0-9]{32}$/'],
+        'ticket_image_r2_access_key_id' => 'nullable|string|max:128',
+        'ticket_image_r2_secret_access_key' => 'nullable|string|max:256',
+        'ticket_image_r2_bucket' => ['nullable', 'regex:/^[a-z0-9][a-z0-9-]{1,61}[a-z0-9]$/'],
+        'ticket_image_r2_public_url' => 'nullable|url|starts_with:https://',
         'invite_force' => 'in:0,1',
         'invite_commission' => 'integer',
         'invite_gen_limit' => 'integer',
@@ -169,6 +173,10 @@ class ConfigSave extends FormRequest
             'secure_path.regex' => '后台路径只能为字母或数字',
             'ticket_notify_email.array' => '工单通知邮箱格式不正确',
             'ticket_notify_email.*.email' => '工单通知邮箱格式不正确',
+            'ticket_image_r2_account_id.regex' => 'R2 Account ID 必须是 32 位十六进制字符串',
+            'ticket_image_r2_bucket.regex' => 'R2 Bucket 名称格式不正确',
+            'ticket_image_r2_public_url.url' => 'R2 公开访问地址格式不正确',
+            'ticket_image_r2_public_url.starts_with' => 'R2 公开访问地址必须使用 HTTPS',
         ];
     }
 }

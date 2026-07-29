@@ -68,7 +68,7 @@ class TicketController extends Controller
         }
 
         $ticketImageService = new TicketImageService();
-        $imageBatch = ['token' => null, 'items' => []];
+        $imageBatch = ['items' => []];
         $ticketService = new TicketService();
 
         try {

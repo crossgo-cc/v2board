@@ -8,15 +8,19 @@ use Illuminate\Http\UploadedFile;
 
 class TicketImageService
 {
-    private const API_HOST = 'https://api.nodeimage.com';
-    private const CDN_HOST = 'cdn.nodeimage.com';
     private const MAX_MESSAGE_BYTES = 60000;
+    private const REGION = 'auto';
+    private const SERVICE = 's3';
 
     private $client;
+    private $clock;
 
-    public function __construct(?ClientInterface $client = null)
+    public function __construct(?ClientInterface $client = null, ?callable $clock = null)
     {
         $this->client = $client ?: new Client();
+        $this->clock = $clock ?: function () {
+            return gmdate('Ymd\THis\Z');
+        };
     }
 
     /**
@@ -25,19 +29,15 @@ class TicketImageService
     public function uploadBatch(array $files): array
     {
         if (!$files) {
-            return ['token' => null, 'items' => []];
+            return ['items' => []];
         }
 
-        $token = trim((string)config('v2board.ticket_image_auth_token', ''));
-        if ($token === '') {
-            throw new \RuntimeException('请先在后台配置 NodeImage API Key');
-        }
-
-        $batch = ['token' => $token, 'items' => []];
+        $config = $this->config();
+        $batch = ['items' => []];
 
         try {
             foreach ($files as $file) {
-                $batch['items'][] = $this->upload($file, $token);
+                $batch['items'][] = $this->upload($file, $config);
             }
         } catch (\Throwable $e) {
             $this->cleanup($batch);
@@ -75,91 +75,168 @@ class TicketImageService
 
     public function cleanup(array $batch): void
     {
-        if (empty($batch['token']) || empty($batch['items'])) {
+        if (empty($batch['items'])) {
+            return;
+        }
+
+        try {
+            $config = $this->config();
+        } catch (\Throwable $e) {
             return;
         }
 
         foreach ($batch['items'] as $item) {
-            if (empty($item['id'])) {
+            if (empty($item['key'])) {
                 continue;
             }
 
             try {
-                $this->client->request('DELETE', self::API_HOST . '/api/image/' . rawurlencode($item['id']), [
-                    'headers' => ['X-API-Key' => $batch['token']],
-                    'connect_timeout' => 5,
-                    'timeout' => 10,
-                    'http_errors' => false,
-                    'allow_redirects' => false,
-                ]);
+                $this->request('DELETE', $item['key'], '', '', $config);
             } catch (\Throwable $e) {
-                // 清理失败不覆盖原始业务异常，也不能记录删除凭据。
+                // 清理失败不覆盖原始业务异常，也不能记录 R2 凭据。
             }
         }
     }
 
-    private function upload(UploadedFile $file, string $token): array
+    private function upload(UploadedFile $file, array $config): array
     {
-        $stream = fopen($file->getRealPath(), 'rb');
-        if ($stream === false) {
+        $mimeType = (string)$file->getMimeType();
+        $extensions = [
+            'image/jpeg' => 'jpg',
+            'image/png' => 'png',
+            'image/webp' => 'webp',
+            'image/gif' => 'gif',
+        ];
+
+        if (!isset($extensions[$mimeType])) {
+            throw new \RuntimeException('图片格式不受支持');
+        }
+
+        $body = file_get_contents($file->getRealPath());
+        if ($body === false) {
             throw new \RuntimeException('无法读取工单图片');
         }
 
-        try {
-            $response = $this->client->request('POST', self::API_HOST . '/api/upload', [
-                'headers' => [
-                    'Accept' => 'application/json',
-                    'X-API-Key' => $token,
-                ],
-                'multipart' => [[
-                    'name' => 'image',
-                    'contents' => $stream,
-                    'filename' => $file->getClientOriginalName(),
-                ]],
-                'connect_timeout' => 5,
-                'timeout' => 20,
-                'http_errors' => false,
-                'allow_redirects' => false,
-            ]);
-        } finally {
-            if (is_resource($stream)) {
-                fclose($stream);
-            }
-        }
-
+        $key = sprintf(
+            'ticket-images/%s/%s.%s',
+            gmdate('Y/m/d'),
+            bin2hex(random_bytes(16)),
+            $extensions[$mimeType]
+        );
+        $response = $this->request('PUT', $key, $body, $mimeType, $config);
         $statusCode = $response->getStatusCode();
+
         if ($statusCode === 401 || $statusCode === 403) {
-            throw new \RuntimeException('NodeImage API Key 无效或无权限');
+            throw new \RuntimeException('Cloudflare R2 凭据无效或无权限');
         }
         if ($statusCode < 200 || $statusCode >= 300) {
-            throw new \RuntimeException('NodeImage 暂时不可用，请稍后重试');
+            throw new \RuntimeException('Cloudflare R2 暂时不可用，请稍后重试');
         }
 
-        $payload = json_decode((string)$response->getBody(), true);
-        $image = is_array($payload['data'] ?? null) ? $payload['data'] : $payload;
-        $id = is_array($image) ? (string)($image['id'] ?? $image['image_id'] ?? '') : '';
-        $url = is_array($image) ? (string)($image['url'] ?? $image['direct_url'] ?? '') : '';
-
-        if ($id === '' || !preg_match('/^[A-Za-z0-9_-]{1,128}$/', $id) || $url === '') {
-            throw new \RuntimeException('NodeImage 返回了无效结果');
-        }
-
-        return ['id' => $id, 'url' => $this->normalizeUrl($url)];
+        return [
+            'key' => $key,
+            'url' => $config['public_url'] . '/' . $key,
+        ];
     }
 
-    private function normalizeUrl(string $url): string
-    {
-        $parts = parse_url($url);
+    private function request(
+        string $method,
+        string $key,
+        string $body,
+        string $contentType,
+        array $config
+    ) {
+        $host = $config['account_id'] . '.r2.cloudflarestorage.com';
+        $canonicalUri = '/' . rawurlencode($config['bucket']) . '/' . implode('/', array_map(
+            'rawurlencode',
+            explode('/', $key)
+        ));
+        $payloadHash = hash('sha256', $body);
+        $amzDate = ($this->clock)();
+        $date = substr($amzDate, 0, 8);
 
-        if (
-            !$parts
-            || ($parts['scheme'] ?? '') !== 'https'
-            || ($parts['host'] ?? '') !== self::CDN_HOST
-            || strpos($parts['path'] ?? '', '/i/') !== 0
-        ) {
-            throw new \RuntimeException('NodeImage 返回了不受支持的图片地址');
+        $headers = [
+            'host' => $host,
+            'x-amz-content-sha256' => $payloadHash,
+            'x-amz-date' => $amzDate,
+        ];
+        if ($contentType !== '') {
+            $headers['content-type'] = $contentType;
+        }
+        ksort($headers);
+
+        $canonicalHeaders = '';
+        foreach ($headers as $name => $value) {
+            $canonicalHeaders .= $name . ':' . trim($value) . "\n";
+        }
+        $signedHeaders = implode(';', array_keys($headers));
+        $canonicalRequest = implode("\n", [
+            $method,
+            $canonicalUri,
+            '',
+            $canonicalHeaders,
+            $signedHeaders,
+            $payloadHash,
+        ]);
+        $scope = $date . '/' . self::REGION . '/' . self::SERVICE . '/aws4_request';
+        $stringToSign = implode("\n", [
+            'AWS4-HMAC-SHA256',
+            $amzDate,
+            $scope,
+            hash('sha256', $canonicalRequest),
+        ]);
+        $signature = hash_hmac(
+            'sha256',
+            $stringToSign,
+            $this->signingKey($config['secret_access_key'], $date),
+            false
+        );
+        $headers['authorization'] = sprintf(
+            'AWS4-HMAC-SHA256 Credential=%s/%s, SignedHeaders=%s, Signature=%s',
+            $config['access_key_id'],
+            $scope,
+            $signedHeaders,
+            $signature
+        );
+
+        return $this->client->request($method, 'https://' . $host . $canonicalUri, [
+            'headers' => $headers,
+            'body' => $body,
+            'connect_timeout' => 5,
+            'timeout' => 20,
+            'http_errors' => false,
+            'allow_redirects' => false,
+        ]);
+    }
+
+    private function signingKey(string $secret, string $date): string
+    {
+        $dateKey = hash_hmac('sha256', $date, 'AWS4' . $secret, true);
+        $regionKey = hash_hmac('sha256', self::REGION, $dateKey, true);
+        $serviceKey = hash_hmac('sha256', self::SERVICE, $regionKey, true);
+
+        return hash_hmac('sha256', 'aws4_request', $serviceKey, true);
+    }
+
+    private function config(): array
+    {
+        $config = [
+            'account_id' => trim((string)config('v2board.ticket_image_r2_account_id', '')),
+            'access_key_id' => trim((string)config('v2board.ticket_image_r2_access_key_id', '')),
+            'secret_access_key' => trim((string)config('v2board.ticket_image_r2_secret_access_key', '')),
+            'bucket' => trim((string)config('v2board.ticket_image_r2_bucket', '')),
+            'public_url' => rtrim(trim((string)config('v2board.ticket_image_r2_public_url', '')), '/'),
+        ];
+
+        if (in_array('', $config, true)) {
+            throw new \RuntimeException('请先在后台完整配置 Cloudflare R2');
         }
 
-        return $url;
+        $url = parse_url($config['public_url']);
+        if (!$url || ($url['scheme'] ?? '') !== 'https' || empty($url['host'])) {
+            throw new \RuntimeException('Cloudflare R2 公开访问地址必须是 HTTPS URL');
+        }
+
+        return $config;
     }
 }

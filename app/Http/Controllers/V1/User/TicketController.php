@@ -53,7 +53,7 @@ class TicketController extends Controller
     public function save(TicketSave $request)
     {
         $ticketImageService = new TicketImageService();
-        $imageBatch = ['token' => null, 'items' => []];
+        $imageBatch = ['items' => []];
 
         try {
             // 获取工单状态
@@ -149,7 +149,7 @@ class TicketController extends Controller
         }
 
         $ticketImageService = new TicketImageService();
-        $imageBatch = ['token' => null, 'items' => []];
+        $imageBatch = ['items' => []];
         $ticketService = new TicketService();
 
         try {

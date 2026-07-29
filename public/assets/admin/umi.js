@@ -6086,14 +6086,50 @@
                     defaultValue: (e.ticket.ticket_notify_email || []).join("\n"),
                     onChange: e=>this.set("ticket", "ticket_notify_email", e.target.value.split(/[\n,]+/))
                 })), f.a.createElement(m, {
-                    title: "NodeImage API Key",
-                    description: "\u7528\u4e8e\u5de5\u5355\u56fe\u7247\u4e0a\u4f20\u548c\u5931\u8d25\u56de\u6eda\u5220\u9664\uff0c\u8bf7\u5728 NodeImage \u540e\u53f0\u521b\u5efa\u5e76\u586b\u5199\u3002"
+                    title: "Cloudflare Account ID",
+                    description: "R2 \u6240\u5728 Cloudflare \u8d26\u6237\u7684 32 \u4f4d Account ID\u3002"
+                }, f.a.createElement("input", {
+                    type: "text",
+                    className: "form-control",
+                    placeholder: "\u8bf7\u8f93\u5165 Account ID",
+                    defaultValue: e.ticket.ticket_image_r2_account_id,
+                    onChange: e=>this.set("ticket", "ticket_image_r2_account_id", e.target.value)
+                })), f.a.createElement(m, {
+                    title: "R2 Access Key ID",
+                    description: "\u8bf7\u4f7f\u7528\u5177\u6709\u76ee\u6807 Bucket \u5bf9\u8c61\u8bfb\u5199\u6743\u9650\u7684 R2 API Token \u51ed\u636e\u3002"
+                }, f.a.createElement("input", {
+                    type: "text",
+                    className: "form-control",
+                    placeholder: "\u8bf7\u8f93\u5165 Access Key ID",
+                    defaultValue: e.ticket.ticket_image_r2_access_key_id,
+                    onChange: e=>this.set("ticket", "ticket_image_r2_access_key_id", e.target.value)
+                })), f.a.createElement(m, {
+                    title: "R2 Secret Access Key",
+                    description: "\u8be5\u5bc6\u94a5\u4ec5\u7528\u4e8e\u670d\u52a1\u7aef\u7b7e\u540d R2 \u8bf7\u6c42\u3002"
                 }, f.a.createElement("input", {
                     type: "password",
                     className: "form-control",
-                    placeholder: "\u8bf7\u8f93\u5165 NodeImage API Key",
-                    defaultValue: e.ticket.ticket_image_auth_token,
-                    onChange: e=>this.set("ticket", "ticket_image_auth_token", e.target.value)
+                    placeholder: "\u8bf7\u8f93\u5165 Secret Access Key",
+                    defaultValue: e.ticket.ticket_image_r2_secret_access_key,
+                    onChange: e=>this.set("ticket", "ticket_image_r2_secret_access_key", e.target.value)
+                })), f.a.createElement(m, {
+                    title: "R2 Bucket",
+                    description: "\u5b58\u50a8\u5de5\u5355\u56fe\u7247\u7684 R2 Bucket \u540d\u79f0\u3002"
+                }, f.a.createElement("input", {
+                    type: "text",
+                    className: "form-control",
+                    placeholder: "\u8bf7\u8f93\u5165 Bucket \u540d\u79f0",
+                    defaultValue: e.ticket.ticket_image_r2_bucket,
+                    onChange: e=>this.set("ticket", "ticket_image_r2_bucket", e.target.value)
+                })), f.a.createElement(m, {
+                    title: "R2 \u516c\u5f00\u8bbf\u95ee\u5730\u5740",
+                    description: "\u8bf7\u586b\u5199 Bucket \u7ed1\u5b9a\u7684 HTTPS \u81ea\u5b9a\u4e49\u57df\u540d\u6216 r2.dev \u5730\u5740\uff0c\u672b\u5c3e\u4e0d\u9700\u8981 /\u3002"
+                }, f.a.createElement("input", {
+                    type: "text",
+                    className: "form-control",
+                    placeholder: "https://images.example.com",
+                    defaultValue: e.ticket.ticket_image_r2_public_url,
+                    onChange: e=>this.set("ticket", "ticket_image_r2_public_url", e.target.value)
                 })))), f.a.createElement(s["a"].TabPane, {
                     tab: "\u9080\u8bf7&\u4f63\u91d1",
                     key: "invite"
