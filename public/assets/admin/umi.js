@@ -25864,7 +25864,7 @@
         ;
         function E(e) {
             return {
-                __html: O.render(e || "")
+                __html: O.render((e || "").replace(/(^|\n\n)## 附加图片\n+(?=!\[附件 \d+\]\(https:\/\/)/g, "$1"))
             }
         }
         class g extends o.a.Component {

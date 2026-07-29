@@ -50,7 +50,7 @@ class TicketImageServiceTest extends TestCase
             $batch['items'][0]['url']
         );
         $this->assertSame(
-            "问题描述\n\n## 附加图片\n\n![附件 1](" . $batch['items'][0]['url'] . ')',
+            "问题描述\n\n![附件 1](" . $batch['items'][0]['url'] . ')',
             $service->appendToMessage('问题描述', $batch)
         );
 

@@ -63,7 +63,6 @@ class TicketImageService
 
         $message = rtrim($message);
         $message .= ($message === '' ? '' : "\n\n")
-            . "## 附加图片\n\n"
             . implode("\n\n", $images);
 
         if (strlen($message) > self::MAX_MESSAGE_BYTES) {

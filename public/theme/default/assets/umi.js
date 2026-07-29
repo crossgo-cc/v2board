@@ -18424,7 +18424,7 @@
         ;
         function b(e) {
             return {
-                __html: g.render(e || "")
+                __html: g.render((e || "").replace(/(^|\n\n)## 附加图片\n+(?=!\[附件 \d+\]\(https:\/\/)/g, "$1"))
             }
         }
         class h extends s.a.Component {
