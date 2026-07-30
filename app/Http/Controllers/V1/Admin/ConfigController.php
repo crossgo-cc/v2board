@@ -73,6 +73,8 @@ class ConfigController extends Controller
             'ticket' => [
                 'ticket_status' => config('v2board.ticket_status', 0),
                 'ticket_reply_email_notify_enable' => (int)config('v2board.ticket_reply_email_notify_enable', 1),
+                'ticket_image_enable' => (int)config('v2board.ticket_image_enable', 0),
+                'ticket_image_retention_days' => (int)config('v2board.ticket_image_retention_days', 0),
                 'ticket_notify_email' => config('v2board.ticket_notify_email', []),
                 'ticket_image_r2_account_id' => config('v2board.ticket_image_r2_account_id', ''),
                 'ticket_image_r2_access_key_id' => config('v2board.ticket_image_r2_access_key_id', ''),

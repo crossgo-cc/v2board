@@ -20,6 +20,7 @@
                 color: '{{$theme_color}}',
             },
             version: '{{$version}}',
+            ticket_image_enable: {{$ticket_image_enable}},
             background_url: '{{$background_url}}',
             logo: '{{$logo}}',
             secure_path: '{{$secure_path}}'

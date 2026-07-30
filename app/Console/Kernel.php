@@ -39,6 +39,7 @@ class Kernel extends ConsoleKernel
         // reset
         $schedule->command('reset:traffic')->daily();
         $schedule->command('reset:log')->daily();
+        $schedule->command('ticket-images:cleanup')->dailyAt('2:30')->withoutOverlapping();
         $schedule->command('check:autoResetTraffic')->everyFiveMinutes()->withoutOverlapping();
         // send
         $schedule->command('send:remindMail')->dailyAt('11:30');

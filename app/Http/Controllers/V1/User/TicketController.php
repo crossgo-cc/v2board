@@ -86,7 +86,11 @@ class TicketController extends Controller
                 throw new \Exception(__('There are other unresolved tickets'));
             }
 
-            $imageBatch = $ticketImageService->uploadBatch($request->file('images', []));
+            $imageBatch = rescue(
+                fn () => $ticketImageService->uploadBatch($request->file('images', [])),
+                fn () => abort(500, '图片上传暂时不可用，请联系管理员'),
+                false
+            );
             $message = $ticketImageService->appendToMessage($request->input('message'), $imageBatch);
 
             DB::beginTransaction();
@@ -153,7 +157,11 @@ class TicketController extends Controller
         $ticketService = new TicketService();
 
         try {
-            $imageBatch = $ticketImageService->uploadBatch($request->file('images', []));
+            $imageBatch = rescue(
+                fn () => $ticketImageService->uploadBatch($request->file('images', [])),
+                fn () => abort(500, '图片上传暂时不可用，请联系管理员'),
+                false
+            );
             $message = $ticketImageService->appendToMessage((string)$request->input('message'), $imageBatch);
             if (!$ticketService->reply($ticket, $message, $request->user['id'])) {
                 throw new \RuntimeException(__('Ticket reply failed'));

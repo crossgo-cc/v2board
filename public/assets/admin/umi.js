@@ -6077,6 +6077,25 @@
                     checked: parseInt(null === e.ticket.ticket_reply_email_notify_enable || void 0 === e.ticket.ticket_reply_email_notify_enable ? 1 : e.ticket.ticket_reply_email_notify_enable),
                     onChange: e=>this.set("ticket", "ticket_reply_email_notify_enable", e ? 1 : 0)
                 })), f.a.createElement(m, {
+                    title: "\u5de5\u5355\u56fe\u7247\u4e0a\u4f20",
+                    description: "\u5141\u8bb8\u7528\u6237\u3001\u7ba1\u7406\u5458\u548c\u5458\u5de5\u5728\u5de5\u5355\u4e2d\u4e0a\u4f20\u56fe\u7247\u3002"
+                }, f.a.createElement(l["a"], {
+                    checked: parseInt(null === e.ticket.ticket_image_enable || void 0 === e.ticket.ticket_image_enable ? 0 : e.ticket.ticket_image_enable),
+                    onChange: e=>this.set("ticket", "ticket_image_enable", e ? 1 : 0)
+                })), f.a.createElement(m, {
+                    title: "\u5de5\u5355\u56fe\u7247\u81ea\u52a8\u6e05\u7406",
+                    description: "\u5b9a\u65f6\u6e05\u7406\u8d85\u8fc7\u6240\u9009\u4fdd\u7559\u5929\u6570\u7684\u5de5\u5355\u56fe\u7247\u3002"
+                }, f.a.createElement("select", {
+                    className: "form-control",
+                    value: null === e.ticket.ticket_image_retention_days || void 0 === e.ticket.ticket_image_retention_days ? 0 : e.ticket.ticket_image_retention_days,
+                    onChange: e=>this.set("ticket", "ticket_image_retention_days", parseInt(e.target.value))
+                }, f.a.createElement("option", {
+                    value: 0
+                }, "\u6c38\u4e0d\u81ea\u52a8\u6e05\u7406"), [7, 15, 30, 60, 90, 180, 365].map(e=>f.a.createElement("option", {
+                    key: e,
+                    value: e
+                }, e + " \u5929")))
+                ), f.a.createElement(m, {
                     title: "\u5de5\u5355\u901a\u77e5\u90ae\u7bb1",
                     description: "\u7528\u6237\u65b0\u5efa\u5de5\u5355\u6216\u7528\u6237\u56de\u590d\u5de5\u5355\u540e\uff0c\u5411\u8fd9\u4e9b\u90ae\u7bb1\u53d1\u9001\u901a\u77e5\uff1b\u7559\u7a7a\u4e3a\u5173\u95ed\u3002"
                 }, f.a.createElement("textarea", {
@@ -25949,7 +25968,7 @@
                     onChange: e=>this.props.onChange(e)
                 }), o.a.createElement("div", {
                     className: "ticket-composer-tools"
-                }, o.a.createElement("label", {
+                }, parseInt(window.settings.ticket_image_enable) ? o.a.createElement("label", {
                     className: "btn btn-sm btn-alt-primary mb-0"
                 }, "+", o.a.createElement("input", {
                     type: "file",
@@ -25959,7 +25978,7 @@
                         display: "none"
                     },
                     onChange: e=>this.props.onFiles(e)
-                })), o.a.createElement("span", {
+                })) : null, o.a.createElement("span", {
                     className: "text-muted ml-2 ticket-send-shortcut"
                 }, "Ctrl/Cmd + Enter \u53d1\u9001"), o.a.createElement("button", {
                     type: "button",
@@ -25969,7 +25988,7 @@
                         this.refs.message && (this.refs.message.value = "")
                     }
                     )
-                }, this.props.sending ? "\u53d1\u9001\u4e2d..." : "\u53d1\u9001")), o.a.createElement("div", {
+                }, this.props.sending ? "\u53d1\u9001\u4e2d..." : "\u53d1\u9001")), parseInt(window.settings.ticket_image_enable) ? o.a.createElement("div", {
                     className: "ticket-image-previews"
                 }, (this.props.images || []).map((e,t)=>o.a.createElement("div", {
                     className: "ticket-image-preview",
@@ -25980,7 +25999,7 @@
                 }), o.a.createElement("button", {
                     type: "button",
                     onClick: ()=>this.props.onRemove(t)
-                }, "\xd7"))))))
+                }, "\xd7")))) : null))
             }
         }
         class v extends o.a.Component {
@@ -71622,7 +71641,7 @@
                                         var e = new FormData;
                                         e.append("id", n),
                                         e.append("message", i || ""),
-                                        u.forEach(t=>e.append("images[]", t));
+                                        u.forEach((t,n)=>e.append("images[" + n + "]", t));
                                         return e
                                     }());
                                 case 5:

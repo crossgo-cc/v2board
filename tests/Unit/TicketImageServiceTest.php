@@ -30,6 +30,7 @@ class TicketImageServiceTest extends TestCase
         Config::set('v2board.ticket_image_r2_secret_access_key', self::SECRET_ACCESS_KEY);
         Config::set('v2board.ticket_image_r2_bucket', self::BUCKET);
         Config::set('v2board.ticket_image_r2_public_url', self::PUBLIC_URL);
+        Config::set('v2board.ticket_image_enable', 1);
     }
 
     public function testItUploadsToR2AndAppendsImageMarkdown(): void
@@ -89,6 +90,30 @@ class TicketImageServiceTest extends TestCase
         ]);
     }
 
+    public function testItRejectsImagesWhenUploadsAreDisabled(): void
+    {
+        Config::set('v2board.ticket_image_enable', 0);
+        $history = [];
+        $service = $this->makeService([], $history);
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('工单图片上传功能未启用');
+
+        $service->uploadBatch([
+            UploadedFile::fake()->create('disabled.png', 1, 'image/png'),
+        ]);
+    }
+
+    public function testItAllowsMessagesWithoutImagesWhenUploadsAreDisabled(): void
+    {
+        Config::set('v2board.ticket_image_enable', 0);
+        $history = [];
+        $service = $this->makeService([], $history);
+
+        $this->assertSame(['items' => []], $service->uploadBatch([]));
+        $this->assertSame([], $history);
+    }
+
     public function testItDeletesUploadedObjectByKey(): void
     {
         $history = [];
@@ -139,6 +164,65 @@ class TicketImageServiceTest extends TestCase
         );
     }
 
+    public function testItDeletesOnlyExpiredTicketImages(): void
+    {
+        $history = [];
+        $service = $this->makeService([
+            new Response(200, [], $this->listResponse([
+                ['ticket-images/2026/06/01/old.png', '2026-06-01T00:00:00.000Z'],
+                ['ticket-images/2026/07/25/new.png', '2026-07-25T00:00:00.000Z'],
+            ])),
+            new Response(200, [], '<DeleteResult xmlns="http://s3.amazonaws.com/doc/2006-03-01/"/>'),
+        ], $history);
+
+        $this->assertSame(1, $service->deleteExpired(30));
+        $this->assertCount(2, $history);
+
+        $listRequest = $history[0]['request'];
+        $this->assertSame('GET', $listRequest->getMethod());
+        $this->assertSame(
+            'list-type=2&max-keys=100&prefix=ticket-images%2F',
+            $listRequest->getUri()->getQuery()
+        );
+
+        $deleteRequest = $history[1]['request'];
+        $deleteBody = (string)$deleteRequest->getBody();
+        $this->assertSame('POST', $deleteRequest->getMethod());
+        $this->assertSame('delete=', $deleteRequest->getUri()->getQuery());
+        $this->assertStringContainsString('ticket-images/2026/06/01/old.png', $deleteBody);
+        $this->assertStringNotContainsString('ticket-images/2026/07/25/new.png', $deleteBody);
+        $this->assertSame(base64_encode(md5($deleteBody, true)), $deleteRequest->getHeaderLine('Content-MD5'));
+    }
+
+    public function testItPaginatesTicketImages(): void
+    {
+        $history = [];
+        $service = $this->makeService([
+            new Response(200, [], $this->listResponse([
+                ['ticket-images/2026/07/25/first.png', '2026-07-25T00:00:00.000Z'],
+            ], true)),
+            new Response(200, [], $this->listResponse([
+                ['ticket-images/2026/07/26/second.png', '2026-07-26T00:00:00.000Z'],
+            ])),
+        ], $history);
+
+        $this->assertSame(0, $service->deleteExpired(7));
+        $this->assertCount(2, $history);
+        $this->assertSame(
+            'list-type=2&max-keys=100&prefix=ticket-images%2F&start-after=ticket-images%2F2026%2F07%2F25%2Ffirst.png',
+            $history[1]['request']->getUri()->getQuery()
+        );
+    }
+
+    public function testItDoesNotRequestR2WhenRetentionIsDisabled(): void
+    {
+        $history = [];
+        $service = $this->makeService([], $history);
+
+        $this->assertSame(0, $service->deleteExpired(0));
+        $this->assertSame([], $history);
+    }
+
     public function testItRejectsNonHttpsPublicUrls(): void
     {
         Config::set('v2board.ticket_image_r2_public_url', 'http://images.example.com');
@@ -174,5 +258,19 @@ class TicketImageServiceTest extends TestCase
         return new TicketImageService(new Client(['handler' => $stack]), function () {
             return self::AMZ_DATE;
         });
+    }
+
+    private function listResponse(array $objects, bool $truncated = false): string
+    {
+        $contents = '';
+        foreach ($objects as [$key, $lastModified]) {
+            $contents .= '<Contents><Key>' . $key . '</Key><LastModified>'
+                . $lastModified . '</LastModified></Contents>';
+        }
+
+        return '<ListBucketResult xmlns="http://s3.amazonaws.com/doc/2006-03-01/">'
+            . '<IsTruncated>' . ($truncated ? 'true' : 'false') . '</IsTruncated>'
+            . $contents
+            . '</ListBucketResult>';
     }
 }

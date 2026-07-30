@@ -115,6 +115,29 @@ class WorkermanLaravelBridgeTest extends TestCase
         $this->assertSame([false, false], array_map('file_exists', $paths));
     }
 
+    public function testItConvertsExplicitlyIndexedFileFields(): void
+    {
+        $boundary = '----IndexedBoundary';
+        $body = self::multipart($boundary, [
+            ['name' => 'images[0]', 'filename' => 'first.png', 'value' => 'first-bytes'],
+            ['name' => 'images[1]', 'filename' => 'second.png', 'value' => 'second-bytes'],
+        ]);
+        $request = new WorkermanRequest(
+            "POST /upload HTTP/1.1\r\n"
+            . "Host: example.com\r\n"
+            . "Content-Type: multipart/form-data; boundary={$boundary}\r\n"
+            . 'Content-Length: ' . strlen($body) . "\r\n\r\n"
+            . $body
+        );
+
+        $images = WorkermanLaravelBridge::toLaravelRequest($request)->file('images');
+
+        $this->assertCount(2, $images);
+        $this->assertSame(['first.png', 'second.png'], array_map(function (UploadedFile $file) {
+            return $file->getClientOriginalName();
+        }, $images));
+    }
+
     public function testItConvertsScalarAndNestedFileFields(): void
     {
         $boundary = '----NestedBoundary';

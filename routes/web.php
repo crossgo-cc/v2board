@@ -25,7 +25,8 @@ Route::get('/', function (Request $request) {
         'theme' => config('v2board.frontend_theme', 'default'),
         'version' => config('app.version'),
         'description' => config('v2board.app_description', 'V2Board is best'),
-        'logo' => config('v2board.logo')
+        'logo' => config('v2board.logo'),
+        'ticket_image_enable' => (int)config('v2board.ticket_image_enable', 0)
     ];
 
     if (!config("theme.{$renderParams['theme']}")) {
@@ -47,6 +48,7 @@ Route::get('/' . config('v2board.secure_path', config('v2board.frontend_admin_pa
         'background_url' => config('v2board.frontend_background_url'),
         'version' => config('app.version'),
         'logo' => config('v2board.logo'),
+        'ticket_image_enable' => (int)config('v2board.ticket_image_enable', 0),
         'secure_path' => config('v2board.secure_path', config('v2board.frontend_admin_path', hash('crc32b', config('app.key'))))
     ]);
 });

@@ -15,6 +15,8 @@ class ConfigSave extends FormRequest
         // invite & commission
         'ticket_status' => 'in:0,1,2',
         'ticket_reply_email_notify_enable' => 'in:0,1',
+        'ticket_image_enable' => 'in:0,1',
+        'ticket_image_retention_days' => 'in:0,7,15,30,60,90,180,365',
         'ticket_notify_email' => 'nullable|array',
         'ticket_image_r2_account_id' => ['nullable', 'regex:/^[a-fA-F0-9]{32}$/'],
         'ticket_image_r2_access_key_id' => 'nullable|string|max:128',

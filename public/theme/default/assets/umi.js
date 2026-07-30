@@ -18492,7 +18492,7 @@
                     onChange: e=>this.props.onChange(e)
                 }), s.a.createElement("div", {
                     className: "ticket-composer-tools"
-                }, s.a.createElement("label", {
+                }, parseInt(window.settings.ticket_image_enable) ? s.a.createElement("label", {
                     className: "btn btn-sm btn-alt-primary mb-0"
                 }, "+", s.a.createElement("input", {
                     type: "file",
@@ -18502,7 +18502,7 @@
                         display: "none"
                     },
                     onChange: e=>this.props.onFiles(e)
-                })), s.a.createElement("span", {
+                })) : null, s.a.createElement("span", {
                     className: "text-muted ml-2 ticket-send-shortcut"
                 }, "Ctrl/Cmd + Enter \u53d1\u9001"), s.a.createElement("button", {
                     type: "button",
@@ -18512,7 +18512,7 @@
                         this.refs.message && (this.refs.message.value = "")
                     }
                     )
-                }, this.props.sending ? "\u53d1\u9001\u4e2d..." : "\u53d1\u9001")), s.a.createElement("div", {
+                }, this.props.sending ? "\u53d1\u9001\u4e2d..." : "\u53d1\u9001")), parseInt(window.settings.ticket_image_enable) ? s.a.createElement("div", {
                     className: "ticket-image-previews"
                 }, (this.props.images || []).map((e,t)=>s.a.createElement("div", {
                     className: "ticket-image-preview",
@@ -18523,7 +18523,7 @@
                 }), s.a.createElement("button", {
                     type: "button",
                     onClick: ()=>this.props.onRemove(t)
-                }, "\xd7"))))))
+                }, "\xd7")))) : null))
             }
         }
         class m extends s.a.Component {
@@ -39389,7 +39389,7 @@
                                         var e = new FormData;
                                         e.append("id", o),
                                         e.append("message", p.message || ""),
-                                        h.forEach(t=>e.append("images[]", t));
+                                        h.forEach((t,n)=>e.append("images[" + n + "]", t));
                                         return e
                                     }());
                                 case 11:
@@ -53152,7 +53152,7 @@
                 n.append("subject", "[" + k[t] + "] " + S(e.message)),
                 n.append("level", "1"),
                 n.append("message", E(e)),
-                this.state.images.forEach(e=>n.append("images[]", e.file)),
+                this.state.images.forEach((e,t)=>n.append("images[" + t + "]", e.file)),
                 this.props.dispatch({
                     type: "ticket/save",
                     formData: n
@@ -53368,7 +53368,7 @@
                     placeholder: "\u8bf7\u8be6\u7ec6\u63cf\u8ff0\u60c5\u51b5",
                     onChange: e=>this.setSaveData("message", e.target.value),
                     value: r.message
-                })), m.a.createElement("div", {
+                })), parseInt(window.settings.ticket_image_enable) ? m.a.createElement("div", {
                     className: "form-group"
                 }, m.a.createElement("label", {
                     className: "btn btn-sm btn-alt-primary mb-2",
@@ -53392,7 +53392,7 @@
                 }), m.a.createElement("button", {
                     type: "button",
                     onClick: ()=>this.removeImage(t)
-                }, "\xd7"))))))))
+                }, "\xd7"))))) : null)))
             }
         }
         t["default"] = Object(y["c"])(e=>{

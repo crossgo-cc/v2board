@@ -32,6 +32,10 @@ class TicketImageService
             return ['items' => []];
         }
 
+        if (!(int)config('v2board.ticket_image_enable', 0)) {
+            throw new \RuntimeException('工单图片上传功能未启用');
+        }
+
         $config = $this->config();
         $batch = ['items' => []];
 
@@ -97,6 +101,90 @@ class TicketImageService
         }
     }
 
+    public function deleteExpired(int $days): int
+    {
+        if ($days <= 0) {
+            return 0;
+        }
+
+        $config = $this->config();
+        $cutoff = strtotime(($this->clock)()) - ($days * 86400);
+        $startAfter = null;
+        $deleted = 0;
+
+        do {
+            $query = [
+                'list-type' => '2',
+                'max-keys' => '100',
+                'prefix' => 'ticket-images/',
+            ];
+            if ($startAfter !== null) {
+                $query['start-after'] = $startAfter;
+            }
+
+            $response = $this->request('GET', '', '', '', $config, $query);
+            if ($response->getStatusCode() < 200 || $response->getStatusCode() >= 300) {
+                throw new \RuntimeException('Cloudflare R2 图片列表获取失败');
+            }
+
+            $xml = @simplexml_load_string((string)$response->getBody());
+            if ($xml === false) {
+                throw new \RuntimeException('Cloudflare R2 图片列表格式无效');
+            }
+
+            $keys = [];
+            $startAfter = null;
+            foreach ($xml->Contents as $object) {
+                $key = (string)$object->Key;
+                $modifiedAt = strtotime((string)$object->LastModified);
+                $startAfter = $key;
+                if ($key !== '' && $modifiedAt !== false && $modifiedAt < $cutoff) {
+                    $keys[] = $key;
+                }
+            }
+
+            if ($keys) {
+                $this->deleteObjects($keys, $config);
+                $deleted += count($keys);
+            }
+
+            $truncated = strtolower((string)$xml->IsTruncated) === 'true';
+            if ($truncated && $startAfter === null) {
+                throw new \RuntimeException('Cloudflare R2 图片列表分页信息无效');
+            }
+        } while ($truncated);
+
+        return $deleted;
+    }
+
+    private function deleteObjects(array $keys, array $config): void
+    {
+        $body = '<Delete xmlns="http://s3.amazonaws.com/doc/2006-03-01/"><Quiet>true</Quiet>';
+        foreach ($keys as $key) {
+            $body .= '<Object><Key>'
+                . htmlspecialchars($key, ENT_XML1 | ENT_QUOTES, 'UTF-8')
+                . '</Key></Object>';
+        }
+        $body .= '</Delete>';
+
+        $response = $this->request(
+            'POST',
+            '',
+            $body,
+            'application/xml',
+            $config,
+            ['delete' => '']
+        );
+        if ($response->getStatusCode() < 200 || $response->getStatusCode() >= 300) {
+            throw new \RuntimeException('Cloudflare R2 过期图片清理失败');
+        }
+
+        $xml = @simplexml_load_string((string)$response->getBody());
+        if ($xml === false || count($xml->Error) > 0) {
+            throw new \RuntimeException('Cloudflare R2 过期图片清理不完整');
+        }
+    }
+
     private function upload(UploadedFile $file, array $config): array
     {
         $mimeType = (string)$file->getMimeType();
@@ -143,13 +231,16 @@ class TicketImageService
         string $key,
         string $body,
         string $contentType,
-        array $config
+        array $config,
+        array $query = []
     ) {
         $host = $config['account_id'] . '.r2.cloudflarestorage.com';
-        $canonicalUri = '/' . rawurlencode($config['bucket']) . '/' . implode('/', array_map(
-            'rawurlencode',
-            explode('/', $key)
-        ));
+        $canonicalUri = '/' . rawurlencode($config['bucket']);
+        if ($key !== '') {
+            $canonicalUri .= '/' . implode('/', array_map('rawurlencode', explode('/', $key)));
+        }
+        ksort($query);
+        $canonicalQuery = http_build_query($query, '', '&', PHP_QUERY_RFC3986);
         $payloadHash = hash('sha256', $body);
         $amzDate = ($this->clock)();
         $date = substr($amzDate, 0, 8);
@@ -162,6 +253,9 @@ class TicketImageService
         if ($contentType !== '') {
             $headers['content-type'] = $contentType;
         }
+        if (array_key_exists('delete', $query)) {
+            $headers['content-md5'] = base64_encode(md5($body, true));
+        }
         ksort($headers);
 
         $canonicalHeaders = '';
@@ -172,7 +266,7 @@ class TicketImageService
         $canonicalRequest = implode("\n", [
             $method,
             $canonicalUri,
-            '',
+            $canonicalQuery,
             $canonicalHeaders,
             $signedHeaders,
             $payloadHash,
@@ -198,7 +292,12 @@ class TicketImageService
             $signature
         );
 
-        return $this->client->request($method, 'https://' . $host . $canonicalUri, [
+        $url = 'https://' . $host . $canonicalUri;
+        if ($canonicalQuery !== '') {
+            $url .= '?' . $canonicalQuery;
+        }
+
+        return $this->client->request($method, $url, [
             'headers' => $headers,
             'body' => $body,
             'connect_timeout' => 5,
