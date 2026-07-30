@@ -24,7 +24,7 @@ class ClientController extends Controller
     public function subscribe(Request $request): Response
     {
         $userAgent = $request->input('flag')
-            ?? ($_SERVER['HTTP_USER_AGENT'] ?? '');
+            ?? $request->userAgent();
         $profile = ClientProtocols::match($userAgent);
         $user = $request->user;
         $unavailableReason = $this->getUnavailableReason($user);

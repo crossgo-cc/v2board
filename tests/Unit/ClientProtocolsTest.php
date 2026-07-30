@@ -37,6 +37,7 @@ class ClientProtocolsTest extends TestCase
             ['Surge iOS/5.10.0', 'surge', Surge::class],
             ['clash.meta/1.19', 'mihomo', Mihomo::class],
             ['ClashMeta/1.19.15; mihomo/1.19.15', 'mihomo', Mihomo::class],
+            ['ClashMetaForAndroid/2.11.32.Meta', 'mihomo', Mihomo::class],
             ['Clash Plus/v1.2.7 ClashMeta Platform/android', 'mihomo', Mihomo::class],
             ['clash-verge/v2.4.5', 'mihomo', Mihomo::class],
             ['clash-nyanpasu/v2.4', 'mihomo', Mihomo::class],

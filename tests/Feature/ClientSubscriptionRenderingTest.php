@@ -2,9 +2,13 @@
 
 namespace Tests\Feature;
 
+use App\Http\Controllers\V1\Client\ClientController;
 use App\Protocols\Mihomo;
 use App\Protocols\ClientProtocols;
 use App\Protocols\Surge;
+use App\Services\ServerService;
+use App\Services\UserService;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Symfony\Component\Yaml\Yaml;
 use Tests\TestCase;
@@ -90,6 +94,7 @@ class ClientSubscriptionRenderingTest extends TestCase
         foreach ([
             'Clash Plus/v1.2.7 ClashMeta Platform/android',
             'ClashMeta/1.19.15; mihomo/1.19.15',
+            'ClashMetaForAndroid/2.11.32.Meta',
             'FlClash X/v0.8.92 core/v1.19.11 Platform/android',
             'GUI.for.Clash/v1.26.1',
             'koala-clash/1.3.1',
@@ -102,6 +107,22 @@ class ClientSubscriptionRenderingTest extends TestCase
             $this->assertIsArray($config);
             $this->assertSame('mihomo-node', $config['proxies'][0]['name']);
         }
+    }
+
+    public function testClashMetaForAndroidRequestWithoutFlagProducesMihomoYaml()
+    {
+        $_SERVER['HTTP_HOST'] = 'example.com';
+        $request = Request::create('/subscribe', 'GET', [], [], [], [
+            'HTTP_USER_AGENT' => 'ClashMetaForAndroid/2.11.32.Meta',
+        ]);
+        $request->user = array_merge($this->user(), ['banned' => 1]);
+
+        $response = (new ClientController(new ServerService(), new UserService()))->subscribe($request);
+        $config = Yaml::parse($response->getContent());
+
+        $this->assertIsArray($config);
+        $this->assertSame('账号已被封禁', $config['proxies'][0]['name']);
+        $this->assertSame('2', $response->headers->get('profile-update-interval'));
     }
 
     public function testSurgeDoesNotReceiveUnsupportedVlessNodes()

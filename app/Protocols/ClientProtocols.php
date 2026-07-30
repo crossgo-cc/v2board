@@ -55,6 +55,7 @@ final class ClientProtocols
             'user_agent_prefixes' => [
                 'clash.meta/',
                 'clashmeta/',
+                'clashmetaforandroid/',
                 'clash plus/v',
                 'clash-verge/v',
                 'clash-nyanpasu/v',
