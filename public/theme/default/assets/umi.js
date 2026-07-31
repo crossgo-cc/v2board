@@ -31173,7 +31173,7 @@
                     className: "v2board-subscription-status ".concat(E ? "is-expired" : "is-active")
                 }, Object(b["formatMessage"])({
                     id: E ? "\u5df2\u8fc7\u671f" : "\u6709\u6548"
-                }))), l.a.createElement("div", {
+                }))), !E && l.a.createElement("div", {
                     className: "v2board-subscription-usage"
                 }, l.a.createElement("div", {
                     className: "v2board-subscription-usage-title"
