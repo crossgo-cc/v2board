@@ -31458,17 +31458,11 @@
             }
             renderLoading() {
                 return o.a.createElement("div", {
-                    className: "block block-rounded block-mode-loading notice-loading",
-                    "aria-label": "Loading"
-                }, o.a.createElement("div", {
-                    className: "block-header block-header-default"
-                }, o.a.createElement("h3", {
-                    className: "block-title"
-                }, Object(l["formatMessage"])({
-                    id: "\u516c\u544a"
-                }))), o.a.createElement("div", {
-                    className: "block-content"
-                }))
+                    className: "spinner-grow text-primary",
+                    role: "status"
+                }, o.a.createElement("span", {
+                    className: "sr-only"
+                }, "Loading..."))
             }
             renderNotice(e, t) {
                 var n = u()(1e3 * e.created_at);

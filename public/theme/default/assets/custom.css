@@ -282,10 +282,6 @@
     margin: 0 auto;
 }
 
-.notice-loading {
-    min-height: 180px;
-}
-
 .notice-timeline {
     position: relative;
     max-width: 1040px;
@@ -296,7 +292,7 @@
     position: absolute;
     top: 18px;
     bottom: 28px;
-    left: 119px;
+    left: 103px;
     width: 1px;
     background: #d8dde5;
     content: "";
@@ -305,7 +301,7 @@
 .notice-timeline-item {
     position: relative;
     display: grid;
-    grid-template-columns: 92px 54px minmax(0, 1fr);
+    grid-template-columns: 76px 54px minmax(0, 1fr);
     padding-bottom: 1rem;
     content-visibility: auto;
     contain-intrinsic-size: 0 380px;
@@ -394,7 +390,7 @@
 
 .notice-pagination {
     display: flex;
-    padding: 0 0 1rem 146px;
+    padding: 0 0 1rem 130px;
     align-items: center;
     justify-content: center;
 }
@@ -412,7 +408,6 @@
         padding-left: 0 !important;
     }
 
-    .notice-loading,
     .notice-empty {
         margin-right: 1rem;
         margin-left: 1rem;
