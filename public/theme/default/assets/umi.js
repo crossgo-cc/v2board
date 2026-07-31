@@ -24159,7 +24159,7 @@
                         })
                     }, {
                         title: Object(u["formatMessage"])({
-                            id: "\u516c\u544a"
+                            id: "\u516c\u544a\u4e2d\u5fc3"
                         }),
                         type: "item",
                         href: "/notice",
@@ -31419,8 +31419,7 @@
           , c = n("wd/R")
           , u = n.n(c)
           , l = n("Y2fQ")
-          , f = n("NoticeMarkdown")
-          , d = [0, 1, 2];
+          , f = n("NoticeMarkdown");
         class p extends o.a.Component {
             constructor(e) {
                 super(e),
@@ -31457,41 +31456,19 @@
                 })
                 )
             }
-            renderHero(e, t) {
-                return o.a.createElement("section", {
-                    className: "notice-hero"
-                }, o.a.createElement("div", {
-                    className: "notice-hero-copy"
-                }, o.a.createElement("span", {
-                    className: "notice-hero-eyebrow"
-                }, "ANNOUNCEMENTS"), o.a.createElement("h1", null, Object(l["formatMessage"])({
-                    id: "\u516c\u544a\u4e2d\u5fc3"
-                })), o.a.createElement("p", null, Object(l["formatMessage"])({
-                    id: "\u53ca\u65f6\u4e86\u89e3\u670d\u52a1\u52a8\u6001\u4e0e\u91cd\u8981\u901a\u77e5"
-                }))), t ? null : o.a.createElement("div", {
-                    className: "notice-hero-count"
-                }, o.a.createElement("strong", null, e), o.a.createElement("span", null, Object(l["formatMessage"])({
-                    id: "\u5df2\u53d1\u5e03\u516c\u544a"
-                }))))
-            }
             renderLoading() {
                 return o.a.createElement("div", {
-                    className: "notice-skeleton-list",
+                    className: "block block-rounded block-mode-loading notice-loading",
                     "aria-label": "Loading"
-                }, d.map(e=>o.a.createElement("div", {
-                    className: "notice-skeleton-item",
-                    key: e
-                }, o.a.createElement("span", {
-                    className: "notice-skeleton-date"
-                }), o.a.createElement("div", {
-                    className: "notice-skeleton-card"
-                }, o.a.createElement("span", {
-                    className: "notice-skeleton-title"
-                }), o.a.createElement("span", {
-                    className: "notice-skeleton-line"
-                }), o.a.createElement("span", {
-                    className: "notice-skeleton-line is-short"
-                })))))
+                }, o.a.createElement("div", {
+                    className: "block-header block-header-default"
+                }, o.a.createElement("h3", {
+                    className: "block-title"
+                }, Object(l["formatMessage"])({
+                    id: "\u516c\u544a"
+                }))), o.a.createElement("div", {
+                    className: "block-content"
+                }))
             }
             renderNotice(e, t) {
                 var n = u()(1e3 * e.created_at);
@@ -31504,18 +31481,19 @@
                 }, o.a.createElement("strong", null, n.format("MM-DD")), o.a.createElement("span", null, n.format("YYYY"))), o.a.createElement("div", {
                     className: "notice-timeline-marker"
                 }), o.a.createElement("div", {
-                    className: "notice-timeline-card"
+                    className: "block block-rounded notice-timeline-card mb-0"
                 }, o.a.createElement("header", {
-                    className: "notice-card-header"
-                }, o.a.createElement("div", {
-                    className: "notice-card-heading"
+                    className: "block-header block-header-default notice-card-header"
+                }, o.a.createElement("h2", {
+                    className: "block-title"
                 }, 0 === t ? o.a.createElement("span", {
-                    className: "notice-latest-badge"
+                    className: "badge badge-primary mr-2"
                 }, Object(l["formatMessage"])({
                     id: "\u6700\u65b0"
-                })) : null, o.a.createElement("h2", null, e.title)), Array.isArray(e.tags) && e.tags.length > 0 ? o.a.createElement("div", {
-                    className: "notice-timeline-tags"
+                })) : null, e.title), Array.isArray(e.tags) && e.tags.length > 0 ? o.a.createElement("div", {
+                    className: "block-options notice-timeline-tags"
                 }, e.tags.map(e=>o.a.createElement("span", {
+                    className: "badge badge-light ml-1",
                     key: e
                 }, "#", e))) : null), Object(f["b"])(e.img_url) ? o.a.createElement("img", {
                     className: "notice-timeline-cover",
@@ -31524,15 +31502,16 @@
                     loading: "lazy",
                     referrerPolicy: "no-referrer"
                 }) : null, o.a.createElement("div", {
-                    className: "notice-markdown custom-html-style",
+                    className: "block-content notice-markdown ticket-markdown custom-html-style",
                     dangerouslySetInnerHTML: Object(f["a"])(e.content)
                 })))
             }
             renderPagination(e, t) {
                 return o.a.createElement("nav", {
-                    className: "notice-pagination",
+                    className: "notice-pagination text-center",
                     "aria-label": "Pagination"
                 }, o.a.createElement("button", {
+                    className: "btn btn-sm btn-alt-primary",
                     type: "button",
                     disabled: e <= 1,
                     onClick: ()=>this.fetch(e - 1)
@@ -31541,8 +31520,9 @@
                 }), Object(l["formatMessage"])({
                     id: "\u4e0a\u4e00\u9875"
                 })), o.a.createElement("span", {
-                    className: "notice-page-indicator"
+                    className: "notice-page-indicator text-muted"
                 }, e, " / ", t), o.a.createElement("button", {
+                    className: "btn btn-sm btn-alt-primary",
                     type: "button",
                     disabled: e >= t,
                     onClick: ()=>this.fetch(e + 1)
@@ -31561,22 +31541,30 @@
                   , s = Math.max(1, Math.ceil(n / this.pageSize));
                 return o.a.createElement(i["a"], Object.assign({}, this.props, {
                     title: Object(l["formatMessage"])({
-                        id: "\u516c\u544a\u4e2d\u5fc3"
+                        id: "\u516c\u544a"
                     })
                 }), o.a.createElement("main", {
                     id: "main-container",
                     className: "notice-page"
                 }, o.a.createElement("div", {
                     className: "content content-full"
-                }, this.renderHero(n, a), a ? this.renderLoading() : 0 === t.length ? o.a.createElement("div", {
-                    className: "notice-empty"
-                }, o.a.createElement("span", {
-                    className: "notice-empty-icon"
+                }, a ? this.renderLoading() : 0 === t.length ? o.a.createElement("div", {
+                    className: "block block-rounded notice-empty"
+                }, o.a.createElement("div", {
+                    className: "block-header block-header-default"
+                }, o.a.createElement("h3", {
+                    className: "block-title"
+                }, Object(l["formatMessage"])({
+                    id: "\u516c\u544a"
+                }))), o.a.createElement("div", {
+                    className: "block-content block-content-full text-center py-5"
                 }, o.a.createElement("i", {
-                    className: "si si-bell"
-                })), o.a.createElement("p", null, Object(l["formatMessage"])({
+                    className: "si si-bell fa-2x text-muted mb-3"
+                }), o.a.createElement("p", {
+                    className: "text-muted mb-0"
+                }, Object(l["formatMessage"])({
                     id: "\u6682\u65e0\u516c\u544a"
-                }))) : o.a.createElement("div", {
+                })))) : o.a.createElement("div", {
                     className: "notice-timeline"
                 }, t.map((e,t)=>this.renderNotice(e, t))), a || 0 === t.length ? null : this.renderPagination(r, s))))
             }

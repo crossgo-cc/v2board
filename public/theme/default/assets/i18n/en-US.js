@@ -35,8 +35,6 @@ window.settings.i18n['en-US'] = {
   '点击这里进行绑定': 'Please click here to link to Telegram',
   '公告': 'Announcements',
   '公告中心': 'Announcement Center',
-  '及时了解服务动态与重要通知': 'Stay up to date with service updates and important notices',
-  '已发布公告': 'Published',
   '最新': 'Latest',
   '暂无公告': 'No announcements',
   '上一页': 'Previous',

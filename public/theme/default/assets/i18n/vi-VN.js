@@ -35,8 +35,6 @@ window.settings.i18n['vi-VN'] = {
   '点击这里进行绑定': 'Ấn vào để liên kết',
   '公告': 'Thông Báo',
   '公告中心': 'Trung tâm thông báo',
-  '及时了解服务动态与重要通知': 'Cập nhật tình trạng dịch vụ và các thông báo quan trọng',
-  '已发布公告': 'Đã đăng',
   '最新': 'Mới nhất',
   '暂无公告': 'Chưa có thông báo',
   '上一页': 'Trang trước',
