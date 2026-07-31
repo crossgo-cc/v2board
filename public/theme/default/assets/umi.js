@@ -31049,6 +31049,13 @@
                     className: "si si-arrow-right text-muted ml-3"
                 })))
             }
+            getResetPrice() {
+                var e = this.props.user.subscribe.plan.reset_price
+                  , t = this.props.comm.config;
+                return 0 === Number(e) ? Object(b["formatMessage"])({
+                    id: "\u514d\u8d39"
+                }) : "".concat(t.currency_symbol, " ").concat((e / 100).toFixed(2))
+            }
             resetPackage() {
                 var e = this.props.user.subscribe
                   , t = this;
@@ -31057,9 +31064,15 @@
                     title: Object(b["formatMessage"])({
                         id: "\u786e\u5b9a\u91cd\u7f6e\u5f53\u524d\u5df2\u7528\u6d41\u91cf\uff1f"
                     }),
-                    content: Object(b["formatMessage"])({
-                        id: "\u70b9\u51fb\u300c\u786e\u5b9a\u300d\u5c06\u4f1a\u8df3\u8f6c\u5230\u6536\u94f6\u53f0\uff0c\u652f\u4ed8\u8ba2\u5355\u540e\u7cfb\u7edf\u5c06\u4f1a\u6e05\u7a7a\u60a8\u5f53\u6708\u5df2\u4f7f\u7528\u6d41\u91cf\u3002"
-                    }),
+                    content: l.a.createElement("div", null, l.a.createElement("div", {
+                        className: "d-flex justify-content-between mb-2"
+                    }, l.a.createElement("span", null, Object(b["formatMessage"])({
+                        id: "\u6d41\u91cf\u91cd\u7f6e\u5305"
+                    })), l.a.createElement("strong", null, this.getResetPrice())), l.a.createElement("p", {
+                        className: "mb-0 text-muted"
+                    }, Object(b["formatMessage"])({
+                        id: "\u8d2d\u4e70\u540e\u7acb\u5373\u6e05\u96f6\u5df2\u7528\u6d41\u91cf\uff0c\u4e0d\u6539\u53d8\u5957\u9910\u603b\u91cf\u548c\u5230\u671f\u65f6\u95f4\u3002"
+                    }))),
                     onOk() {
                         t.props.dispatch({
                             type: "order/save",
@@ -31072,9 +31085,9 @@
                     onCancel() {},
                     okText: t.props.order.saveLoading ? l.a.createElement(s["a"], {
                         type: "loading"
-                    }) : Object(b["formatMessage"])({
+                    }) : l.a.createElement("span", null, Object(b["formatMessage"])({
                         id: "\u786e\u5b9a"
-                    }),
+                    }), " \u00b7 ", this.getResetPrice()),
                     cancelText: Object(b["formatMessage"])({
                         id: "\u53d6\u6d88"
                     }),
@@ -31109,7 +31122,7 @@
                 })
             }
             render() {
-                var e, t, n, r, s = this.props.user, u = s.stat, d = s.subscribe, m = this.props.notice.notices, y = Math.round(Object(p["f"])(d.u + d.d, d.transfer_enable) * 100) / 100, x = [];
+                var t, n, s = this.props.user, u = s.stat, d = s.subscribe, m = this.props.notice.notices, y = Math.round(Object(p["f"])(d.u + d.d, d.transfer_enable) * 100) / 100, x = [], P = d.plan && null !== d.plan.reset_price && void 0 !== d.plan.reset_price, C = P ? this.getResetPrice() : "";
                 (void 0 !== u[0] && u[0] && x.push(l.a.createElement("div", {
                     className: "alert alert-danger",
                     role: "alert"
@@ -31147,9 +31160,11 @@
                     id: "\u5f53\u524d\u5df2\u4f7f\u7528\u6d41\u91cf\u8fbe{rate}%"
                 }, {
                     rate: y
-                }), " ", (null === (r = d.plan) || void 0 === r ? void 0 : r.reset_price) && l.a.createElement("a", {
+                }), " ", P && l.a.createElement("a", {
                     onClick: ()=>this.resetPackage()
-                }, l.a.createElement("strong", null, "\u8d2d\u4e70\u6d41\u91cf\u91cd\u7f6e\u5305")))));
+                }, l.a.createElement("strong", null, Object(b["formatMessage"])({
+                    id: "\u8d2d\u4e70\u6d41\u91cf\u91cd\u7f6e\u5305"
+                }), " \u00b7 ", C)))));
                 return l.a.createElement(f["a"], o()({}, this.props, {
                     title: Object(b["formatMessage"])({
                         id: "\u4eea\u8868\u76d8"
@@ -31251,10 +31266,25 @@
                 }, {
                     alive_ip: d.alive_ip,
                     device_limit: d.device_limit == null ? "∞" : d.device_limit
-                })))), y >= 80 && !Object(p["h"])(d.expired_at) && (null === d || void 0 === d ? void 0 : null === (e = d.plan) || void 0 === e ? void 0 : e.reset_price) && l.a.createElement("div", {
-                    className: "mb-4"
-                }, l.a.createElement(i["a"], {
-                    type: "primary",
+                })))), P && !Object(p["h"])(d.expired_at) && l.a.createElement("div", {
+                    className: "border rounded p-3 mb-4 d-md-flex justify-content-md-between align-items-md-center"
+                }, l.a.createElement("div", {
+                    className: "pr-md-3"
+                }, l.a.createElement("div", {
+                    className: "d-flex align-items-center mb-1"
+                }, l.a.createElement("span", {
+                    className: "font-w600"
+                }, Object(b["formatMessage"])({
+                    id: "\u6d41\u91cf\u91cd\u7f6e\u5305"
+                })), l.a.createElement("span", {
+                    className: "badge ml-2 ".concat(y >= 80 ? "badge-primary" : "badge-light")
+                }, C)), l.a.createElement("div", {
+                    className: "font-size-sm text-muted"
+                }, Object(b["formatMessage"])({
+                    id: "\u8d2d\u4e70\u540e\u7acb\u5373\u6e05\u96f6\u5df2\u7528\u6d41\u91cf\uff0c\u4e0d\u6539\u53d8\u5957\u9910\u603b\u91cf\u548c\u5230\u671f\u65f6\u95f4\u3002"
+                }))), l.a.createElement(i["a"], {
+                    className: "mt-3 mt-md-0",
+                    type: y >= 80 ? "primary" : "default",
                     onClick: ()=>this.resetPackage()
                 }, Object(b["formatMessage"])({
                     id: "\u8d2d\u4e70\u6d41\u91cf\u91cd\u7f6e\u5305"
