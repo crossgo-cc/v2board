@@ -33084,7 +33084,7 @@
                     className: "v2board-node-grid"
                 }, t.map(e=>{
                     return f.a.createElement("article", {
-                        className: "v2board-node-card",
+                        className: "block block-rounded v2board-node-card",
                         key: e.id
                     }, f.a.createElement("div", {
                         className: "v2board-node-card-header"
@@ -33092,7 +33092,7 @@
                         className: "v2board-node-card-title",
                         title: e.name
                     }, e.name), f.a.createElement("span", {
-                        className: "v2board-node-card-status ".concat(parseInt(e.is_online) ? "is-online" : "is-offline")
+                        className: "badge v2board-node-card-status ".concat(parseInt(e.is_online) ? "badge-success" : "badge-secondary")
                     }, Object(y["formatMessage"])({
                         id: parseInt(e.is_online) ? "\u5728\u7ebf" : "\u79bb\u7ebf"
                     }))), f.a.createElement("div", {
@@ -33100,14 +33100,14 @@
                     }, f.a.createElement("div", {
                         className: "v2board-node-card-section"
                     }, f.a.createElement("div", {
-                        className: "v2board-node-card-label"
+                        className: "v2board-node-card-label text-muted"
                     }, Object(y["formatMessage"])({
                         id: "\u9002\u7528\u5957\u9910"
                     })), f.a.createElement("div", {
                         className: "v2board-node-chips"
                     }, e.plans && e.plans.length ? e.plans.map(e=>{
                         return f.a.createElement("span", {
-                            className: "v2board-node-chip",
+                            className: "badge badge-primary v2board-node-chip",
                             key: e,
                             title: e
                         }, e)
@@ -33118,20 +33118,20 @@
                     }, f.a.createElement("div", {
                         className: "v2board-node-card-meta-item"
                     }, f.a.createElement("span", {
-                        className: "v2board-node-card-label"
+                        className: "v2board-node-card-label text-muted"
                     }, Object(y["formatMessage"])({
                         id: "\u500d\u7387"
                     })), f.a.createElement("strong", null, e.rate + " x")), f.a.createElement("div", {
                         className: "v2board-node-card-meta-item v2board-node-card-meta-tags"
                     }, f.a.createElement("span", {
-                        className: "v2board-node-card-label"
+                        className: "v2board-node-card-label text-muted"
                     }, Object(y["formatMessage"])({
                         id: "\u6807\u7b7e"
                     })), f.a.createElement("div", {
                         className: "v2board-node-chips"
                     }, e.tags && e.tags.length ? e.tags.map(e=>{
                         return f.a.createElement("span", {
-                            className: "v2board-node-chip is-muted",
+                            className: "badge badge-secondary v2board-node-chip",
                             key: e,
                             title: e
                         }, e)

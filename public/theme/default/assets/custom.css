@@ -857,11 +857,8 @@
 .v2board-node-card {
     flex: 1 1 calc(50% - 0.5rem);
     min-width: min(100%, 360px);
+    margin-bottom: 0;
     overflow: hidden;
-    background: #fff;
-    border: 1px solid rgba(127, 127, 127, 0.16);
-    border-radius: 10px;
-    box-shadow: 0 3px 12px rgba(31, 45, 61, 0.05);
 }
 
 .v2board-node-card-header {
@@ -870,12 +867,10 @@
     justify-content: space-between;
     gap: 0.75rem;
     padding: 1rem 1.1rem 0.85rem;
-    border-bottom: 1px solid rgba(127, 127, 127, 0.11);
 }
 
 .v2board-node-card-title {
     min-width: 0;
-    color: #1f2d3d;
     font-size: 1rem;
     font-weight: 600;
     line-height: 1.45;
@@ -889,17 +884,6 @@
     font-size: 0.75rem;
     font-weight: 600;
     line-height: 1.2;
-    border-radius: 999px;
-}
-
-.v2board-node-card-status.is-online {
-    color: #287d45;
-    background: rgba(40, 125, 69, 0.11);
-}
-
-.v2board-node-card-status.is-offline {
-    color: #9a4b4b;
-    background: rgba(154, 75, 75, 0.1);
 }
 
 .v2board-node-card-body {
@@ -913,7 +897,6 @@
 .v2board-node-card-label {
     display: block;
     margin-bottom: 0.4rem;
-    color: #8492a6;
     font-size: 0.75rem;
     line-height: 1.3;
 }
@@ -926,25 +909,19 @@
 }
 
 .v2board-node-chip {
+    display: inline-block;
     max-width: 100%;
     padding: 0.3rem 0.55rem;
-    color: #245b91;
     font-size: 0.8rem;
+    font-weight: 400;
     line-height: 1.35;
     overflow-wrap: anywhere;
     word-break: break-word;
     white-space: normal;
-    background: rgba(36, 91, 145, 0.09);
-    border-radius: 5px;
-}
-
-.v2board-node-chip.is-muted {
-    color: #5d6875;
-    background: rgba(93, 104, 117, 0.1);
 }
 
 .v2board-node-card-empty {
-    color: #8492a6;
+    opacity: 0.65;
 }
 
 .v2board-node-card-meta {
@@ -953,7 +930,6 @@
     gap: 1rem;
     padding-top: 0.9rem;
     margin-top: 1rem;
-    border-top: 1px solid rgba(127, 127, 127, 0.11);
 }
 
 .v2board-node-card-meta-item {
@@ -962,7 +938,6 @@
 
 .v2board-node-card-meta-item strong {
     display: block;
-    color: #1f2d3d;
     font-size: 0.95rem;
     line-height: 1.35;
 }
