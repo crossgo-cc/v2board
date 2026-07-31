@@ -246,6 +246,8 @@ window.settings.i18n['vi-VN'] = {
   '我的邀请': 'Lời Mời Của Tôi',
   '节点列表': 'Danh sách node',
   '适用套餐': 'Gói áp dụng',
+  '在线': 'Trực tuyến',
+  '离线': 'Ngoại tuyến',
   '复制成功': 'Sao chép thành công',
   '商品信息': 'Thông tin',
   '产品名称': 'Tên sản phẩm',

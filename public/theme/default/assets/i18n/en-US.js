@@ -248,6 +248,8 @@ window.settings.i18n['en-US'] = {
   '我的邀请': 'My Invitation',
   '节点列表': 'Access Point List',
   '适用套餐': 'Applicable Plans',
+  '在线': 'Online',
+  '离线': 'Offline',
   '复制成功': 'Copied successfully',
   '商品信息': 'Product Information',
   '产品名称': 'Product Name',
