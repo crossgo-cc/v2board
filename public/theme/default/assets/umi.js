@@ -31210,7 +31210,7 @@
                     onClick: ()=>this.resetPackage()
                 }, Object(b["formatMessage"])({
                     id: "\u7acb\u5373\u91cd\u7f6e"
-                })))), e.allow_new_period && t >= 100 && !E && l.a.createElement("div", {
+                })))), Boolean(e.allow_new_period) && t >= 100 && !E && l.a.createElement("div", {
                     className: "v2board-subscription-footer"
                 }, l.a.createElement(i["a"], {
                     type: "default",
