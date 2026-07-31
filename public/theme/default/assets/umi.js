@@ -31161,7 +31161,7 @@
                 }, x.map(e=>e), m.length > 0 && l.a.createElement("div", {
                     className: "row mb-3 mb-md-0"
                 }, l.a.createElement("div", {
-                    className: "col-12 mb-sm-4"
+                    className: "col-xl-12"
                 }, l.a.createElement("div", {
                     className: "block block-rounded js-appear-enabled"
                 }, l.a.createElement("div", {
