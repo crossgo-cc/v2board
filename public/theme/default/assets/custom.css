@@ -854,6 +854,11 @@
     padding: 1rem !important;
 }
 
+.v2board-node-list,
+.v2board-node-list .block-content {
+    background: transparent !important;
+}
+
 .v2board-node-card {
     flex: 1 1 calc(50% - 0.5rem);
     min-width: min(100%, 360px);
