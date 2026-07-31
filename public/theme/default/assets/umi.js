@@ -33089,22 +33089,16 @@
                     }, f.a.createElement("div", {
                         className: "v2board-node-card-header"
                     }, f.a.createElement("div", {
-                        className: "v2board-node-card-icon text-primary"
-                    }, f.a.createElement("i", {
-                        className: "fa fa-server"
-                    })), f.a.createElement("div", {
-                        className: "v2board-node-card-heading"
-                    }, f.a.createElement("div", {
                         className: "v2board-node-card-title",
                         title: e.name
-                    }, e.name)), f.a.createElement("span", {
+                    }, e.name), f.a.createElement("span", {
                         className: "v2board-subscription-status ".concat(parseInt(e.is_online) ? "is-active" : "is-expired")
                     }, Object(y["formatMessage"])({
                         id: parseInt(e.is_online) ? "\u5728\u7ebf" : "\u79bb\u7ebf"
                     }))), f.a.createElement("div", {
                         className: "v2board-node-card-body"
                     }, f.a.createElement("div", {
-                        className: "v2board-node-card-section v2board-node-card-plans"
+                        className: "v2board-node-card-section"
                     }, f.a.createElement("div", {
                         className: "v2board-node-card-label text-muted"
                     }, Object(y["formatMessage"])({

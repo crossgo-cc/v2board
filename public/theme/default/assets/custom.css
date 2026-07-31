@@ -859,39 +859,24 @@
     min-width: min(100%, 360px);
     margin-bottom: 0;
     overflow: hidden;
-    background: transparent;
     border: 1px solid rgba(127, 127, 127, 0.18);
     border-radius: 4px;
 }
 
 .v2board-node-card-header {
     display: flex;
-    align-items: flex-start;
-    min-width: 0;
-    padding: 1rem 1rem 0;
-}
-
-.v2board-node-card-icon {
-    display: flex;
-    flex: 0 0 auto;
     align-items: center;
-    justify-content: center;
-    width: 48px;
-    height: 48px;
-    font-size: 18px;
-    background: rgba(127, 127, 127, 0.08);
-    border: 1px solid rgba(127, 127, 127, 0.12);
-    border-radius: 12px;
-}
-
-.v2board-node-card-heading {
-    flex: 1 1 auto;
+    justify-content: space-between;
+    gap: 0.75rem;
     min-width: 0;
-    padding: 0 1rem;
+    padding: 0.9rem 1rem;
+    background: rgba(6, 101, 208, 0.12);
+    border-bottom: 1px solid rgba(6, 101, 208, 0.16);
 }
 
 .v2board-node-card-title {
-    margin: 0 0 0.35rem;
+    flex: 1 1 auto;
+    margin: 0;
     min-width: 0;
     font-size: 1.1rem;
     font-weight: 600;
@@ -901,18 +886,11 @@
 }
 
 .v2board-node-card-body {
-    padding: 1rem 1rem 1rem;
+    padding: 1rem;
 }
 
 .v2board-node-card-section {
     min-width: 0;
-}
-
-.v2board-node-card-plans {
-    padding: 1rem;
-    background: rgba(127, 127, 127, 0.055);
-    border: 1px solid rgba(127, 127, 127, 0.1);
-    border-radius: 10px;
 }
 
 .v2board-node-card-label {
@@ -985,16 +963,6 @@
     .v2board-node-card-body {
         padding-right: 0.75rem;
         padding-left: 0.75rem;
-    }
-
-    .v2board-node-card-icon {
-        width: 40px;
-        height: 40px;
-        font-size: 16px;
-    }
-
-    .v2board-node-card-heading {
-        padding: 0 0.75rem;
     }
 
     .v2board-node-card-meta {
