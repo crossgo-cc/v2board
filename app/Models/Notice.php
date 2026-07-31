@@ -11,12 +11,14 @@ class Notice extends Model
     protected $guarded = ['id'];
     protected $attributes = [
         'show' => 0,
+        'is_pinned' => 0,
         'tags' => '[]'
     ];
     protected $casts = [
         'created_at' => 'timestamp',
         'updated_at' => 'timestamp',
         'show' => 'boolean',
+        'is_pinned' => 'boolean',
         'tags' => 'array'
     ];
 

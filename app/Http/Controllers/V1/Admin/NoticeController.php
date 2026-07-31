@@ -12,7 +12,9 @@ class NoticeController extends Controller
     public function fetch(Request $request)
     {
         return response([
-            'data' => Notice::orderBy('id', 'DESC')->get()
+            'data' => Notice::orderByDesc('is_pinned')
+                ->orderByDesc('id')
+                ->get()
         ]);
     }
 
@@ -46,6 +48,24 @@ class NoticeController extends Controller
         ]);
         $notice = Notice::findOrFail($data['id']);
         $notice->show = $data['show'];
+        $notice->save();
+
+        return response([
+            'data' => true
+        ]);
+    }
+
+    public function pin(Request $request)
+    {
+        $data = $request->validate([
+            'id' => 'required|integer',
+            'is_pinned' => 'required|boolean'
+        ]);
+        $notice = Notice::findOrFail($data['id']);
+        if ($this->isStaff($request) && $notice->show) {
+            abort(403, '员工不能置顶已发布公告');
+        }
+        $notice->is_pinned = $data['is_pinned'];
         $notice->save();
 
         return response([

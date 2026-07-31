@@ -34,6 +34,7 @@ class NoticeControllerTest extends TestCase
             $table->string('title');
             $table->text('content');
             $table->boolean('show')->default(false);
+            $table->boolean('is_pinned')->default(false);
             $table->string('img_url')->nullable();
             $table->text('tags')->nullable();
             $table->unsignedInteger('created_at');
@@ -43,6 +44,7 @@ class NoticeControllerTest extends TestCase
 
         Route::get('/_test/notice/fetch', [UserNoticeController::class, 'fetch']);
         Route::post('/_test/notice/save', [AdminNoticeController::class, 'save']);
+        Route::post('/_test/notice/pin', [AdminNoticeController::class, 'pin']);
         Route::post('/_test/notice/show', [AdminNoticeController::class, 'show']);
         Route::post('/_test/notice/drop', [AdminNoticeController::class, 'drop']);
     }
@@ -101,6 +103,76 @@ class NoticeControllerTest extends TestCase
         $this->getJson('/_test/notice/fetch?current=0&pageSize=101')
             ->assertStatus(422)
             ->assertJsonValidationErrors(['current', 'pageSize']);
+    }
+
+    public function testPinnedNoticesAppearBeforeNewerRegularNotices(): void
+    {
+        $time = time();
+        DB::table('v2_notice')->insert([
+            [
+                'title' => '较新的普通公告',
+                'content' => '普通内容',
+                'show' => 1,
+                'is_pinned' => 0,
+                'created_at' => $time,
+                'updated_at' => $time
+            ],
+            [
+                'title' => '较早的置顶公告',
+                'content' => '置顶内容',
+                'show' => 1,
+                'is_pinned' => 1,
+                'created_at' => $time - 100,
+                'updated_at' => $time - 100
+            ]
+        ]);
+
+        $this->getJson('/_test/notice/fetch?current=1&pageSize=10')
+            ->assertOk()
+            ->assertJsonPath('data.0.title', '较早的置顶公告')
+            ->assertJsonPath('data.0.is_pinned', true)
+            ->assertJsonPath('data.1.title', '较新的普通公告');
+    }
+
+    public function testAdminCanCreateAndTogglePinnedNotice(): void
+    {
+        $this->postJson('/_test/notice/save', [
+            'title' => '置顶公告',
+            'content' => '内容',
+            'is_pinned' => true,
+            'tags' => []
+        ])->assertOk();
+
+        $notice = Notice::where('title', '置顶公告')->firstOrFail();
+        $this->assertTrue($notice->is_pinned);
+
+        $this->postJson('/_test/notice/pin', [
+            'id' => $notice->id,
+            'is_pinned' => false
+        ])->assertOk();
+
+        $this->assertFalse($notice->fresh()->is_pinned);
+    }
+
+    public function testStaffCannotPinPublishedNotice(): void
+    {
+        $notice = Notice::create([
+            'title' => '线上公告',
+            'content' => '内容',
+            'show' => true,
+            'tags' => []
+        ]);
+
+        $this->postJson('/_test/notice/pin', [
+            'id' => $notice->id,
+            'is_pinned' => true,
+            'user' => [
+                'is_staff' => true,
+                'is_admin' => false
+            ]
+        ])->assertStatus(403);
+
+        $this->assertFalse($notice->fresh()->is_pinned);
     }
 
     public function testStaffCannotEditPublishedNotice(): void

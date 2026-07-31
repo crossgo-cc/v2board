@@ -127,12 +127,13 @@ CREATE TABLE `v2_notice` (
                              `title` varchar(255) NOT NULL,
                              `content` text NOT NULL,
                              `show` tinyint(1) NOT NULL DEFAULT '0',
+                             `is_pinned` tinyint(1) NOT NULL DEFAULT '0',
                              `img_url` varchar(255) DEFAULT NULL,
                              `tags` text NULL,
                              `created_at` int(11) NOT NULL,
                              `updated_at` int(11) NOT NULL,
                              PRIMARY KEY (`id`),
-                             KEY `idx_notice_show_created` (`show`, `created_at`, `id`)
+                             KEY `idx_notice_show_pinned_created` (`show`, `is_pinned`, `created_at`, `id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 DROP TABLE IF EXISTS `v2_order`;

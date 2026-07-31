@@ -33,7 +33,8 @@ class NoticeController extends Controller
 
         $model = Notice::where('show', 1);
         $total = $model->count();
-        $res = $model->orderByDesc('created_at')
+        $res = $model->orderByDesc('is_pinned')
+            ->orderByDesc('created_at')
             ->orderByDesc('id')
             ->forPage($current, $pageSize)
             ->get();

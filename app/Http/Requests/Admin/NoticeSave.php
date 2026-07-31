@@ -17,6 +17,7 @@ class NoticeSave extends FormRequest
             'id' => 'nullable|integer|exists:v2_notice,id',
             'title' => 'required|string|max:255',
             'content' => 'required|string',
+            'is_pinned' => 'sometimes|boolean',
             'img_url' => 'nullable|url|max:255',
             'tags' => 'nullable|array|max:10',
             'tags.*' => 'string|max:32'

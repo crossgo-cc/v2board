@@ -76,6 +76,7 @@ class AdminRoute
             $router->post('/notice/save', 'V1\\Admin\\NoticeController@save');
             $router->post('/notice/drop', 'V1\\Admin\\NoticeController@drop');
             $router->post('/notice/show', 'V1\\Admin\\NoticeController@show');
+            $router->post('/notice/pin', 'V1\\Admin\\NoticeController@pin');
             // Ticket
             $router->get ('/ticket/fetch', 'V1\\Admin\\TicketController@fetch');
             $router->post('/ticket/reply', 'V1\\Admin\\TicketController@reply');

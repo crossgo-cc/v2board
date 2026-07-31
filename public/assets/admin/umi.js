@@ -30667,6 +30667,21 @@
                         })
                     }
                 }, {
+                    title: "\u7f6e\u9876",
+                    dataIndex: "is_pinned",
+                    key: "is_pinned",
+                    render: (e,t)=>{
+                        return g.a.createElement(f["a"], {
+                            size: "small",
+                            onChange: e=>this.props.dispatch({
+                                type: "notice/pin",
+                                id: t.id,
+                                is_pinned: e ? 1 : 0
+                            }),
+                            checked: e
+                        })
+                    }
+                }, {
                     title: "\u6807\u9898",
                     dataIndex: "title",
                     key: "title"
@@ -30748,6 +30763,17 @@
                         })
                     }
                 })), g.a.createElement("div", {
+                    className: "form-group"
+                }, g.a.createElement("label", null, "\u7f6e\u9876\u516c\u544a"), g.a.createElement("div", null, g.a.createElement(f["a"], {
+                    checked: !!this.state.submit.is_pinned,
+                    onChange: e=>{
+                        this.setState({
+                            submit: p()({}, this.state.submit, {
+                                is_pinned: e ? 1 : 0
+                            })
+                        })
+                    }
+                }))), g.a.createElement("div", {
                     className: "form-group"
                 }, g.a.createElement("label", {
                     for: "example-text-input-alt"
@@ -82675,6 +82701,40 @@
                                     Object(o["b"])("/" + window.settings.secure_path + "/notice/show", {
                                         id: n,
                                         show: r
+                                    });
+                                case 2:
+                                    if (t = e.sent,
+                                    200 === t.code) {
+                                        e.next = 5;
+                                        break
+                                    }
+                                    return e.abrupt("return");
+                                case 5:
+                                    return e.next = 7,
+                                    i({
+                                        type: "fetch"
+                                    });
+                                case 7:
+                                case "end":
+                                    return e.stop()
+                                }
+                        }, e)
+                    })()
+                },
+                pin(e, t) {
+                    var n = e.id
+                      , r = e.is_pinned
+                      , i = t.put;
+                    return a().mark(function e() {
+                        var t;
+                        return a().wrap(function(e) {
+                            while (1)
+                                switch (e.prev = e.next) {
+                                case 0:
+                                    return e.next = 2,
+                                    Object(o["b"])("/" + window.settings.secure_path + "/notice/pin", {
+                                        id: n,
+                                        is_pinned: r
                                     });
                                 case 2:
                                     if (t = e.sent,

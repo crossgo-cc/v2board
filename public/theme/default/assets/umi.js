@@ -31467,7 +31467,7 @@
             renderNotice(e, t) {
                 var n = u()(1e3 * e.created_at);
                 return o.a.createElement("article", {
-                    className: "notice-timeline-item".concat(0 === t ? " is-latest" : ""),
+                    className: "notice-timeline-item".concat(e.is_pinned ? " is-pinned" : 0 === t ? " is-latest" : ""),
                     key: e.id
                 }, o.a.createElement("time", {
                     className: "notice-timeline-time",
@@ -31480,10 +31480,10 @@
                     className: "block-header block-header-default notice-card-header"
                 }, o.a.createElement("h2", {
                     className: "block-title"
-                }, 0 === t ? o.a.createElement("span", {
+                }, e.is_pinned || 0 === t ? o.a.createElement("span", {
                     className: "badge badge-primary mr-2"
                 }, Object(l["formatMessage"])({
-                    id: "\u6700\u65b0"
+                    id: e.is_pinned ? "\u7f6e\u9876" : "\u6700\u65b0"
                 })) : null, e.title), Array.isArray(e.tags) && e.tags.length > 0 ? o.a.createElement("div", {
                     className: "block-options notice-timeline-tags"
                 }, e.tags.map(e=>o.a.createElement("span", {

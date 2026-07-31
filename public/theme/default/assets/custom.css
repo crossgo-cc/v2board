@@ -339,7 +339,8 @@
     box-shadow: 0 0 0 1px #adb5bd;
 }
 
-.notice-timeline-item.is-latest .notice-timeline-marker {
+.notice-timeline-item.is-latest .notice-timeline-marker,
+.notice-timeline-item.is-pinned .notice-timeline-marker {
     background: var(--primary, #0665d0);
     box-shadow: 0 0 0 1px var(--primary, #0665d0);
 }
