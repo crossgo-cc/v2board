@@ -636,7 +636,7 @@
     position: absolute;
     top: 18px;
     bottom: 28px;
-    left: 88px;
+    left: 68px;
     width: 1px;
     background: #d8dde5;
     content: "";
@@ -645,7 +645,7 @@
 .notice-timeline-item {
     position: relative;
     display: grid;
-    grid-template-columns: 72px 32px minmax(0, 1fr);
+    grid-template-columns: 52px 32px minmax(0, 1fr);
     padding-bottom: 1rem;
     content-visibility: auto;
     contain-intrinsic-size: 0 380px;
@@ -655,8 +655,8 @@
     display: flex;
     padding-top: 9px;
     color: #8492a6;
-    text-align: right;
-    align-items: flex-end;
+    text-align: left;
+    align-items: flex-start;
     flex-direction: column;
 }
 
@@ -736,7 +736,7 @@
 
 .notice-pagination {
     display: flex;
-    padding: 0 0 1rem 104px;
+    padding: 0 0 1rem 84px;
     align-items: center;
     justify-content: center;
 }
