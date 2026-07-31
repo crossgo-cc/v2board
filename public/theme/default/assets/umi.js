@@ -31535,7 +31535,7 @@
                   , s = Math.max(1, Math.ceil(n / this.pageSize));
                 return o.a.createElement(i["a"], Object.assign({}, this.props, {
                     title: Object(l["formatMessage"])({
-                        id: "\u516c\u544a"
+                        id: "\u516c\u544a\u4e2d\u5fc3"
                     })
                 }), o.a.createElement("main", {
                     id: "main-container",
@@ -31549,7 +31549,7 @@
                 }, o.a.createElement("h3", {
                     className: "block-title"
                 }, Object(l["formatMessage"])({
-                    id: "\u516c\u544a"
+                    id: "\u516c\u544a\u4e2d\u5fc3"
                 }))), o.a.createElement("div", {
                     className: "block-content block-content-full text-center py-5"
                 }, o.a.createElement("i", {

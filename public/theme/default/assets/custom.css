@@ -277,15 +277,8 @@
     }
 }
 
-.notice-page .content {
-    max-width: 1180px;
-    margin: 0 auto;
-}
-
 .notice-timeline {
     position: relative;
-    max-width: 1040px;
-    margin: 0 auto;
 }
 
 .notice-timeline::before {
@@ -311,7 +304,8 @@
     display: flex;
     padding-top: 9px;
     color: #8492a6;
-    text-align: right;
+    text-align: left;
+    align-items: flex-start;
     flex-direction: column;
 }
 
