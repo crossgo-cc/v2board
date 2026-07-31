@@ -33084,21 +33084,27 @@
                     className: "v2board-node-grid"
                 }, t.map(e=>{
                     return f.a.createElement("article", {
-                        className: "block block-rounded v2board-node-card",
+                        className: "v2board-node-card",
                         key: e.id
                     }, f.a.createElement("div", {
                         className: "v2board-node-card-header"
                     }, f.a.createElement("div", {
+                        className: "v2board-node-card-icon text-primary"
+                    }, f.a.createElement("i", {
+                        className: "fa fa-server"
+                    })), f.a.createElement("div", {
+                        className: "v2board-node-card-heading"
+                    }, f.a.createElement("div", {
                         className: "v2board-node-card-title",
                         title: e.name
-                    }, e.name), f.a.createElement("span", {
-                        className: "badge v2board-node-card-status ".concat(parseInt(e.is_online) ? "badge-success" : "badge-secondary")
+                    }, e.name)), f.a.createElement("span", {
+                        className: "v2board-subscription-status ".concat(parseInt(e.is_online) ? "is-active" : "is-expired")
                     }, Object(y["formatMessage"])({
                         id: parseInt(e.is_online) ? "\u5728\u7ebf" : "\u79bb\u7ebf"
                     }))), f.a.createElement("div", {
                         className: "v2board-node-card-body"
                     }, f.a.createElement("div", {
-                        className: "v2board-node-card-section"
+                        className: "v2board-node-card-section v2board-node-card-plans"
                     }, f.a.createElement("div", {
                         className: "v2board-node-card-label text-muted"
                     }, Object(y["formatMessage"])({
