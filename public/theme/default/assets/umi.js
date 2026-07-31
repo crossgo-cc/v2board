@@ -31197,7 +31197,26 @@
                     id: "\u5269\u4f59\u6d41\u91cf"
                 })), l.a.createElement("strong", null, Object(p["b"])(R))), l.a.createElement("div", null, l.a.createElement("span", null, Object(b["formatMessage"])({
                     id: "\u5728\u7ebf\u8bbe\u5907"
-                })), l.a.createElement("strong", null, e.alive_ip, " / ", null == e.device_limit ? "\u221e" : e.device_limit)))), n && !E && l.a.createElement("div", {
+                })), l.a.createElement("strong", null, e.alive_ip, " / ", null == e.device_limit ? "\u221e" : e.device_limit)))), l.a.createElement("div", {
+                    className: "v2board-subscription-reset v2board-subscription-renew"
+                }, l.a.createElement("div", {
+                    className: "v2board-subscription-reset-copy"
+                }, l.a.createElement("div", {
+                    className: "v2board-subscription-reset-heading"
+                }, l.a.createElement("span", {
+                    className: "v2board-subscription-reset-title"
+                }, Object(b["formatMessage"])({
+                    id: Object(p["m"])(e) ? "\u7eed\u8d39\u8ba2\u9605" : "\u8d2d\u4e70\u8ba2\u9605"
+                }))), l.a.createElement("p", null, Object(b["formatMessage"])({
+                    id: Object(p["m"])(e) ? "\u5bf9\u60a8\u5f53\u524d\u7684\u8ba2\u9605\u8fdb\u884c\u7eed\u8d39" : "\u5bf9\u60a8\u5f53\u524d\u7684\u8ba2\u9605\u8fdb\u884c\u8d2d\u4e70"
+                }))), l.a.createElement("div", {
+                    className: "v2board-subscription-reset-action"
+                }, l.a.createElement(i["a"], {
+                    type: "primary",
+                    onClick: ()=>h.a.push(Object(p["m"])(e) ? "/plan/" + e.plan_id : "/plan")
+                }, Object(b["formatMessage"])({
+                    id: Object(p["m"])(e) ? "\u7eed\u8d39\u8ba2\u9605" : "\u8d2d\u4e70\u8ba2\u9605"
+                })))), n && !E && l.a.createElement("div", {
                     className: "v2board-subscription-reset"
                 }, l.a.createElement("div", {
                     className: "v2board-subscription-reset-copy"
@@ -31227,26 +31246,7 @@
                     onClick: ()=>this.newPeriod()
                 }, Object(b["formatMessage"])({
                     id: "\u63d0\u524d\u5f00\u542f\u6d41\u91cf\u5468\u671f"
-                }))), l.a.createElement("div", {
-                    className: "v2board-subscription-reset v2board-subscription-renew"
-                }, l.a.createElement("div", {
-                    className: "v2board-subscription-reset-copy"
-                }, l.a.createElement("div", {
-                    className: "v2board-subscription-reset-heading"
-                }, l.a.createElement("span", {
-                    className: "v2board-subscription-reset-title"
-                }, Object(b["formatMessage"])({
-                    id: Object(p["m"])(e) ? "\u7eed\u8d39\u8ba2\u9605" : "\u8d2d\u4e70\u8ba2\u9605"
-                }))), l.a.createElement("p", null, Object(b["formatMessage"])({
-                    id: Object(p["m"])(e) ? "\u5bf9\u60a8\u5f53\u524d\u7684\u8ba2\u9605\u8fdb\u884c\u7eed\u8d39" : "\u5bf9\u60a8\u5f53\u524d\u7684\u8ba2\u9605\u8fdb\u884c\u8d2d\u4e70"
-                }))), l.a.createElement("div", {
-                    className: "v2board-subscription-reset-action"
-                }, l.a.createElement(i["a"], {
-                    type: "primary",
-                    onClick: ()=>h.a.push(Object(p["m"])(e) ? "/plan/" + e.plan_id : "/plan")
-                }, Object(b["formatMessage"])({
-                    id: Object(p["m"])(e) ? "\u7eed\u8d39\u8ba2\u9605" : "\u8d2d\u4e70\u8ba2\u9605"
-                })))))
+                }))))
             }
             render() {
                 var t, n, s = this.props.user, u = s.stat, d = s.subscribe, m = this.props.notice.notices, y = Math.round(Object(p["f"])(d.u + d.d, d.transfer_enable) * 100) / 100, x = [], P = d.plan && null !== d.plan.reset_price && void 0 !== d.plan.reset_price, C = P ? this.getResetPrice() : "";
