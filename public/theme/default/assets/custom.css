@@ -6,12 +6,17 @@
     overflow-wrap: anywhere;
 }
 
-.ant-modal-confirm .ant-modal-confirm-body > .anticon {
-    display: none;
+.ant-modal-confirm-body > .anticon {
+    display: none !important;
 }
 
-.ant-modal-confirm .ant-modal-confirm-content {
-    margin-left: 0;
+.ant-modal-confirm-body > .ant-modal-confirm-title {
+    display: block;
+    margin: 0 0 0.75rem !important;
+}
+
+.ant-modal-confirm-body > .ant-modal-confirm-content {
+    margin: 0 !important;
 }
 
 .v2board-subscription-overview {
