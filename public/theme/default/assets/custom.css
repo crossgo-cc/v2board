@@ -851,12 +851,17 @@
 }
 
 .v2board-node-list .block-content {
-    padding: 1rem !important;
+    padding: 0 !important;
 }
 
 .v2board-node-list,
 .v2board-node-list .block-content {
     background: transparent !important;
+}
+
+.v2board-node-list {
+    margin: 0;
+    box-shadow: none;
 }
 
 .v2board-node-card {
@@ -892,6 +897,7 @@
 
 .v2board-node-card-body {
     padding: 1rem;
+    background-color: rgba(127, 127, 127, 0.08);
 }
 
 .v2board-node-card-section {
@@ -915,13 +921,27 @@
 .v2board-node-chip {
     display: inline-block;
     max-width: 100%;
-    padding: 0.3rem 0.55rem;
+    padding: 0.28rem 0.55rem;
     font-size: 0.8rem;
-    font-weight: 400;
+    font-weight: 500;
     line-height: 1.35;
     overflow-wrap: anywhere;
+    border: 1px solid transparent;
+    border-radius: 4px;
     word-break: break-word;
     white-space: normal;
+}
+
+.v2board-node-chip.badge-primary {
+    color: #0665d0;
+    background-color: rgba(6, 101, 208, 0.12);
+    border-color: rgba(6, 101, 208, 0.2);
+}
+
+.v2board-node-chip.badge-secondary {
+    color: inherit;
+    background-color: rgba(127, 127, 127, 0.12);
+    border-color: rgba(127, 127, 127, 0.2);
 }
 
 .v2board-node-card-empty {
@@ -953,10 +973,6 @@
 @media (max-width: 767.98px) {
     .v2board-node-grid {
         gap: 0.75rem;
-    }
-
-    .v2board-node-list .block-content {
-        padding: 0.75rem !important;
     }
 
     .v2board-node-card {
