@@ -31278,8 +31278,25 @@
                 }, Object(b["formatMessage"])({
                     id: "\u7acb\u5373\u67e5\u770b"
                 }))))),
-                y >= 80 && y < 100 && !Object(p["h"])(d.expired_at)) && x.push(l.a.createElement("div", {
-                    className: "alert alert-info",
+                d.expired_at !== null && !Object(p["h"])(d.expired_at) && Math.ceil((d.expired_at - v()().format("X")) / 86400) <= 7 && x.push(l.a.createElement("div", {
+                    className: Math.ceil((d.expired_at - v()().format("X")) / 86400) <= 3 ? "alert alert-danger" : "alert alert-warning",
+                    role: "alert"
+                }, l.a.createElement("p", {
+                    className: "mb-0"
+                }, Object(b["formatMessage"])({
+                    id: "\u4e8e {date} \u5230\u671f\uff0c\u8ddd\u79bb\u5230\u671f\u8fd8\u6709 {day} \u5929\u3002"
+                }, {
+                    date: v()(1e3 * d.expired_at).format("YYYY/MM/DD"),
+                    day: Math.ceil((d.expired_at - v()().format("X")) / 86400)
+                }), " ", l.a.createElement("a", {
+                    className: "alert-link",
+                    href: "javascript:void(0)",
+                    onClick: ()=>h.a.push(Object(p["m"])(d) ? "/plan/" + d.plan_id : "/plan")
+                }, Object(b["formatMessage"])({
+                    id: Object(p["m"])(d) ? "\u7eed\u8d39" : "\u8d2d\u4e70"
+                }))))),
+                y >= 80 && !Object(p["h"])(d.expired_at)) && x.push(l.a.createElement("div", {
+                    className: y >= 95 ? "alert alert-danger" : "alert alert-warning",
                     role: "alert"
                 }, l.a.createElement("p", {
                     className: "mb-0"
