@@ -192,6 +192,45 @@
     margin-left: auto;
 }
 
+.v2board-subscription-reset-confirm-summary {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    row-gap: 0.5rem;
+    background: rgba(127, 127, 127, 0.055);
+    border: 1px solid rgba(127, 127, 127, 0.12);
+    border-radius: 4px;
+}
+
+.v2board-subscription-reset-confirm-label {
+    display: flex;
+    flex: 1 1 auto;
+    align-items: center;
+    min-width: 0;
+    font-weight: 600;
+}
+
+.v2board-subscription-reset-confirm-label i {
+    flex: 0 0 auto;
+    margin-right: 0.5rem;
+    opacity: 0.75;
+}
+
+.v2board-subscription-reset-confirm-summary > strong {
+    margin-left: 1rem;
+    font-size: 1rem;
+    white-space: nowrap;
+}
+
+.v2board-subscription-reset-confirm-description {
+    margin: 0.75rem 0 0;
+    color: #6c757d;
+    font-size: 0.8125rem;
+    line-height: 1.5;
+}
+
 .v2board-subscription-footer {
     display: flex;
     justify-content: flex-end;

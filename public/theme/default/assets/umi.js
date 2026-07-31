@@ -31064,12 +31064,20 @@
                     title: Object(b["formatMessage"])({
                         id: "\u786e\u5b9a\u91cd\u7f6e\u5f53\u524d\u5df2\u7528\u6d41\u91cf\uff1f"
                     }),
-                    content: l.a.createElement("div", null, l.a.createElement("div", {
-                        className: "d-flex justify-content-between mb-2"
-                    }, l.a.createElement("span", null, Object(b["formatMessage"])({
+                    content: l.a.createElement("div", {
+                        className: "v2board-subscription-reset-confirm"
+                    }, l.a.createElement("div", {
+                        className: "v2board-subscription-reset-confirm-summary"
+                    }, l.a.createElement("div", {
+                        className: "v2board-subscription-reset-confirm-label"
+                    }, l.a.createElement("i", {
+                        className: "fa fa-sync-alt text-primary"
+                    }), l.a.createElement("span", null, Object(b["formatMessage"])({
                         id: "\u6d41\u91cf\u91cd\u7f6e\u5305"
-                    })), l.a.createElement("strong", null, this.getResetPrice())), l.a.createElement("p", {
-                        className: "mb-0 text-muted"
+                    }))), l.a.createElement("strong", {
+                        className: "text-primary"
+                    }, this.getResetPrice())), l.a.createElement("p", {
+                        className: "v2board-subscription-reset-confirm-description"
                     }, Object(b["formatMessage"])({
                         id: "\u8d2d\u4e70\u540e\u7acb\u5373\u6e05\u96f6\u5df2\u7528\u6d41\u91cf\uff0c\u4e0d\u6539\u53d8\u5957\u9910\u603b\u91cf\u548c\u5230\u671f\u65f6\u95f4\u3002"
                     }))),
@@ -31085,9 +31093,9 @@
                     onCancel() {},
                     okText: t.props.order.saveLoading ? l.a.createElement(s["a"], {
                         type: "loading"
-                    }) : l.a.createElement("span", null, Object(b["formatMessage"])({
+                    }) : Object(b["formatMessage"])({
                         id: "\u786e\u5b9a"
-                    }), " \u00b7 ", this.getResetPrice()),
+                    }),
                     cancelText: Object(b["formatMessage"])({
                         id: "\u53d6\u6d88"
                     }),
