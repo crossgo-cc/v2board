@@ -32926,16 +32926,6 @@
         n.r(t);
         var r = n("jehZ")
           , o = n.n(r)
-          , i = (n("g9YV"),
-        n("wCAj"))
-          , a = (n("+BJd"),
-        n("mr32"))
-          , s = (n("Awhp"),
-        n("KrTs"))
-          , c = (n("5Dmo"),
-        n("3S7+"))
-          , u = (n("Pwec"),
-        n("CtXQ"))
           , l = n("q1tI")
           , f = n.n(l)
           , p = n("L12J")
@@ -32943,7 +32933,6 @@
           , h = (n("t3Un"),
         n("3a4m"))
           , m = n.n(h)
-          , v = n("yWgo")
           , y = (n("wd/R"),
         n("/Ira"),
         n("Y2fQ"));
@@ -32967,98 +32956,7 @@
                 var e = this.props.server
                   , t = e.servers
                   , n = e.fetchLoading
-                  , r = this.props.user.subscribe
-                  , l = [{
-                    title: Object(y["formatMessage"])({
-                        id: "\u540d\u79f0"
-                    }),
-                    dataIndex: "name",
-                    key: "name",
-                    width: "24%",
-                    render: e=>{
-                        return f.a.createElement("div", {
-                            className: "v2board-node-name",
-                            title: e
-                        }, e)
-                    }
-                }, {
-                    title: Object(y["formatMessage"])({
-                        id: "\u9002\u7528\u5957\u9910"
-                    }),
-                    dataIndex: "plans",
-                    key: "plans",
-                    width: "30%",
-                    render: e=>{
-                        return e && e.length ? f.a.createElement("div", {
-                            className: "v2board-node-plans"
-                        }, e.map(e=>{
-                            return f.a.createElement(a["a"], {
-                                className: "v2board-node-plan",
-                                key: e
-                            }, e)
-                        })) : "-"
-                    }
-                }, {
-                    title: f.a.createElement("span", null, f.a.createElement(c["a"], {
-                        placement: "top",
-                        title: Object(y["formatMessage"])({
-                            id: "\u8282\u70b9\u4e94\u5206\u949f\u5185\u8282\u70b9\u5728\u7ebf\u60c5\u51b5"
-                        })
-                    }, Object(y["formatMessage"])({
-                        id: "\u72b6\u6001"
-                    }), " ", f.a.createElement(u["a"], {
-                        type: "question-circle"
-                    }))),
-                    dataIndex: "is_online",
-                    key: "is_online",
-                    width: "14%",
-                    align: "center",
-                    render: e=>{
-                        return f.a.createElement(s["a"], {
-                            status: parseInt(e) ? "processing" : "error"
-                        })
-                    }
-                }, {
-                    title: f.a.createElement("span", null, f.a.createElement(c["a"], {
-                        placement: "top",
-                        title: Object(y["formatMessage"])({
-                            id: "\u4f7f\u7528\u7684\u6d41\u91cf\u5c06\u4e58\u4ee5\u500d\u7387\u8fdb\u884c\u6263\u9664"
-                        })
-                    }, Object(y["formatMessage"])({
-                        id: "\u500d\u7387"
-                    }), " ", f.a.createElement(u["a"], {
-                        type: "question-circle"
-                    }))),
-                    dataIndex: "rate",
-                    key: "rate",
-                    width: "12%",
-                    align: "center",
-                    render: e=>{
-                        return f.a.createElement(a["a"], {
-                            style: {
-                                minWidth: 60
-                            }
-                        }, e + " x")
-                    }
-                }, {
-                    title: Object(y["formatMessage"])({
-                        id: "\u6807\u7b7e"
-                    }),
-                    dataIndex: "tags",
-                    key: "tags",
-                    width: "20%",
-                    render: e=>{
-                        return e && e.length ? f.a.createElement("div", {
-                            className: "v2board-node-tags"
-                        }, e.map(e=>{
-                            return f.a.createElement(a["a"], {
-                                className: "v2board-node-tag",
-                                key: e
-                            }, e)
-                        })) : "-"
-                    }
-                }];
-                Object(v["f"])(r.u + r.d, r.transfer_enable);
+                  , r = this.props.user.subscribe;
                 return f.a.createElement(p["a"], o()({}, this.props, {
                     title: Object(y["formatMessage"])({
                         id: "\u8282\u70b9\u5217\u8868"
@@ -33077,10 +32975,6 @@
                 }, f.a.createElement("span", {
                     className: "sr-only"
                 }, "Loading...")) : t.length > 0 ? f.a.createElement("div", {
-                    className: "block block-rounded js-appear-enabled v2board-node-list"
-                }, f.a.createElement("div", {
-                    className: "block-content p-0"
-                }, f.a.createElement("div", {
                     className: "v2board-node-grid"
                 }, t.map(e=>{
                     return f.a.createElement("article", {
@@ -33098,8 +32992,6 @@
                     }))), f.a.createElement("div", {
                         className: "v2board-node-card-body"
                     }, f.a.createElement("div", {
-                        className: "v2board-node-card-section"
-                    }, f.a.createElement("div", {
                         className: "v2board-node-card-label text-muted"
                     }, Object(y["formatMessage"])({
                         id: "\u9002\u7528\u5957\u9910"
@@ -33113,7 +33005,7 @@
                         }, e)
                     }) : f.a.createElement("span", {
                         className: "v2board-node-card-empty"
-                    }, "-"))), f.a.createElement("div", {
+                    }, "-")), f.a.createElement("div", {
                         className: "v2board-node-card-meta"
                     }, f.a.createElement("div", {
                         className: "v2board-node-card-meta-item"
@@ -33122,7 +33014,7 @@
                     }, Object(y["formatMessage"])({
                         id: "\u500d\u7387"
                     })), f.a.createElement("strong", null, e.rate + " x")), f.a.createElement("div", {
-                        className: "v2board-node-card-meta-item v2board-node-card-meta-tags"
+                        className: "v2board-node-card-meta-item"
                     }, f.a.createElement("span", {
                         className: "v2board-node-card-label text-muted"
                     }, Object(y["formatMessage"])({
@@ -33138,7 +33030,7 @@
                     }) : f.a.createElement("span", {
                         className: "v2board-node-card-empty"
                     }, "-"))))))
-                })))) : f.a.createElement("div", {
+                })) : f.a.createElement("div", {
                     className: "alert alert-dark",
                     role: "alert"
                 }, f.a.createElement("p", {

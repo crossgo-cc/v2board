@@ -850,20 +850,6 @@
     gap: 1rem;
 }
 
-.v2board-node-list .block-content {
-    padding: 0 !important;
-}
-
-.v2board-node-list,
-.v2board-node-list .block-content {
-    background: transparent !important;
-}
-
-.v2board-node-list {
-    margin: 0;
-    box-shadow: none;
-}
-
 .v2board-node-card {
     flex: 1 1 calc(50% - 0.5rem);
     min-width: min(100%, 360px);
@@ -900,10 +886,6 @@
 .v2board-node-card-body {
     padding: 1rem;
     background-color: #fff;
-}
-
-.v2board-node-card-section {
-    min-width: 0;
 }
 
 .v2board-node-card-label {
@@ -966,10 +948,6 @@
     display: block;
     font-size: 0.95rem;
     line-height: 1.35;
-}
-
-.v2board-node-card-meta-tags .v2board-node-card-label {
-    margin-bottom: 0.4rem;
 }
 
 @media (max-width: 767.98px) {
