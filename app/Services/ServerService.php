@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\ServerLog;
 use App\Models\ServerRoute;
 use App\Models\ServerV2node;
+use App\Models\Plan;
 use App\Models\User;
 use App\Utils\CacheKey;
 use Illuminate\Support\Facades\Cache;
@@ -88,12 +89,12 @@ class ServerService
         return $servers;
     }
 
-    public function getAvailableServers(User $user)
+    public function getAvailableServers(User $user, bool $includePlanNames = false)
     {
         $servers = $this->getAvailableV2node($user);
         $tmp = array_column($servers, 'sort');
         array_multisort($tmp, SORT_ASC, $servers);
-        return array_map(function ($server) {
+        $servers = array_map(function ($server) {
             if (strpos($server['port'], '-')) {
                 $server['mport'] = (string)$server['port'];
             } else {
@@ -103,6 +104,72 @@ class ServerService
             $server['cache_key'] = "{$server['type']}-{$server['id']}-{$server['updated_at']}-{$server['is_online']}";
             return $server;
         }, $servers);
+
+        if ($includePlanNames) {
+            $planNamesByGroup = $this->getPlanNamesByGroup();
+            $servers = array_map(function ($server) use ($planNamesByGroup) {
+                $server['plans'] = $this->getPlanNamesForGroups($server['group_id'], $planNamesByGroup);
+                return $server;
+            }, $servers);
+        }
+
+        return $servers;
+    }
+
+    public function getPublicServers()
+    {
+        $servers = ServerV2node::where('show', 1)
+            ->orderBy('sort', 'ASC')
+            ->get([
+                'id',
+                'name',
+                'parent_id',
+                'group_id',
+                'rate',
+                'tags',
+                'updated_at'
+            ]);
+        $planNamesByGroup = $this->getPlanNamesByGroup();
+
+        return $servers->map(function ($server) use ($planNamesByGroup) {
+            $statusServerId = $server->parent_id ?: $server->id;
+            $lastCheckAt = Cache::get(CacheKey::get('SERVER_V2NODE_LAST_CHECK_AT', $statusServerId));
+            $isOnline = $lastCheckAt && time() - 300 <= $lastCheckAt ? 1 : 0;
+
+            return [
+                'id' => $server->id,
+                'name' => $server->name,
+                'rate' => $server->rate,
+                'tags' => $server->tags,
+                'is_online' => $isOnline,
+                'plans' => $this->getPlanNamesForGroups($server->group_id, $planNamesByGroup),
+                'cache_key' => "public-v2node-{$server->id}-{$server->updated_at}-{$isOnline}"
+            ];
+        })->values()->all();
+    }
+
+    private function getPlanNamesByGroup(): array
+    {
+        $planNamesByGroup = [];
+        $plans = Plan::where('show', 1)
+            ->orderBy('sort', 'ASC')
+            ->get(['name', 'group_id']);
+
+        foreach ($plans as $plan) {
+            $planNamesByGroup[(int)$plan->group_id][] = $plan->name;
+        }
+
+        return $planNamesByGroup;
+    }
+
+    private function getPlanNamesForGroups($groupIds, array $planNamesByGroup): array
+    {
+        $planNames = [];
+        foreach ((array)$groupIds as $groupId) {
+            $planNames = array_merge($planNames, $planNamesByGroup[(int)$groupId] ?? []);
+        }
+
+        return array_values(array_unique($planNames));
     }
 
     public function getAvailableUsers($groupId)

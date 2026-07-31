@@ -24191,7 +24191,7 @@
                         })
                     }, {
                         title: Object(u["formatMessage"])({
-                            id: "\u8282\u70b9\u72b6\u6001"
+                            id: "\u8282\u70b9\u5217\u8868"
                         }),
                         type: "item",
                         href: "/node",
@@ -32975,6 +32975,19 @@
                     dataIndex: "name",
                     key: "name"
                 }, {
+                    title: Object(y["formatMessage"])({
+                        id: "\u9002\u7528\u5957\u9910"
+                    }),
+                    dataIndex: "plans",
+                    key: "plans",
+                    render: e=>{
+                        return e && e.length ? e.map(e=>{
+                            return f.a.createElement(a["a"], {
+                                key: e
+                            }, e)
+                        }) : "-"
+                    }
+                }, {
                     title: f.a.createElement("span", null, f.a.createElement(c["a"], {
                         placement: "top",
                         title: Object(y["formatMessage"])({
@@ -33032,7 +33045,7 @@
                 Object(v["f"])(r.u + r.d, r.transfer_enable);
                 return f.a.createElement(p["a"], o()({}, this.props, {
                     title: Object(y["formatMessage"])({
-                        id: "\u8282\u70b9\u72b6\u6001"
+                        id: "\u8282\u70b9\u5217\u8868"
                     })
                 }), f.a.createElement("main", {
                     id: "main-container"

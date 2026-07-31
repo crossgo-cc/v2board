@@ -17,9 +17,13 @@ class ServerController extends Controller
         $user = User::find($request->user['id']);
         $servers = [];
         $userService = new UserService();
-        if ($userService->isAvailable($user)) {
-            $serverService = new ServerService();
-            $servers = $serverService->getAvailableServers($user);
+        $serverService = new ServerService();
+        if ((int)$user->banned) {
+            $servers = [];
+        } elseif ($userService->isAvailable($user)) {
+            $servers = $serverService->getAvailableServers($user, true);
+        } else {
+            $servers = $serverService->getPublicServers();
         }
         $eTag = sha1(json_encode(array_column($servers, 'cache_key')));
         if (strpos($request->header('If-None-Match'), $eTag) !== false ) {
