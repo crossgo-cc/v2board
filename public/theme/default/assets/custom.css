@@ -869,6 +869,7 @@
     min-width: min(100%, 360px);
     margin-bottom: 0;
     overflow: hidden;
+    background-color: #fff;
     border: 0;
     border-radius: 4px;
     box-shadow: 0 1px 3px rgba(31, 45, 61, 0.12), 0 1px 2px rgba(31, 45, 61, 0.08);
@@ -881,8 +882,8 @@
     gap: 0.75rem;
     min-width: 0;
     padding: 0.75rem 1.25rem;
-    background: rgba(127, 127, 127, 0.08);
-    border-bottom: 1px solid rgba(127, 127, 127, 0.12);
+    background-color: #f8f9fc;
+    border-bottom: 1px solid #e2e8f2;
 }
 
 .v2board-node-card-title {
@@ -898,7 +899,7 @@
 
 .v2board-node-card-body {
     padding: 1rem;
-    background-color: rgba(127, 127, 127, 0.08);
+    background-color: #fff;
 }
 
 .v2board-node-card-section {
