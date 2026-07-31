@@ -6,6 +6,14 @@
     overflow-wrap: anywhere;
 }
 
+.ant-modal-confirm .ant-modal-confirm-body > .anticon {
+    display: none;
+}
+
+.ant-modal-confirm .ant-modal-confirm-content {
+    margin-left: 0;
+}
+
 .v2board-subscription-overview {
     padding: 0.25rem 0 1.25rem;
 }
@@ -259,6 +267,12 @@
 }
 
 @media (max-width: 767.98px) {
+    .v2board-subscription-reset-modal {
+        width: calc(100vw - 2rem) !important;
+        max-width: calc(100vw - 2rem);
+        margin: 0 auto;
+    }
+
     .v2board-subscription-overview {
         padding-bottom: 0.5rem;
     }

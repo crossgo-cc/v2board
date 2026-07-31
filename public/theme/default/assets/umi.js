@@ -31061,6 +31061,8 @@
                   , t = this;
                 c["a"].confirm({
                     maskClosable: !0,
+                    className: "v2board-subscription-reset-modal",
+                    width: 520,
                     title: Object(b["formatMessage"])({
                         id: "\u786e\u5b9a\u91cd\u7f6e\u5f53\u524d\u5df2\u7528\u6d41\u91cf\uff1f"
                     }),
