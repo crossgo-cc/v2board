@@ -843,3 +843,44 @@
         margin-left: 0.5rem;
     }
 }
+
+.v2board-node-list .ant-table table {
+    table-layout: fixed;
+}
+
+.v2board-node-list .ant-table-thead > tr > th,
+.v2board-node-list .ant-table-tbody > tr > td {
+    vertical-align: top;
+}
+
+.v2board-node-name,
+.v2board-node-plan,
+.v2board-node-tag {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    white-space: normal;
+}
+
+.v2board-node-plans,
+.v2board-node-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+}
+
+.v2board-node-plan,
+.v2board-node-tag {
+    height: auto;
+    padding: 0.2rem 0.4rem;
+    margin: 0;
+    line-height: 1.4;
+}
+
+@media (max-width: 767.98px) {
+    .v2board-node-list .ant-table-thead > tr > th,
+    .v2board-node-list .ant-table-tbody > tr > td {
+        padding: 0.65rem 0.4rem;
+        font-size: 0.8125rem;
+    }
+}

@@ -32973,19 +32973,30 @@
                         id: "\u540d\u79f0"
                     }),
                     dataIndex: "name",
-                    key: "name"
+                    key: "name",
+                    width: "24%",
+                    render: e=>{
+                        return f.a.createElement("div", {
+                            className: "v2board-node-name",
+                            title: e
+                        }, e)
+                    }
                 }, {
                     title: Object(y["formatMessage"])({
                         id: "\u9002\u7528\u5957\u9910"
                     }),
                     dataIndex: "plans",
                     key: "plans",
+                    width: "30%",
                     render: e=>{
-                        return e && e.length ? e.map(e=>{
+                        return e && e.length ? f.a.createElement("div", {
+                            className: "v2board-node-plans"
+                        }, e.map(e=>{
                             return f.a.createElement(a["a"], {
+                                className: "v2board-node-plan",
                                 key: e
                             }, e)
-                        }) : "-"
+                        })) : "-"
                     }
                 }, {
                     title: f.a.createElement("span", null, f.a.createElement(c["a"], {
@@ -33000,6 +33011,7 @@
                     }))),
                     dataIndex: "is_online",
                     key: "is_online",
+                    width: "14%",
                     align: "center",
                     render: e=>{
                         return f.a.createElement(s["a"], {
@@ -33019,6 +33031,7 @@
                     }))),
                     dataIndex: "rate",
                     key: "rate",
+                    width: "12%",
                     align: "center",
                     render: e=>{
                         return f.a.createElement(a["a"], {
@@ -33033,13 +33046,16 @@
                     }),
                     dataIndex: "tags",
                     key: "tags",
+                    width: "20%",
                     render: e=>{
-                        return e ? e.map(e=>{
+                        return e && e.length ? f.a.createElement("div", {
+                            className: "v2board-node-tags"
+                        }, e.map(e=>{
                             return f.a.createElement(a["a"], {
-                                key: Math.random()
+                                className: "v2board-node-tag",
+                                key: e
                             }, e)
-                        }
-                        ) : "-"
+                        })) : "-"
                     }
                 }];
                 Object(v["f"])(r.u + r.d, r.transfer_enable);
@@ -33061,17 +33077,16 @@
                 }, f.a.createElement("span", {
                     className: "sr-only"
                 }, "Loading...")) : t.length > 0 ? f.a.createElement("div", {
-                    className: "block block-rounded js-appear-enabled"
+                    className: "block block-rounded js-appear-enabled v2board-node-list"
                 }, f.a.createElement("div", {
                     className: "block-content p-0"
                 }, f.a.createElement(i["a"], {
-                    tableLayout: "auto",
+                    className: "v2board-node-table",
+                    tableLayout: "fixed",
+                    size: "middle",
                     dataSource: t,
                     columns: l,
-                    pagination: !1,
-                    scroll: {
-                        x: 900
-                    }
+                    pagination: !1
                 }))) : f.a.createElement("div", {
                     className: "alert alert-dark",
                     role: "alert"
