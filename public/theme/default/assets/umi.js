@@ -30960,8 +30960,6 @@
           , o = n.n(r)
           , i = (n("+L6B"),
         n("2/Rp"))
-          , a = (n("fV52"),
-        n("3I+P"))
           , s = (n("Pwec"),
         n("CtXQ"))
           , c = (n("2qtc"),
@@ -31021,26 +31019,35 @@
             }
             renderNotice(e) {
                 return l.a.createElement("a", {
-                    className: "block block-rounded bg-image mb-0 v2board-bg-pixels",
-                    style: e.img_url ? {
-                        backgroundImage: "url(".concat(e.img_url, ")"),
-                        backgroundSize: "cover"
-                    } : {},
+                    className: "list-group-item list-group-item-action",
                     href: "javascript:void(0)",
+                    key: e.id,
                     onClick: ()=>h.a.push("/notice")
                 }, l.a.createElement("div", {
-                    className: "block-content bg-black-50"
+                    className: "d-flex align-items-center"
                 }, l.a.createElement("div", {
-                    className: "mb-5 mb-sm-7 d-sm-flex justify-content-sm-between align-items-sm-center"
-                }, l.a.createElement("p", null, l.a.createElement("span", {
-                    className: "badge badge-danger p-2 text-uppercase"
+                    className: "flex-grow-1",
+                    style: {
+                        minWidth: 0
+                    }
+                }, l.a.createElement("div", {
+                    className: "d-flex align-items-center mb-1"
+                }, e.is_pinned ? l.a.createElement("span", {
+                    className: "badge badge-primary mr-2"
                 }, Object(b["formatMessage"])({
-                    id: "\u516c\u544a"
-                })))), l.a.createElement("p", {
-                    className: "font-size-lg text-white mb-1"
-                }, e.title), l.a.createElement("p", {
-                    className: "font-w600 text-white-75"
-                }, v()(1e3 * e.created_at).format("YYYY-MM-DD"))))
+                    id: "\u7f6e\u9876"
+                })) : null, l.a.createElement("h5", {
+                    className: "font-size-base mb-0 text-truncate"
+                }, e.title)), l.a.createElement("div", {
+                    className: "font-size-sm text-muted d-flex align-items-center flex-wrap"
+                }, l.a.createElement("span", {
+                    className: "mr-2"
+                }, v()(1e3 * e.created_at).format("YYYY-MM-DD")), Array.isArray(e.tags) ? e.tags.slice(0, 2).map(e=>l.a.createElement("span", {
+                    className: "badge badge-light mr-1",
+                    key: e
+                }, "#", e)) : null)), l.a.createElement("i", {
+                    className: "si si-arrow-right text-muted ml-3"
+                })))
             }
             resetPackage() {
                 var e = this.props.user.subscribe
@@ -31155,14 +31162,25 @@
                     className: "row mb-3 mb-md-0"
                 }, l.a.createElement("div", {
                     className: "col-12 mb-sm-4"
-                }, m.length > 1 ? l.a.createElement(a["a"], {
-                    autoplay: !0
-                }, m.map(e=>{
-                    return l.a.createElement("div", {
-                        key: Math.random()
-                    }, this.renderNotice(e))
-                }
-                )) : this.renderNotice(m[0]))), l.a.createElement("div", {
+                }, l.a.createElement("div", {
+                    className: "block block-rounded js-appear-enabled"
+                }, l.a.createElement("div", {
+                    className: "block-header block-header-default"
+                }, l.a.createElement("h3", {
+                    className: "block-title"
+                }, Object(b["formatMessage"])({
+                    id: "\u516c\u544a\u4e2d\u5fc3"
+                })), l.a.createElement("div", {
+                    className: "block-options"
+                }, l.a.createElement("button", {
+                    type: "button",
+                    className: "btn btn-sm btn-alt-primary",
+                    onClick: ()=>h.a.push("/notice")
+                }, Object(b["formatMessage"])({
+                    id: "\u67e5\u770b\u5168\u90e8"
+                })))), l.a.createElement("div", {
+                    className: "list-group"
+                }, m.slice(0, 3).map(e=>this.renderNotice(e)))))), l.a.createElement("div", {
                     className: "row mb-3 mb-md-0"
                 }, l.a.createElement("div", {
                     className: "col-xl-12"

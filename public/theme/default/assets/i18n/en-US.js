@@ -37,6 +37,7 @@ window.settings.i18n['en-US'] = {
   '公告中心': 'Announcement Center',
   '最新': 'Latest',
   '置顶': 'Pinned',
+  '查看全部': 'View All',
   '暂无公告': 'No announcements',
   '上一页': 'Previous',
   '下一页': 'Next',

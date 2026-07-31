@@ -37,6 +37,7 @@ window.settings.i18n['vi-VN'] = {
   '公告中心': 'Trung tâm thông báo',
   '最新': 'Mới nhất',
   '置顶': 'Ghim',
+  '查看全部': 'Xem tất cả',
   '暂无公告': 'Chưa có thông báo',
   '上一页': 'Trang trước',
   '下一页': 'Trang sau',
