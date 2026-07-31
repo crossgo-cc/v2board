@@ -869,8 +869,9 @@
     min-width: min(100%, 360px);
     margin-bottom: 0;
     overflow: hidden;
-    border: 1px solid rgba(127, 127, 127, 0.18);
+    border: 0;
     border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(31, 45, 61, 0.12), 0 1px 2px rgba(31, 45, 61, 0.08);
 }
 
 .v2board-node-card-header {
@@ -879,17 +880,17 @@
     justify-content: space-between;
     gap: 0.75rem;
     min-width: 0;
-    padding: 0.9rem 1rem;
-    background: rgba(6, 101, 208, 0.12);
-    border-bottom: 1px solid rgba(6, 101, 208, 0.16);
+    padding: 0.75rem 1.25rem;
+    background: rgba(127, 127, 127, 0.08);
+    border-bottom: 1px solid rgba(127, 127, 127, 0.12);
 }
 
 .v2board-node-card-title {
     flex: 1 1 auto;
     margin: 0;
     min-width: 0;
-    font-size: 1.1rem;
-    font-weight: 600;
+    font-size: 1.125rem;
+    font-weight: 400;
     line-height: 1.3;
     overflow-wrap: anywhere;
     word-break: break-word;
