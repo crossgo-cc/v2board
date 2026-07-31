@@ -31121,6 +31121,102 @@
                     })
                 })
             }
+            renderSubscription(e, t, n, r) {
+                var E = Object(p["h"])(e.expired_at)
+                  , U = e.u + e.d
+                  , R = Math.max(e.transfer_enable - U, 0)
+                  , D = null === e.expired_at ? Object(b["formatMessage"])({
+                    id: "\u8be5\u8ba2\u9605\u957f\u671f\u6709\u6548"
+                }) : E ? Object(b["formatMessage"])({
+                    id: "\u5df2\u8fc7\u671f"
+                }) : Object(b["formatMessage"])({
+                    id: "\u4e8e {date} \u5230\u671f\uff0c\u8ddd\u79bb\u5230\u671f\u8fd8\u6709 {day} \u5929\u3002"
+                }, {
+                    date: v()(1e3 * e.expired_at).format("YYYY/MM/DD"),
+                    day: ((e.expired_at - v()().format("X")) / 86400).toFixed(0)
+                })
+                  , B = null !== e.reset_day && !E ? 0 !== e.reset_day ? Object(b["formatMessage"])({
+                    id: "\u5df2\u7528\u6d41\u91cf\u5c06\u5728 {reset_day} \u65e5\u540e\u91cd\u7f6e"
+                }, {
+                    reset_day: e.reset_day
+                }) : Object(b["formatMessage"])({
+                    id: "\u5df2\u7528\u6d41\u91cf\u5df2\u5728\u4eca\u65e5\u91cd\u7f6e"
+                }) : null;
+                return l.a.createElement("div", {
+                    className: "v2board-subscription-overview"
+                }, l.a.createElement("div", {
+                    className: "v2board-subscription-header"
+                }, l.a.createElement("div", {
+                    className: "v2board-subscription-icon text-primary"
+                }, l.a.createElement("i", {
+                    className: "fa fa-layer-group"
+                })), l.a.createElement("div", {
+                    className: "v2board-subscription-heading"
+                }, l.a.createElement("h2", null, e.plan.name), l.a.createElement("div", {
+                    className: "v2board-subscription-meta"
+                }, l.a.createElement("span", null, l.a.createElement("i", {
+                    className: "fa fa-calendar-alt"
+                }), D), B && l.a.createElement("span", null, l.a.createElement("i", {
+                    className: "fa fa-sync-alt"
+                }), B))), l.a.createElement("span", {
+                    className: "v2board-subscription-status ".concat(E ? "is-expired" : "is-active")
+                }, Object(b["formatMessage"])({
+                    id: E ? "\u5df2\u8fc7\u671f" : "\u6709\u6548"
+                }))), !E && l.a.createElement("div", {
+                    className: "v2board-subscription-usage"
+                }, l.a.createElement("div", {
+                    className: "v2board-subscription-usage-title"
+                }, l.a.createElement("span", null, Object(b["formatMessage"])({
+                    id: "\u6d41\u91cf\u4f7f\u7528"
+                })), l.a.createElement("strong", {
+                    className: "text-".concat(t >= 100 ? "danger" : t >= 80 ? "warning" : "primary")
+                }, t, "%")), l.a.createElement("div", {
+                    className: "progress v2board-subscription-progress"
+                }, l.a.createElement("div", {
+                    className: "progress-bar bg-".concat(t >= 100 ? "danger" : t >= 80 ? "warning" : "primary"),
+                    role: "progressbar",
+                    style: {
+                        width: Math.min(t, 100) + "%"
+                    }
+                })), l.a.createElement("div", {
+                    className: "v2board-subscription-stats"
+                }, l.a.createElement("div", null, l.a.createElement("span", null, Object(b["formatMessage"])({
+                    id: "\u5df2\u4f7f\u7528"
+                })), l.a.createElement("strong", null, Object(p["b"])(U))), l.a.createElement("div", null, l.a.createElement("span", null, Object(b["formatMessage"])({
+                    id: "\u5269\u4f59\u6d41\u91cf"
+                })), l.a.createElement("strong", null, Object(p["b"])(R))), l.a.createElement("div", null, l.a.createElement("span", null, Object(b["formatMessage"])({
+                    id: "\u5728\u7ebf\u8bbe\u5907"
+                })), l.a.createElement("strong", null, e.alive_ip, " / ", null == e.device_limit ? "\u221e" : e.device_limit)))), n && !E && l.a.createElement("div", {
+                    className: "v2board-subscription-reset"
+                }, l.a.createElement("div", {
+                    className: "v2board-subscription-reset-copy"
+                }, l.a.createElement("h4", null, Object(b["formatMessage"])({
+                    id: "\u6d41\u91cf\u91cd\u7f6e\u5305"
+                })), l.a.createElement("p", null, Object(b["formatMessage"])({
+                    id: "\u8d2d\u4e70\u540e\u7acb\u5373\u6e05\u96f6\u5df2\u7528\u6d41\u91cf\uff0c\u4e0d\u6539\u53d8\u5957\u9910\u603b\u91cf\u548c\u5230\u671f\u65f6\u95f4\u3002"
+                }))), l.a.createElement("div", {
+                    className: "v2board-subscription-reset-action"
+                }, l.a.createElement("strong", null, r), l.a.createElement(i["a"], {
+                    type: t >= 80 ? "primary" : "default",
+                    onClick: ()=>this.resetPackage()
+                }, Object(b["formatMessage"])({
+                    id: "\u7acb\u5373\u91cd\u7f6e"
+                })))), e.allow_new_period && t >= 100 && !E && l.a.createElement("div", {
+                    className: "v2board-subscription-footer"
+                }, l.a.createElement(i["a"], {
+                    type: "default",
+                    onClick: ()=>this.newPeriod()
+                }, Object(b["formatMessage"])({
+                    id: "\u63d0\u524d\u5f00\u542f\u6d41\u91cf\u5468\u671f"
+                }))), E && l.a.createElement("div", {
+                    className: "v2board-subscription-footer"
+                }, l.a.createElement(i["a"], {
+                    type: "primary",
+                    onClick: ()=>h.a.push(Object(p["m"])(e) ? "/plan/" + e.plan_id : "/plan")
+                }, Object(b["formatMessage"])({
+                    id: Object(p["m"])(e) ? "\u7eed\u8d39\u8ba2\u9605" : "\u8d2d\u4e70\u8ba2\u9605"
+                }))))
+            }
             render() {
                 var t, n, s = this.props.user, u = s.stat, d = s.subscribe, m = this.props.notice.notices, y = Math.round(Object(p["f"])(d.u + d.d, d.transfer_enable) * 100) / 100, x = [], P = d.plan && null !== d.plan.reset_price && void 0 !== d.plan.reset_price, C = P ? this.getResetPrice() : "";
                 (void 0 !== u[0] && u[0] && x.push(l.a.createElement("div", {
@@ -31160,11 +31256,7 @@
                     id: "\u5f53\u524d\u5df2\u4f7f\u7528\u6d41\u91cf\u8fbe{rate}%"
                 }, {
                     rate: y
-                }), " ", P && l.a.createElement("a", {
-                    onClick: ()=>this.resetPackage()
-                }, l.a.createElement("strong", null, Object(b["formatMessage"])({
-                    id: "\u8d2d\u4e70\u6d41\u91cf\u91cd\u7f6e\u5305"
-                }), " \u00b7 ", C)))));
+                }))));
                 return l.a.createElement(f["a"], o()({}, this.props, {
                     title: Object(b["formatMessage"])({
                         id: "\u4eea\u8868\u76d8"
@@ -31209,110 +31301,22 @@
                     id: "\u6211\u7684\u8ba2\u9605"
                 }))), l.a.createElement("div", {
                     className: "block-content"
-                }, d.email ? d.plan_id ? l.a.createElement("div", null, l.a.createElement("div", null, l.a.createElement("div", {
-                    className: "justify-content-md-between align-items-md-center"
-                }, l.a.createElement("div", null, l.a.createElement("h3", {
-                    className: "h4 mb-3"
-                }, d.plan.name), null === d.expired_at ? l.a.createElement("p", {
-                    className: "font-size-sm text-muted"
-                }, Object(b["formatMessage"])({
-                    id: "\u8be5\u8ba2\u9605\u957f\u671f\u6709\u6548"
-                })) : l.a.createElement("p", {
-                    className: "font-size-sm text-muted"
-                }, Object(p["h"])(d.expired_at) ? l.a.createElement("a", {
-                    className: "font-w600 text-danger",
-                    href: "javascript:void(0);"
-                }, Object(b["formatMessage"])({
-                    id: "\u5df2\u8fc7\u671f"
-                })) : l.a.createElement("span", null, Object(b["formatMessage"])({
-                    id: "\u4e8e {date} \u5230\u671f\uff0c\u8ddd\u79bb\u5230\u671f\u8fd8\u6709 {day} \u5929\u3002"
-                }, {
-                    date: v()(1e3 * d.expired_at).format("YYYY/MM/DD"),
-                    day: ((d.expired_at - v()().format("X")) / 86400).toFixed(0)
-                }), null !== d.reset_day ? 0 !== d.reset_day ? Object(b["formatMessage"])({
-                    id: "\u5df2\u7528\u6d41\u91cf\u5c06\u5728 {reset_day} \u65e5\u540e\u91cd\u7f6e"
-                }, {
-                    reset_day: d.reset_day
-                }) : Object(b["formatMessage"])({
-                    id: "\u5df2\u7528\u6d41\u91cf\u5df2\u5728\u4eca\u65e5\u91cd\u7f6e"
-                }) : "")), l.a.createElement("div", {
-                    className: "mb-0"
+                }, d.email ? d.plan_id ? this.renderSubscription(d, y, P, C) : l.a.createElement("div", {
+                    className: "v2board-subscription-empty"
                 }, l.a.createElement("div", {
-                    className: "progress mb-1",
-                    style: {
-                        height: 6
-                    }
-                }, l.a.createElement("div", {
-                    className: "progress-bar progress-bar-striped progress-bar-animated bg-".concat(y >= 100 ? "danger" : y >= 80 ? "warning" : "success"),
-                    role: "progressbar",
-                    style: {
-                        width: Object(p["f"])(d.u + d.d, d.transfer_enable) + "%"
-                    }
-                })), l.a.createElement("p", {
-                    className: "font-size-sm font-w600 mb-3"
-                }, l.a.createElement("span", {
-                    className: "font-w700"
-                }, Object(b["formatMessage"])({
-                    id: "\u5df2\u7528 {used} / \u603b\u8ba1 {total}"
-                }, {
-                    used: Object(p["b"])(d.u + d.d),
-                    total: Object(p["b"])(d.transfer_enable)
-                })),l.a.createElement("span",{
-                    className: "font-w700"
-                },"  "), l.a.createElement("span", {
-                    className: "font-w700"
-                }, Object(b["formatMessage"])({
-                    id: "\u5728\u7ebf\u8bbe\u5907 {alive_ip}/{device_limit}"
-                }, {
-                    alive_ip: d.alive_ip,
-                    device_limit: d.device_limit == null ? "∞" : d.device_limit
-                })))), P && !Object(p["h"])(d.expired_at) && l.a.createElement("div", {
-                    className: "border rounded p-3 mb-4 d-md-flex justify-content-md-between align-items-md-center"
-                }, l.a.createElement("div", {
-                    className: "pr-md-3"
-                }, l.a.createElement("div", {
-                    className: "d-flex align-items-center mb-1"
-                }, l.a.createElement("span", {
-                    className: "font-w600"
-                }, Object(b["formatMessage"])({
-                    id: "\u6d41\u91cf\u91cd\u7f6e\u5305"
-                })), l.a.createElement("span", {
-                    className: "badge ml-2 ".concat(y >= 80 ? "badge-primary" : "badge-light")
-                }, C)), l.a.createElement("div", {
-                    className: "font-size-sm text-muted"
-                }, Object(b["formatMessage"])({
-                    id: "\u8d2d\u4e70\u540e\u7acb\u5373\u6e05\u96f6\u5df2\u7528\u6d41\u91cf\uff0c\u4e0d\u6539\u53d8\u5957\u9910\u603b\u91cf\u548c\u5230\u671f\u65f6\u95f4\u3002"
-                }))), l.a.createElement(i["a"], {
-                    className: "mt-3 mt-md-0",
-                    type: y >= 80 ? "primary" : "default",
-                    onClick: ()=>this.resetPackage()
-                }, Object(b["formatMessage"])({
-                    id: "\u8d2d\u4e70\u6d41\u91cf\u91cd\u7f6e\u5305"
-                }))), d.allow_new_period && y >= 100 && !Object(p["h"])(d.expired_at) ? l.a.createElement("div", {
-                    className: "mb-4"
-                }, l.a.createElement(i["a"], {
-                    type: "primary",
-                    onClick: ()=>this.newPeriod()
-                }, Object(b["formatMessage"])({
-                    id: "\u63d0\u524d\u5f00\u542f\u6d41\u91cf\u5468\u671f"
-                }))) : "", Object(p["h"])(d.expired_at) && l.a.createElement("div", {
-                    className: "mb-4"
-                }, l.a.createElement(i["a"], {
-                    type: "primary",
-                    onClick: ()=>h.a.push(Object(p["m"])(d) ? "/plan/" + d.plan_id : "/plan")
-                }, Object(b["formatMessage"])({
-                    id: Object(p["m"])(d) ? "\u7eed\u8d39\u8ba2\u9605" : "\u8d2d\u4e70\u8ba2\u9605"
-                })))), l.a.createElement("div", null)))) : l.a.createElement("a", {
-                    onClick: ()=>h.a.push("/plan")
-                }, l.a.createElement("div", null, l.a.createElement("div", {
-                    className: "text-center"
-                }, l.a.createElement("div", null, l.a.createElement("i", {
-                    className: "fa fa-plus fa-2x"
-                })), l.a.createElement("div", {
-                    className: "font-size-sm text-uppercase text-muted pt-2 pb-3"
-                }, Object(b["formatMessage"])({
+                    className: "v2board-subscription-empty-icon text-primary"
+                }, l.a.createElement("i", {
+                    className: "fa fa-plus"
+                })), l.a.createElement("h4", null, Object(b["formatMessage"])({
                     id: "\u8d2d\u4e70\u8ba2\u9605"
-                }))))) : l.a.createElement(w["a"], {
+                })), l.a.createElement("p", null, Object(b["formatMessage"])({
+                    id: "\u9009\u62e9\u6700\u9002\u5408\u4f60\u7684\u8ba1\u5212"
+                })), l.a.createElement(i["a"], {
+                    type: "primary",
+                    onClick: ()=>h.a.push("/plan")
+                }, Object(b["formatMessage"])({
+                    id: "\u67e5\u770b\u8ba2\u9605"
+                }))) : l.a.createElement(w["a"], {
                     className: "font-size-h3 mb-3"
                 }))))), l.a.createElement("div", {
                     className: "row mb-3 mb-md-0"

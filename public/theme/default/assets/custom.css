@@ -5,6 +5,314 @@
     line-height: 1.65;
     overflow-wrap: anywhere;
 }
+
+.v2board-subscription-overview {
+    padding: 0.25rem 0 1.25rem;
+}
+
+.v2board-subscription-header {
+    display: flex;
+    align-items: flex-start;
+    min-width: 0;
+}
+
+.v2board-subscription-icon,
+.v2board-subscription-empty-icon {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    font-size: 18px;
+    background: rgba(127, 127, 127, 0.08);
+    border: 1px solid rgba(127, 127, 127, 0.12);
+    border-radius: 12px;
+}
+
+.v2board-subscription-heading {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 0 1rem;
+}
+
+.v2board-subscription-heading h2 {
+    margin: 0 0 0.35rem;
+    overflow: hidden;
+    font-size: 1.35rem;
+    font-weight: 600;
+    line-height: 1.3;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.v2board-subscription-meta {
+    display: flex;
+    flex-wrap: wrap;
+    color: #6c757d;
+    font-size: 0.8125rem;
+    gap: 0.3rem 1rem;
+}
+
+.v2board-subscription-meta span {
+    display: inline-flex;
+    align-items: center;
+}
+
+.v2board-subscription-meta i {
+    margin-right: 0.4rem;
+    opacity: 0.65;
+}
+
+.v2board-subscription-status {
+    flex: 0 0 auto;
+    padding: 0.3rem 0.65rem;
+    margin-left: auto;
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 1;
+    border-radius: 999px;
+}
+
+.v2board-subscription-status.is-active {
+    color: #527c2e;
+    background: rgba(130, 181, 75, 0.14);
+}
+
+.v2board-subscription-status.is-expired {
+    color: #b13b12;
+    background: rgba(224, 79, 26, 0.12);
+}
+
+.v2board-subscription-usage {
+    padding: 1.15rem 1.25rem;
+    margin-top: 1.5rem;
+    background: rgba(127, 127, 127, 0.055);
+    border: 1px solid rgba(127, 127, 127, 0.1);
+    border-radius: 10px;
+}
+
+.v2board-subscription-usage-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.65rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.v2board-subscription-progress {
+    height: 8px;
+    margin-bottom: 1.1rem;
+    overflow: hidden;
+    background: rgba(127, 127, 127, 0.12);
+    border-radius: 999px;
+}
+
+.v2board-subscription-progress .progress-bar {
+    border-radius: 999px;
+    transition: width 0.3s ease;
+}
+
+.v2board-subscription-stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.v2board-subscription-stats > div {
+    min-width: 0;
+    padding: 0 1rem;
+    border-left: 1px solid rgba(127, 127, 127, 0.14);
+}
+
+.v2board-subscription-stats > div:first-child {
+    padding-left: 0;
+    border-left: 0;
+}
+
+.v2board-subscription-stats > div:last-child {
+    padding-right: 0;
+}
+
+.v2board-subscription-stats span,
+.v2board-subscription-stats strong {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.v2board-subscription-stats span {
+    margin-bottom: 0.25rem;
+    color: #6c757d;
+    font-size: 0.75rem;
+}
+
+.v2board-subscription-stats strong {
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.v2board-subscription-reset {
+    display: flex;
+    align-items: center;
+    padding-top: 1.25rem;
+    margin-top: 1.25rem;
+    border-top: 1px solid rgba(127, 127, 127, 0.14);
+}
+
+.v2board-subscription-reset-copy {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding-right: 1rem;
+}
+
+.v2board-subscription-reset-copy h4 {
+    margin: 0 0 0.25rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.v2board-subscription-reset-copy p {
+    margin: 0;
+    color: #6c757d;
+    font-size: 0.8125rem;
+    line-height: 1.5;
+}
+
+.v2board-subscription-reset-action {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    margin-left: auto;
+}
+
+.v2board-subscription-reset-action > strong {
+    margin-right: 1rem;
+    font-size: 1.25rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.v2board-subscription-footer {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 1.25rem;
+    margin-top: 1.25rem;
+    border-top: 1px solid rgba(127, 127, 127, 0.14);
+}
+
+.v2board-subscription-empty {
+    padding: 2.25rem 1rem 2.75rem;
+    text-align: center;
+}
+
+.v2board-subscription-empty-icon {
+    margin: 0 auto 1rem;
+}
+
+.v2board-subscription-empty h4 {
+    margin-bottom: 0.35rem;
+}
+
+.v2board-subscription-empty p {
+    margin-bottom: 1.1rem;
+    color: #6c757d;
+    font-size: 0.875rem;
+}
+
+@media (max-width: 767.98px) {
+    .v2board-subscription-overview {
+        padding-bottom: 0.5rem;
+    }
+
+    .v2board-subscription-icon,
+    .v2board-subscription-empty-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 10px;
+    }
+
+    .v2board-subscription-heading {
+        padding-right: 0.5rem;
+        padding-left: 0.75rem;
+    }
+
+    .v2board-subscription-heading h2 {
+        font-size: 1.15rem;
+    }
+
+    .v2board-subscription-meta {
+        display: block;
+    }
+
+    .v2board-subscription-meta span {
+        display: flex;
+        margin-top: 0.2rem;
+    }
+
+    .v2board-subscription-status {
+        padding: 0.25rem 0.5rem;
+    }
+
+    .v2board-subscription-usage {
+        padding: 1rem;
+        margin-top: 1.25rem;
+        border-radius: 8px;
+    }
+
+    .v2board-subscription-stats > div {
+        padding-right: 0.6rem;
+        padding-left: 0.6rem;
+    }
+
+    .v2board-subscription-stats strong {
+        font-size: 0.9rem;
+    }
+
+    .v2board-subscription-stats span {
+        overflow: visible;
+        line-height: 1.35;
+        text-overflow: clip;
+        white-space: normal;
+        overflow-wrap: anywhere;
+    }
+
+    .v2board-subscription-reset {
+        display: block;
+    }
+
+    .v2board-subscription-reset-copy {
+        padding-right: 0;
+    }
+
+    .v2board-subscription-reset-action {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        column-gap: 0.75rem;
+        row-gap: 0.75rem;
+        margin-top: 1rem;
+        margin-left: 0;
+    }
+
+    .v2board-subscription-reset-action > strong {
+        margin-right: 0;
+    }
+
+    .v2board-subscription-footer .ant-btn {
+        width: 100%;
+    }
+}
+
+@media (max-width: 374.98px) {
+    .v2board-subscription-reset-action {
+        grid-template-columns: 1fr;
+    }
+
+    .v2board-subscription-reset-action .ant-btn {
+        width: 100%;
+    }
+}
 .ticket-markdown h1,
 .ticket-markdown h2,
 .ticket-markdown h3,
