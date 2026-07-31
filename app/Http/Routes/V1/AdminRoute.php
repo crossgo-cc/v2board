@@ -74,7 +74,6 @@ class AdminRoute
             // Notice
             $router->get ('/notice/fetch', 'V1\\Admin\\NoticeController@fetch');
             $router->post('/notice/save', 'V1\\Admin\\NoticeController@save');
-            $router->post('/notice/update', 'V1\\Admin\\NoticeController@update');
             $router->post('/notice/drop', 'V1\\Admin\\NoticeController@drop');
             $router->post('/notice/show', 'V1\\Admin\\NoticeController@show');
             // Ticket

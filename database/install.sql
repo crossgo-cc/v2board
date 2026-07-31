@@ -128,11 +128,12 @@ CREATE TABLE `v2_notice` (
                              `content` text NOT NULL,
                              `show` tinyint(1) NOT NULL DEFAULT '0',
                              `img_url` varchar(255) DEFAULT NULL,
-                             `tags` varchar(255) DEFAULT NULL,
+                             `tags` text NULL,
                              `created_at` int(11) NOT NULL,
                              `updated_at` int(11) NOT NULL,
-                             PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+                             PRIMARY KEY (`id`),
+                             KEY `idx_notice_show_created` (`show`, `created_at`, `id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 DROP TABLE IF EXISTS `v2_order`;
 CREATE TABLE `v2_order` (

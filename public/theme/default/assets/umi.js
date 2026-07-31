@@ -24159,6 +24159,15 @@
                         })
                     }, {
                         title: Object(u["formatMessage"])({
+                            id: "\u516c\u544a"
+                        }),
+                        type: "item",
+                        href: "/notice",
+                        icon: i.a.createElement("i", {
+                            className: "nav-main-link-icon si si-bell"
+                        })
+                    }, {
+                        title: Object(u["formatMessage"])({
                             id: "\u4f7f\u7528\u6587\u6863"
                         }),
                         type: "item",
@@ -30968,7 +30977,8 @@
           , y = n("/MKj")
           , g = n("/Ira")
           , b = n("Y2fQ")
-          , w = n("v32e");
+          , w = n("v32e")
+          , A = n("NoticeMarkdown");
         class x extends l.a.Component {
             constructor(e) {
                 super(e),
@@ -30994,8 +31004,7 @@
                     complete: ()=>{
                         var e, t = (null === (e = this.props.notice) || void 0 === e ? void 0 : e.notices) || [];
                         if (t.length) {
-                            var n = t.find(e=>-1 !== e.tags.indexOf("\u5f39\u7a97"));
-                            console.log(n),
+                            var n = t.find(e=>Array.isArray(e.tags) && -1 !== e.tags.indexOf("\u5f39\u7a97"));
                             n && this.modalVisible(n)
                         }
                     }
@@ -31018,7 +31027,7 @@
                         backgroundSize: "cover"
                     } : {},
                     href: "javascript:void(0)",
-                    onClick: ()=>this.modalVisible(e)
+                    onClick: ()=>h.a.push("/notice")
                 }, l.a.createElement("div", {
                     className: "block-content bg-black-50"
                 }, l.a.createElement("div", {
@@ -31339,8 +31348,8 @@
                     footer: !1,
                     onCancel: ()=>this.modalVisible()
                 }, this.state.notice.content && l.a.createElement("div", {
-                    className: "notice-content",
-                    dangerouslySetInnerHTML: { __html: this.state.notice.content }
+                    className: "notice-content custom-html-style",
+                    dangerouslySetInnerHTML: Object(A["a"])(this.state.notice.content)
                 })))
             }
         }
@@ -31359,6 +31368,220 @@
             }
         }
         )(x)
+    },
+    NoticeMarkdown: function(e, t, n) {
+        "use strict";
+        var r = n("1M3H")
+          , o = n.n(r)
+          , i = new o.a({
+            html: !1,
+            linkify: !0,
+            breaks: !0,
+            typographer: !0
+        })
+          , s = /^https:\/\//i;
+        i.renderer.rules.image = function(e, t, n, r, o) {
+            var a = e[t].attrGet("src") || "";
+            return s.test(a) ? (e[t].attrSet("loading", "lazy"),
+            e[t].attrSet("decoding", "async"),
+            e[t].attrSet("referrerpolicy", "no-referrer"),
+            o.renderToken(e, t, n)) : ""
+        }
+        ;
+        var a = i.renderer.rules.link_open || function(e, t, n, r, o) {
+            return o.renderToken(e, t, n)
+        }
+        ;
+        i.renderer.rules.link_open = function(e, t, n, r, o) {
+            e[t].attrSet("target", "_blank"),
+            e[t].attrSet("rel", "noopener noreferrer");
+            return a(e, t, n, r, o)
+        }
+        ,
+        t["a"] = function(e) {
+            return {
+                __html: i.render(e || "")
+            }
+        }
+        ,
+        t["b"] = function(e) {
+            return s.test(e || "")
+        }
+    },
+    NoticeTimelinePage: function(e, t, n) {
+        "use strict";
+        n.r(t);
+        var r = n("q1tI")
+          , o = n.n(r)
+          , i = n("L12J")
+          , a = n("/MKj")
+          , s = n("t3Un")
+          , c = n("wd/R")
+          , u = n.n(c)
+          , l = n("Y2fQ")
+          , f = n("NoticeMarkdown")
+          , d = [0, 1, 2];
+        class p extends o.a.Component {
+            constructor(e) {
+                super(e),
+                this.pageSize = 10,
+                this.state = {
+                    notices: [],
+                    total: 0,
+                    current: 1,
+                    loading: !0
+                }
+            }
+            componentDidMount() {
+                this.fetch(1)
+            }
+            fetch(e) {
+                this.setState({
+                    loading: !0
+                }),
+                Object(s["a"])("/user/notice/fetch", {
+                    current: e,
+                    pageSize: this.pageSize
+                }).then(t=>{
+                    200 === t.code && this.setState({
+                        notices: t.data || [],
+                        total: t.total || 0,
+                        current: e
+                    }),
+                    this.setState({
+                        loading: !1
+                    })
+                }
+                ).catch(()=>this.setState({
+                    loading: !1
+                })
+                )
+            }
+            renderHero(e, t) {
+                return o.a.createElement("section", {
+                    className: "notice-hero"
+                }, o.a.createElement("div", {
+                    className: "notice-hero-copy"
+                }, o.a.createElement("span", {
+                    className: "notice-hero-eyebrow"
+                }, "ANNOUNCEMENTS"), o.a.createElement("h1", null, Object(l["formatMessage"])({
+                    id: "\u516c\u544a\u4e2d\u5fc3"
+                })), o.a.createElement("p", null, Object(l["formatMessage"])({
+                    id: "\u53ca\u65f6\u4e86\u89e3\u670d\u52a1\u52a8\u6001\u4e0e\u91cd\u8981\u901a\u77e5"
+                }))), t ? null : o.a.createElement("div", {
+                    className: "notice-hero-count"
+                }, o.a.createElement("strong", null, e), o.a.createElement("span", null, Object(l["formatMessage"])({
+                    id: "\u5df2\u53d1\u5e03\u516c\u544a"
+                }))))
+            }
+            renderLoading() {
+                return o.a.createElement("div", {
+                    className: "notice-skeleton-list",
+                    "aria-label": "Loading"
+                }, d.map(e=>o.a.createElement("div", {
+                    className: "notice-skeleton-item",
+                    key: e
+                }, o.a.createElement("span", {
+                    className: "notice-skeleton-date"
+                }), o.a.createElement("div", {
+                    className: "notice-skeleton-card"
+                }, o.a.createElement("span", {
+                    className: "notice-skeleton-title"
+                }), o.a.createElement("span", {
+                    className: "notice-skeleton-line"
+                }), o.a.createElement("span", {
+                    className: "notice-skeleton-line is-short"
+                })))))
+            }
+            renderNotice(e, t) {
+                var n = u()(1e3 * e.created_at);
+                return o.a.createElement("article", {
+                    className: "notice-timeline-item".concat(0 === t ? " is-latest" : ""),
+                    key: e.id
+                }, o.a.createElement("time", {
+                    className: "notice-timeline-time",
+                    dateTime: n.format()
+                }, o.a.createElement("strong", null, n.format("MM-DD")), o.a.createElement("span", null, n.format("YYYY"))), o.a.createElement("div", {
+                    className: "notice-timeline-marker"
+                }), o.a.createElement("div", {
+                    className: "notice-timeline-card"
+                }, o.a.createElement("header", {
+                    className: "notice-card-header"
+                }, o.a.createElement("div", {
+                    className: "notice-card-heading"
+                }, 0 === t ? o.a.createElement("span", {
+                    className: "notice-latest-badge"
+                }, Object(l["formatMessage"])({
+                    id: "\u6700\u65b0"
+                })) : null, o.a.createElement("h2", null, e.title)), Array.isArray(e.tags) && e.tags.length > 0 ? o.a.createElement("div", {
+                    className: "notice-timeline-tags"
+                }, e.tags.map(e=>o.a.createElement("span", {
+                    key: e
+                }, "#", e))) : null), Object(f["b"])(e.img_url) ? o.a.createElement("img", {
+                    className: "notice-timeline-cover",
+                    src: e.img_url,
+                    alt: "",
+                    loading: "lazy",
+                    referrerPolicy: "no-referrer"
+                }) : null, o.a.createElement("div", {
+                    className: "notice-markdown custom-html-style",
+                    dangerouslySetInnerHTML: Object(f["a"])(e.content)
+                })))
+            }
+            renderPagination(e, t) {
+                return o.a.createElement("nav", {
+                    className: "notice-pagination",
+                    "aria-label": "Pagination"
+                }, o.a.createElement("button", {
+                    type: "button",
+                    disabled: e <= 1,
+                    onClick: ()=>this.fetch(e - 1)
+                }, o.a.createElement("i", {
+                    className: "fa fa-angle-left"
+                }), Object(l["formatMessage"])({
+                    id: "\u4e0a\u4e00\u9875"
+                })), o.a.createElement("span", {
+                    className: "notice-page-indicator"
+                }, e, " / ", t), o.a.createElement("button", {
+                    type: "button",
+                    disabled: e >= t,
+                    onClick: ()=>this.fetch(e + 1)
+                }, Object(l["formatMessage"])({
+                    id: "\u4e0b\u4e00\u9875"
+                }), o.a.createElement("i", {
+                    className: "fa fa-angle-right"
+                })))
+            }
+            render() {
+                var e = this.state
+                  , t = e.notices
+                  , n = e.total
+                  , r = e.current
+                  , a = e.loading
+                  , s = Math.max(1, Math.ceil(n / this.pageSize));
+                return o.a.createElement(i["a"], Object.assign({}, this.props, {
+                    title: Object(l["formatMessage"])({
+                        id: "\u516c\u544a\u4e2d\u5fc3"
+                    })
+                }), o.a.createElement("main", {
+                    id: "main-container",
+                    className: "notice-page"
+                }, o.a.createElement("div", {
+                    className: "content content-full"
+                }, this.renderHero(n, a), a ? this.renderLoading() : 0 === t.length ? o.a.createElement("div", {
+                    className: "notice-empty"
+                }, o.a.createElement("span", {
+                    className: "notice-empty-icon"
+                }, o.a.createElement("i", {
+                    className: "si si-bell"
+                })), o.a.createElement("p", null, Object(l["formatMessage"])({
+                    id: "\u6682\u65e0\u516c\u544a"
+                }))) : o.a.createElement("div", {
+                    className: "notice-timeline"
+                }, t.map((e,t)=>this.renderNotice(e, t))), a || 0 === t.length ? null : this.renderPagination(r, s))))
+            }
+        }
+        t["default"] = Object(a["c"])(()=>({}))(p)
     },
     ULMT: function(e, t, n) {
         var r = n("yw4e")
@@ -45441,6 +45664,10 @@
             path: "/dashboard",
             exact: !0,
             component: n("UJb+").default
+        }, {
+            path: "/notice",
+            exact: !0,
+            component: n("NoticeTimelinePage").default
         }, {
             path: "/forgetpassword",
             exact: !0,

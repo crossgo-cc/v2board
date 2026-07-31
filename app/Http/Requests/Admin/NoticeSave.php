@@ -14,10 +14,12 @@ class NoticeSave extends FormRequest
     public function rules()
     {
         return [
-            'title' => 'required',
-            'content' => 'required',
-            'img_url' => 'nullable|url',
-            'tags' => 'nullable|array'
+            'id' => 'nullable|integer|exists:v2_notice,id',
+            'title' => 'required|string|max:255',
+            'content' => 'required|string',
+            'img_url' => 'nullable|url|max:255',
+            'tags' => 'nullable|array|max:10',
+            'tags.*' => 'string|max:32'
         ];
     }
 
@@ -27,7 +29,10 @@ class NoticeSave extends FormRequest
             'title.required' => '标题不能为空',
             'content.required' => '内容不能为空',
             'img_url.url' => '图片URL格式不正确',
-            'tags.array' => '标签格式不正确'
+            'tags.array' => '标签格式不正确',
+            'tags.max' => '标签不能超过10个',
+            'tags.*.string' => '标签格式不正确',
+            'tags.*.max' => '单个标签不能超过32个字符'
         ];
     }
 }

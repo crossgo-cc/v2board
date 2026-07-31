@@ -30658,9 +30658,10 @@
                     render: (e,t)=>{
                         return g.a.createElement(f["a"], {
                             size: "small",
-                            onChange: ()=>this.props.dispatch({
+                            onChange: e=>this.props.dispatch({
                                 type: "notice/show",
-                                id: t.id
+                                id: t.id,
+                                show: e ? 1 : 0
                             }),
                             checked: e
                         })
@@ -30750,10 +30751,10 @@
                     className: "form-group"
                 }, g.a.createElement("label", {
                     for: "example-text-input-alt"
-                }, "\u516c\u544a\u5185\u5bb9"), g.a.createElement(s["a"].TextArea, {
+                }, "\u516c\u544a\u5185\u5bb9\uff08Markdown\uff09"), g.a.createElement(s["a"].TextArea, {
                     rows: 12,
                     value: this.state.submit.content,
-                    placeholder: "\u8bf7\u8f93\u5165\u516c\u544a\u5185\u5bb9",
+                    placeholder: "\u8bf7\u4f7f\u7528Markdown\u8f93\u5165\u516c\u544a\u5185\u5bb9",
                     onChange: e=>{
                         this.setState({
                             submit: p()({}, this.state.submit, {
@@ -82662,7 +82663,8 @@
                 },
                 show(e, t) {
                     var n = e.id
-                      , r = t.put;
+                      , r = e.show
+                      , i = t.put;
                     return a().mark(function e() {
                         var t;
                         return a().wrap(function(e) {
@@ -82671,7 +82673,8 @@
                                 case 0:
                                     return e.next = 2,
                                     Object(o["b"])("/" + window.settings.secure_path + "/notice/show", {
-                                        id: n
+                                        id: n,
+                                        show: r
                                     });
                                 case 2:
                                     if (t = e.sent,
@@ -82682,7 +82685,7 @@
                                     return e.abrupt("return");
                                 case 5:
                                     return e.next = 7,
-                                    r({
+                                    i({
                                         type: "fetch"
                                     });
                                 case 7:

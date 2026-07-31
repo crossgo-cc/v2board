@@ -595,3 +595,16 @@ CHANGE `action_value` `action_value` text NULL AFTER `action`;
 
 ALTER TABLE `v2_server_v2node`
 ADD `trusted_x_forwarded_for` varchar(255) COLLATE 'utf8mb4_general_ci' NULL COMMENT '信任的x-forwarded-for头部' AFTER `network_settings`;
+
+ALTER TABLE `v2_notice`
+CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+
+ALTER TABLE `v2_notice`
+CHANGE `tags` `tags` text COLLATE 'utf8mb4_general_ci' NULL AFTER `img_url`;
+
+UPDATE `v2_notice`
+SET `tags` = '[]'
+WHERE `tags` IS NULL;
+
+ALTER TABLE `v2_notice`
+ADD INDEX `idx_notice_show_created` (`show`, `created_at`, `id`);
