@@ -31125,6 +31125,7 @@
                 var E = Object(p["h"])(e.expired_at)
                   , U = e.u + e.d
                   , R = Math.max(e.transfer_enable - U, 0)
+                  , F = 0 === Number(e.plan.reset_price)
                   , D = null === e.expired_at ? Object(b["formatMessage"])({
                     id: "\u8be5\u8ba2\u9605\u957f\u671f\u6709\u6548"
                 }) : E ? Object(b["formatMessage"])({
@@ -31190,13 +31191,21 @@
                     className: "v2board-subscription-reset"
                 }, l.a.createElement("div", {
                     className: "v2board-subscription-reset-copy"
-                }, l.a.createElement("h4", null, Object(b["formatMessage"])({
+                }, l.a.createElement("div", {
+                    className: "v2board-subscription-reset-heading"
+                }, l.a.createElement("span", {
+                    className: "v2board-subscription-reset-title"
+                }, Object(b["formatMessage"])({
                     id: "\u6d41\u91cf\u91cd\u7f6e\u5305"
-                })), l.a.createElement("p", null, Object(b["formatMessage"])({
+                })), l.a.createElement("span", {
+                    className: "badge ml-2 ".concat(t >= 80 ? "badge-primary" : "badge-light")
+                }, F ? Object(b["formatMessage"])({
+                    id: "\u514d\u8d39"
+                }) : r)), l.a.createElement("p", null, Object(b["formatMessage"])({
                     id: "\u8d2d\u4e70\u540e\u7acb\u5373\u6e05\u96f6\u5df2\u7528\u6d41\u91cf\uff0c\u4e0d\u6539\u53d8\u5957\u9910\u603b\u91cf\u548c\u5230\u671f\u65f6\u95f4\u3002"
                 }))), l.a.createElement("div", {
                     className: "v2board-subscription-reset-action"
-                }, l.a.createElement("strong", null, r), l.a.createElement(i["a"], {
+                }, l.a.createElement(i["a"], {
                     type: t >= 80 ? "primary" : "default",
                     onClick: ()=>this.resetPackage()
                 }, Object(b["formatMessage"])({

@@ -156,9 +156,10 @@
 .v2board-subscription-reset {
     display: flex;
     align-items: center;
-    padding-top: 1.25rem;
+    padding: 1rem;
     margin-top: 1.25rem;
-    border-top: 1px solid rgba(127, 127, 127, 0.14);
+    border: 1px solid rgba(127, 127, 127, 0.18);
+    border-radius: 4px;
 }
 
 .v2board-subscription-reset-copy {
@@ -167,9 +168,13 @@
     padding-right: 1rem;
 }
 
-.v2board-subscription-reset-copy h4 {
-    margin: 0 0 0.25rem;
-    font-size: 0.95rem;
+.v2board-subscription-reset-heading {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.25rem;
+}
+
+.v2board-subscription-reset-title {
     font-weight: 600;
 }
 
@@ -185,13 +190,6 @@
     flex: 0 0 auto;
     align-items: center;
     margin-left: auto;
-}
-
-.v2board-subscription-reset-action > strong {
-    margin-right: 1rem;
-    font-size: 1.25rem;
-    font-weight: 600;
-    white-space: nowrap;
 }
 
 .v2board-subscription-footer {
@@ -287,16 +285,12 @@
     }
 
     .v2board-subscription-reset-action {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) auto;
-        column-gap: 0.75rem;
-        row-gap: 0.75rem;
         margin-top: 1rem;
         margin-left: 0;
     }
 
-    .v2board-subscription-reset-action > strong {
-        margin-right: 0;
+    .v2board-subscription-reset-action .ant-btn {
+        width: 100%;
     }
 
     .v2board-subscription-footer .ant-btn {
@@ -304,15 +298,6 @@
     }
 }
 
-@media (max-width: 374.98px) {
-    .v2board-subscription-reset-action {
-        grid-template-columns: 1fr;
-    }
-
-    .v2board-subscription-reset-action .ant-btn {
-        width: 100%;
-    }
-}
 .ticket-markdown h1,
 .ticket-markdown h2,
 .ticket-markdown h3,
