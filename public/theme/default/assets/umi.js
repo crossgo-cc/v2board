@@ -31138,9 +31138,9 @@
                   , F = 0 === Number(e.plan.reset_price)
                   , D = null === e.expired_at ? Object(b["formatMessage"])({
                     id: "\u8be5\u8ba2\u9605\u957f\u671f\u6709\u6548"
-                }) : E ? Object(b["formatMessage"])({
+                }) : E ? "".concat(Object(b["formatMessage"])({
                     id: "\u5df2\u8fc7\u671f"
-                }) : Object(b["formatMessage"])({
+                }), " (", v()(1e3 * e.expired_at).format("YYYY/MM/DD"), ")") : Object(b["formatMessage"])({
                     id: "\u4e8e {date} \u5230\u671f\uff0c\u8ddd\u79bb\u5230\u671f\u8fd8\u6709 {day} \u5929\u3002"
                 }, {
                     date: v()(1e3 * e.expired_at).format("YYYY/MM/DD"),
@@ -31173,7 +31173,7 @@
                     className: "v2board-subscription-status ".concat(E ? "is-expired" : "is-active")
                 }, Object(b["formatMessage"])({
                     id: E ? "\u5df2\u8fc7\u671f" : "\u6709\u6548"
-                }))), !E && l.a.createElement("div", {
+                }))), l.a.createElement("div", {
                     className: "v2board-subscription-usage"
                 }, l.a.createElement("div", {
                     className: "v2board-subscription-usage-title"
@@ -31216,7 +31216,7 @@
                 }))), l.a.createElement("div", {
                     className: "v2board-subscription-reset-action"
                 }, l.a.createElement(i["a"], {
-                    type: t >= 80 ? "primary" : "default",
+                    type: "default",
                     onClick: ()=>this.resetPackage()
                 }, Object(b["formatMessage"])({
                     id: "\u7acb\u5373\u91cd\u7f6e"
@@ -31227,14 +31227,26 @@
                     onClick: ()=>this.newPeriod()
                 }, Object(b["formatMessage"])({
                     id: "\u63d0\u524d\u5f00\u542f\u6d41\u91cf\u5468\u671f"
-                }))), E && l.a.createElement("div", {
-                    className: "v2board-subscription-footer"
+                }))), l.a.createElement("div", {
+                    className: "v2board-subscription-reset v2board-subscription-renew"
+                }, l.a.createElement("div", {
+                    className: "v2board-subscription-reset-copy"
+                }, l.a.createElement("div", {
+                    className: "v2board-subscription-reset-heading"
+                }, l.a.createElement("span", {
+                    className: "v2board-subscription-reset-title"
+                }, Object(b["formatMessage"])({
+                    id: Object(p["m"])(e) ? "\u7eed\u8d39\u8ba2\u9605" : "\u8d2d\u4e70\u8ba2\u9605"
+                }))), l.a.createElement("p", null, Object(b["formatMessage"])({
+                    id: Object(p["m"])(e) ? "\u5bf9\u60a8\u5f53\u524d\u7684\u8ba2\u9605\u8fdb\u884c\u7eed\u8d39" : "\u5bf9\u60a8\u5f53\u524d\u7684\u8ba2\u9605\u8fdb\u884c\u8d2d\u4e70"
+                }))), l.a.createElement("div", {
+                    className: "v2board-subscription-reset-action"
                 }, l.a.createElement(i["a"], {
                     type: "primary",
                     onClick: ()=>h.a.push(Object(p["m"])(e) ? "/plan/" + e.plan_id : "/plan")
                 }, Object(b["formatMessage"])({
                     id: Object(p["m"])(e) ? "\u7eed\u8d39\u8ba2\u9605" : "\u8d2d\u4e70\u8ba2\u9605"
-                }))))
+                })))))
             }
             render() {
                 var t, n, s = this.props.user, u = s.stat, d = s.subscribe, m = this.props.notice.notices, y = Math.round(Object(p["f"])(d.u + d.d, d.transfer_enable) * 100) / 100, x = [], P = d.plan && null !== d.plan.reset_price && void 0 !== d.plan.reset_price, C = P ? this.getResetPrice() : "";
@@ -31385,20 +31397,6 @@
                     },
                     className: "nav-main-link-icon si si-feed"
                 }))), l.a.createElement("div", {
-                    className: "v2board-shortcuts-item",
-                    onClick: ()=>h.a.push(Object(p["m"])(d) ? "/plan/" + d.plan_id : "/plan")
-                }, l.a.createElement("div", null, Object(b["formatMessage"])({
-                    id: Object(p["m"])(d) ? "\u7eed\u8d39\u8ba2\u9605" : "\u8d2d\u4e70\u8ba2\u9605"
-                })), l.a.createElement("div", {
-                    className: "description"
-                }, Object(b["formatMessage"])({
-                    id: Object(p["m"])(d) ? "\u5bf9\u60a8\u5f53\u524d\u7684\u8ba2\u9605\u8fdb\u884c\u7eed\u8d39" : "\u5bf9\u60a8\u5f53\u524d\u7684\u8ba2\u9605\u8fdb\u884c\u8d2d\u4e70"
-                })), l.a.createElement("i", {
-                    style: {
-                        float: "right"
-                    },
-                    className: "nav-main-link-icon si si-".concat(Object(p["m"])(d) ? "clock" : "bag")
-                })), l.a.createElement("div", {
                     className: "v2board-shortcuts-item",
                     onClick: ()=>h.a.push("/ticket")
                 }, l.a.createElement("div", null, Object(b["formatMessage"])({

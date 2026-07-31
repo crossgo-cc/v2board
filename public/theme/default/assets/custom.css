@@ -175,6 +175,11 @@
     border-radius: 4px;
 }
 
+.v2board-subscription-renew {
+    background: rgba(0, 123, 255, 0.035);
+    border-color: rgba(0, 123, 255, 0.25);
+}
+
 .v2board-subscription-reset-copy {
     flex: 1 1 auto;
     min-width: 0;
