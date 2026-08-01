@@ -1096,6 +1096,10 @@
     font-size: 1rem;
 }
 
+.v2board-traffic-list .block-header {
+    border-bottom: 1px solid #e8e8e8;
+}
+
 @media (max-width: 767.98px) {
     .v2board-traffic-stat {
         padding-right: 0.5rem;
@@ -1109,5 +1113,9 @@
     .v2board-traffic-chart-canvas {
         height: 220px;
         min-height: 220px;
+    }
+
+    .v2board-traffic-list {
+        margin-top: 1rem;
     }
 }

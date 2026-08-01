@@ -28338,6 +28338,43 @@
                     id: "\u672c\u6708\u6682\u65e0\u6d41\u91cf\u8bb0\u5f55"
                 })))))
             }
+            renderTrafficList(e, t, n) {
+                return l.a.createElement("div", {
+                    className: "block block-rounded v2board-traffic-list ".concat(n ? "block-mode-loading" : "")
+                }, l.a.createElement("div", {
+                    className: "bg-white"
+                }, l.a.createElement("div", {
+                    className: "block-header block-header-default"
+                }, l.a.createElement("h3", {
+                    className: "block-title"
+                }, Object(v["formatMessage"])({
+                    id: "\u6d41\u91cf\u660e\u7ec6"
+                }))), l.a.createElement("div", {
+                    className: "block-content p-0"
+                }, l.a.createElement("div", {
+                    className: "row p-3"
+                }, l.a.createElement("div", {
+                    className: "col-lg-12"
+                }, l.a.createElement("div", {
+                    className: "alert alert-info mb-0",
+                    role: "alert"
+                }, l.a.createElement("p", {
+                    className: "mb-0"
+                }, Object(v["formatMessage"])({
+                    id: "\u6d41\u91cf\u660e\u7ec6\u4ec5\u4fdd\u7559\u8fd1\u6708\u6570\u636e\u4ee5\u4f9b\u67e5\u8be2\u3002"
+                }))))), l.a.createElement(i["a"], {
+                    tableLayout: "auto",
+                    style: {
+                        borderTop: "1px solid #e8e8e8"
+                    },
+                    dataSource: e,
+                    pagination: !1,
+                    columns: t,
+                    scroll: {
+                        x: 800
+                    }
+                }))))
+            }
             render() {
                 var e = this.props.stat
                   , t = e.traffics
@@ -28413,29 +28450,7 @@
                     className: "block block-rounded  ".concat(chartLoading ? "block-mode-loading" : "")
                 }, l.a.createElement("div", {
                     className: "bg-white"
-                }, this.renderTrafficOverview(t), l.a.createElement("div", {
-                    className: "row p-3"
-                }, l.a.createElement("div", {
-                    className: "col-lg-12"
-                }, l.a.createElement("div", {
-                    className: "alert alert-info mb-0",
-                    role: "alert"
-                }, l.a.createElement("p", {
-                    className: "mb-0"
-                }, Object(v["formatMessage"])({
-                    id: "\u6d41\u91cf\u660e\u7ec6\u4ec5\u4fdd\u7559\u8fd1\u6708\u6570\u636e\u4ee5\u4f9b\u67e5\u8be2\u3002"
-                }))))), l.a.createElement(i["a"], {
-                    tableLayout: "auto",
-                    style: {
-                        borderTop: "1px solid #e8e8e8"
-                    },
-                    dataSource: t,
-                    pagination: !1,
-                    columns: r,
-                    scroll: {
-                        x: 800
-                    }
-                }))))))
+                }, this.renderTrafficOverview(t))), this.renderTrafficList(t, r, n))))
             }
         }
         t["default"] = Object(m["c"])(e=>{
