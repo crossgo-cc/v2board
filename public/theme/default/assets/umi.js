@@ -28021,11 +28021,17 @@
             }
             loadChart() {
                 if (window.__v2boardChartJsPromise) return window.__v2boardChartJsPromise;
-                return window.__v2boardChartJsPromise = import("https://esm.sh/chart.js@4.4.9?target=es2020").then(e=>{
+                var e = ["https://esm.sh/chart.js@4.4.9?target=es2020", "https://cdn.jsdelivr.net/npm/chart.js@4.4.9/+esm", "https://unpkg.com/chart.js@4.4.9/dist/chart.js"]
+                  , t = n=>import(e[n]).then(e=>{
                     var t = e.Chart;
+                    if (!t) throw new Error("Chart.js module unavailable");
                     return t.register(e.CategoryScale, e.LinearScale, e.LineController, e.LineElement, e.PointElement, e.Filler, e.Tooltip, e.Legend),
                     t
-                }),
+                }).catch(r=>{
+                    if (n + 1 < e.length) return t(n + 1);
+                    throw r
+                });
+                return window.__v2boardChartJsPromise = t(0),
                 window.__v2boardChartJsPromise
             }
             getData() {
@@ -28039,14 +28045,28 @@
                         label: n,
                         data: t.map(e=>e.upload),
                         borderColor: "#39a97b",
-                        backgroundColor: "rgba(57, 169, 123, 0.12)",
-                        fill: !0
+                        backgroundColor: "rgba(57, 169, 123, 0.08)",
+                        borderWidth: 2,
+                        pointRadius: 2.5,
+                        pointHoverRadius: 5,
+                        pointHitRadius: 12,
+                        pointBackgroundColor: "#fff",
+                        pointBorderColor: "#39a97b",
+                        fill: !0,
+                        spanGaps: !0
                     }, {
                         label: r,
                         data: t.map(e=>e.download),
                         borderColor: "#357edd",
-                        backgroundColor: "rgba(53, 126, 221, 0.12)",
-                        fill: !0
+                        backgroundColor: "rgba(53, 126, 221, 0.08)",
+                        borderWidth: 2,
+                        pointRadius: 2.5,
+                        pointHoverRadius: 5,
+                        pointHitRadius: 12,
+                        pointBackgroundColor: "#fff",
+                        pointBorderColor: "#357edd",
+                        fill: !0,
+                        spanGaps: !0
                     }]
                 }
             }
@@ -28061,6 +28081,14 @@
                         mode: "index",
                         intersect: !1
                     },
+                    layout: {
+                        padding: {
+                            top: 8,
+                            right: 6,
+                            bottom: 0,
+                            left: 0
+                        }
+                    },
                     plugins: {
                         legend: {
                             position: "bottom",
@@ -28068,13 +28096,16 @@
                                 color: "#6c757d",
                                 usePointStyle: !0,
                                 boxWidth: 8,
-                                padding: 16
+                                padding: 12
                             }
                         },
                         tooltip: {
                             backgroundColor: "rgba(31, 45, 61, 0.92)",
                             cornerRadius: 4,
+                            borderColor: "rgba(255, 255, 255, 0.14)",
+                            borderWidth: 1,
                             padding: 10,
+                            boxPadding: 4,
                             callbacks: {
                                 label: e=>" ".concat(e.dataset.label, ": ").concat(p["b"](e.parsed.y))
                             }
@@ -28091,7 +28122,9 @@
                             ticks: {
                                 color: "#8a96a3",
                                 maxRotation: 0,
-                                autoSkip: !0
+                                autoSkip: !0,
+                                maxTicksLimit: 8,
+                                padding: 6
                             }
                         },
                         y: {
@@ -28104,7 +28137,9 @@
                             },
                             ticks: {
                                 color: "#8a96a3",
-                                callback: e=>p["b"](e)
+                                callback: e=>p["b"](e),
+                                maxTicksLimit: 5,
+                                padding: 8
                             }
                         }
                     },
