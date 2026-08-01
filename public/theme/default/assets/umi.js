@@ -28342,7 +28342,7 @@
                 var e = this.props.stat
                   , t = e.traffics
                   , n = e.getTrafficLogLoading
-                  , i = n || this.state.chartLoading
+                  , chartLoading = n || this.state.chartLoading
                   , r = [{
                     title: Object(v["formatMessage"])({
                         id: "\u8bb0\u5f55\u65f6\u95f4"
@@ -28410,7 +28410,7 @@
                 }, l.a.createElement("div", {
                     className: "content content-full"
                 }, l.a.createElement("div", {
-                    className: "block block-rounded  ".concat(i ? "block-mode-loading" : "")
+                    className: "block block-rounded  ".concat(chartLoading ? "block-mode-loading" : "")
                 }, l.a.createElement("div", {
                     className: "bg-white"
                 }, this.renderTrafficOverview(t), l.a.createElement("div", {
