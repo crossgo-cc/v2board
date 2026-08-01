@@ -27985,11 +27985,225 @@
           , h = n.n(d)
           , m = n("/MKj")
           , v = n("Y2fQ");
+        class T extends l.a.Component {
+            constructor(e) {
+                super(e),
+                this.chart = null,
+                this.chartContainer = null,
+                this.chartLibrary = null,
+                this.mounted = !1,
+                this.state = {
+                    unavailable: !1
+                },
+                this.setChartContainer = e=>{
+                    this.chartContainer = e
+                }
+            }
+            componentDidMount() {
+                this.mounted = !0,
+                this.loadChart().then(e=>{
+                    this.chartLibrary = e,
+                    this.updateChart()
+                }).catch(()=>{
+                    this.mounted && this.setState({
+                        unavailable: !0
+                    })
+                })
+            }
+            componentDidUpdate(e) {
+                e.data !== this.props.data && this.updateChart()
+            }
+            componentWillUnmount() {
+                this.mounted = !1,
+                this.chart && this.chart.destroy(),
+                this.chart = null,
+                this.chartContainer = null
+            }
+            loadChart() {
+                if (window.frappe && window.frappe.Chart) return Promise.resolve(window.frappe.Chart);
+                if (window.__v2boardFrappeChartPromise) return window.__v2boardFrappeChartPromise;
+                return window.__v2boardFrappeChartPromise = import("https://esm.sh/frappe-charts@1.6.2?target=es2020").then(e=>e.Chart || e.default && e.default.Chart || e.default),
+                window.__v2boardFrappeChartPromise
+            }
+            getData() {
+                var e = this.props
+                  , t = e.data
+                  , n = e.uploadLabel
+                  , r = e.downloadLabel;
+                return {
+                    labels: t.map(e=>h()(1e3 * e.timestamp).format("MM/DD")),
+                    datasets: [{
+                        name: n,
+                        chartType: "line",
+                        values: t.map(e=>e.upload)
+                    }, {
+                        name: r,
+                        chartType: "line",
+                        values: t.map(e=>e.download)
+                    }]
+                }
+            }
+            getOptions() {
+                return {
+                    type: "line",
+                    height: 240,
+                    colors: ["#39a97b", "#357edd"],
+                    lineOptions: {
+                        dotSize: 4,
+                        hideDots: !1,
+                        hideLine: !1,
+                        regionFill: !0,
+                        heatline: !1,
+                        spline: !0
+                    },
+                    axisOptions: {
+                        xAxisMode: "tick",
+                        yAxisMode: "span",
+                        xIsSeries: !0,
+                        shortenYAxisNumbers: !0
+                    },
+                    tooltipOptions: {
+                        formatTooltipY: e=>p["b"](e)
+                    },
+                    valuesOverPoints: !1
+                }
+            }
+            updateChart() {
+                if (!this.chartLibrary || !this.chartContainer || !this.props.data.length) return;
+                var e = this.getData();
+                this.chart ? this.chart.update(e) : (this.chartContainer.innerHTML = "",
+                this.chart = new this.chartLibrary(this.chartContainer, Object.assign({
+                    data: e
+                }, this.getOptions())))
+            }
+            render() {
+                return l.a.createElement("div", {
+                    className: "v2board-traffic-chart-canvas",
+                    ref: this.setChartContainer
+                }, this.state.unavailable && l.a.createElement("div", {
+                    className: "v2board-traffic-chart-unavailable"
+                }, l.a.createElement("i", {
+                    className: "fa fa-chart-area"
+                }), l.a.createElement("span", null, this.props.errorLabel)))
+            }
+        }
         class y extends l.a.Component {
             componentDidMount() {
                 this.props.dispatch({
                     type: "stat/getTrafficLog"
                 })
+            }
+            renderTrafficOverview(e) {
+                var t = {};
+                e.forEach(e=>{
+                    if (!e || !e.record_at) return;
+                    var n = h()(1e3 * e.record_at).format("YYYY-MM-DD")
+                      , r = t[n];
+                    r || (r = {
+                        timestamp: h()(1e3 * e.record_at).startOf("day").unix(),
+                        upload: 0,
+                        download: 0,
+                        total: 0
+                    },
+                    t[n] = r);
+                    var o = parseFloat(e.server_rate) || 0
+                      , i = parseInt(e.u, 10) || 0
+                      , a = parseInt(e.d, 10) || 0;
+                    o && (r.upload += i,
+                    r.download += a,
+                    r.total += (i + a) * o)
+                });
+                var n = Object.keys(t).sort().map(e=>t[e])
+                  , r = {
+                    upload: 0,
+                    download: 0,
+                    total: 0
+                };
+                n.forEach(e=>{
+                    r.upload += e.upload,
+                    r.download += e.download,
+                    r.total += e.total
+                });
+                var o = Object(v["formatMessage"])({
+                    id: "\u5b9e\u9645\u4e0a\u4f20"
+                })
+                  , i = Object(v["formatMessage"])({
+                    id: "\u5b9e\u9645\u4e0b\u8f7d"
+                  })
+                  , a = Object(v["formatMessage"])({
+                    id: "\u6263\u9664\u6d41\u91cf"
+                  });
+                return l.a.createElement("section", {
+                    className: "v2board-traffic-overview"
+                }, l.a.createElement("div", {
+                    className: "block-header block-header-default"
+                }, l.a.createElement("h3", {
+                    className: "block-title"
+                }, Object(v["formatMessage"])({
+                    id: "\u672c\u6708\u7528\u91cf\u8d8b\u52bf"
+                })), l.a.createElement("div", {
+                    className: "block-options"
+                }, l.a.createElement("span", {
+                    className: "text-muted font-size-sm"
+                }, Object(v["formatMessage"])({
+                    id: "\u8fd1\u4e00\u4e2a\u6708"
+                })))), l.a.createElement("div", {
+                    className: "block-content"
+                }, l.a.createElement("div", {
+                    className: "row"
+                }, [{
+                    label: a,
+                    value: p["b"](r.total),
+                    icon: "fa fa-chart-line",
+                    tone: "primary"
+                }, {
+                    label: o,
+                    value: p["b"](r.upload),
+                    icon: "fa fa-arrow-up",
+                    tone: "success"
+                }, {
+                    label: i,
+                    value: p["b"](r.download),
+                    icon: "fa fa-arrow-down",
+                    tone: "info"
+                }, {
+                    label: Object(v["formatMessage"])({
+                        id: "\u6d3b\u8dc3\u5929\u6570"
+                    }),
+                    value: n.length,
+                    icon: "fa fa-calendar-day",
+                    tone: "warning"
+                }].map(e=>l.a.createElement("div", {
+                    className: "col-6 col-xl-3",
+                    key: e.label
+                }, l.a.createElement("div", {
+                    className: "v2board-traffic-stat ".concat(e.tone)
+                }, l.a.createElement("div", {
+                    className: "v2board-traffic-stat-icon"
+                }, l.a.createElement("i", {
+                    className: e.icon
+                })), l.a.createElement("div", {
+                    className: "v2board-traffic-stat-content"
+                }, l.a.createElement("span", null, e.label), l.a.createElement("strong", null, e.value)))))), n.length ? l.a.createElement("div", {
+                    className: "v2board-traffic-chart"
+                }, l.a.createElement(T, {
+                    data: n,
+                    uploadLabel: o,
+                    downloadLabel: i,
+                    errorLabel: Object(v["formatMessage"])({
+                        id: "\u56fe\u8868\u6682\u65f6\u65e0\u6cd5\u52a0\u8f7d\uff0c\u660e\u7ec6\u6570\u636e\u4ecd\u53ef\u67e5\u770b"
+                    })
+                }), l.a.createElement("p", {
+                    className: "text-muted font-size-sm mb-0 mt-2"
+                }, Object(v["formatMessage"])({
+                    id: "\u56fe\u8868\u6309\u65e5\u671f\u6c47\u603b\uff0c\u660e\u7ec6\u4ecd\u4fdd\u7559\u6bcf\u6761\u8282\u70b9\u8bb0\u5f55"
+                }))) : l.a.createElement("div", {
+                    className: "v2board-traffic-empty"
+                }, l.a.createElement("i", {
+                    className: "fa fa-chart-area"
+                }), l.a.createElement("span", null, Object(v["formatMessage"])({
+                    id: "\u672c\u6708\u6682\u65e0\u6d41\u91cf\u8bb0\u5f55"
+                })))))
             }
             render() {
                 var e = this.props.stat
@@ -28065,7 +28279,7 @@
                     className: "block block-rounded  ".concat(n ? "block-mode-loading" : "")
                 }, l.a.createElement("div", {
                     className: "bg-white"
-                }, l.a.createElement("div", {
+                }, this.renderTrafficOverview(t), l.a.createElement("div", {
                     className: "row p-3"
                 }, l.a.createElement("div", {
                     className: "col-lg-12"
