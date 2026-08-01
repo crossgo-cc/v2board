@@ -27989,21 +27989,21 @@
             constructor(e) {
                 super(e),
                 this.chart = null,
-                this.chartContainer = null,
+                this.chartCanvas = null,
                 this.chartLibrary = null,
                 this.mounted = !1,
                 this.state = {
                     unavailable: !1
                 },
-                this.setChartContainer = e=>{
-                    this.chartContainer = e
+                this.setChartCanvas = e=>{
+                    this.chartCanvas = e
                 }
             }
             componentDidMount() {
                 this.mounted = !0,
                 this.loadChart().then(e=>{
-                    this.chartLibrary = e,
-                    this.updateChart()
+                    this.mounted && (this.chartLibrary = e,
+                    this.updateChart())
                 }).catch(()=>{
                     this.mounted && this.setState({
                         unavailable: !0
@@ -28017,13 +28017,16 @@
                 this.mounted = !1,
                 this.chart && this.chart.destroy(),
                 this.chart = null,
-                this.chartContainer = null
+                this.chartCanvas = null
             }
             loadChart() {
-                if (window.frappe && window.frappe.Chart) return Promise.resolve(window.frappe.Chart);
-                if (window.__v2boardFrappeChartPromise) return window.__v2boardFrappeChartPromise;
-                return window.__v2boardFrappeChartPromise = import("https://esm.sh/frappe-charts@1.6.2?target=es2020").then(e=>e.Chart || e.default && e.default.Chart || e.default),
-                window.__v2boardFrappeChartPromise
+                if (window.__v2boardChartJsPromise) return window.__v2boardChartJsPromise;
+                return window.__v2boardChartJsPromise = import("https://esm.sh/chart.js@4.4.9?target=es2020").then(e=>{
+                    var t = e.Chart;
+                    return t.register(e.CategoryScale, e.LinearScale, e.LineController, e.LineElement, e.PointElement, e.Filler, e.Tooltip, e.Legend),
+                    t
+                }),
+                window.__v2boardChartJsPromise
             }
             getData() {
                 var e = this.props
@@ -28033,58 +28036,116 @@
                 return {
                     labels: t.map(e=>h()(1e3 * e.timestamp).format("MM/DD")),
                     datasets: [{
-                        name: n,
-                        chartType: "line",
-                        values: t.map(e=>e.upload)
+                        label: n,
+                        data: t.map(e=>e.upload),
+                        borderColor: "#39a97b",
+                        backgroundColor: "rgba(57, 169, 123, 0.12)",
+                        fill: !0
                     }, {
-                        name: r,
-                        chartType: "line",
-                        values: t.map(e=>e.download)
+                        label: r,
+                        data: t.map(e=>e.download),
+                        borderColor: "#357edd",
+                        backgroundColor: "rgba(53, 126, 221, 0.12)",
+                        fill: !0
                     }]
                 }
             }
             getOptions() {
                 return {
-                    type: "line",
-                    height: 240,
-                    colors: ["#39a97b", "#357edd"],
-                    lineOptions: {
-                        dotSize: 4,
-                        hideDots: !1,
-                        hideLine: !1,
-                        regionFill: !0,
-                        heatline: !1,
-                        spline: !0
+                    responsive: !0,
+                    maintainAspectRatio: !1,
+                    animation: {
+                        duration: 350
                     },
-                    axisOptions: {
-                        xAxisMode: "tick",
-                        yAxisMode: "span",
-                        xIsSeries: !0,
-                        shortenYAxisNumbers: !0
+                    interaction: {
+                        mode: "index",
+                        intersect: !1
                     },
-                    tooltipOptions: {
-                        formatTooltipY: e=>p["b"](e)
+                    plugins: {
+                        legend: {
+                            position: "bottom",
+                            labels: {
+                                color: "#6c757d",
+                                usePointStyle: !0,
+                                boxWidth: 8,
+                                padding: 16
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: "rgba(31, 45, 61, 0.92)",
+                            cornerRadius: 4,
+                            padding: 10,
+                            callbacks: {
+                                label: e=>" ".concat(e.dataset.label, ": ").concat(p["b"](e.parsed.y))
+                            }
+                        }
                     },
-                    valuesOverPoints: !1
+                    scales: {
+                        x: {
+                            grid: {
+                                display: !1
+                            },
+                            border: {
+                                display: !1
+                            },
+                            ticks: {
+                                color: "#8a96a3",
+                                maxRotation: 0,
+                                autoSkip: !0
+                            }
+                        },
+                        y: {
+                            beginAtZero: !0,
+                            grid: {
+                                color: "#e8edf2"
+                            },
+                            border: {
+                                display: !1
+                            },
+                            ticks: {
+                                color: "#8a96a3",
+                                callback: e=>p["b"](e)
+                            }
+                        }
+                    },
+                    elements: {
+                        line: {
+                            borderWidth: 2,
+                            tension: .35
+                        },
+                        point: {
+                            radius: 3,
+                            hoverRadius: 5,
+                            borderWidth: 2,
+                            backgroundColor: "#fff"
+                        }
+                    },
+                    font: {
+                        family: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif",
+                        size: 11
+                    }
                 }
             }
             updateChart() {
-                if (!this.chartLibrary || !this.chartContainer || !this.props.data.length) return;
+                if (!this.chartLibrary || !this.chartCanvas || !this.props.data.length) return;
                 var e = this.getData();
-                this.chart ? this.chart.update(e) : (this.chartContainer.innerHTML = "",
-                this.chart = new this.chartLibrary(this.chartContainer, Object.assign({
-                    data: e
-                }, this.getOptions())))
+                this.chart ? (this.chart.data = e,
+                this.chart.update()) : this.chart = new this.chartLibrary(this.chartCanvas, {
+                    type: "line",
+                    data: e,
+                    options: this.getOptions()
+                })
             }
             render() {
                 return l.a.createElement("div", {
-                    className: "v2board-traffic-chart-canvas",
-                    ref: this.setChartContainer
-                }, this.state.unavailable && l.a.createElement("div", {
+                    className: "v2board-traffic-chart-canvas"
+                }, this.state.unavailable ? l.a.createElement("div", {
                     className: "v2board-traffic-chart-unavailable"
                 }, l.a.createElement("i", {
                     className: "fa fa-chart-area"
-                }), l.a.createElement("span", null, this.props.errorLabel)))
+                }), l.a.createElement("span", null, this.props.errorLabel)) : l.a.createElement("canvas", {
+                    ref: this.setChartCanvas
+                }))
             }
         }
         class y extends l.a.Component {

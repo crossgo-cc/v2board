@@ -1061,36 +1061,10 @@
     min-height: 240px;
 }
 
-.v2board-traffic-chart-canvas .chart-container,
-.v2board-traffic-chart-canvas .frappe-chart {
+.v2board-traffic-chart-canvas canvas {
     display: block;
     width: 100% !important;
     height: 100% !important;
-}
-
-.v2board-traffic-chart .chart-container {
-    font-family: inherit;
-}
-
-.v2board-traffic-chart .chart-container .axis,
-.v2board-traffic-chart .chart-container .chart-label {
-    fill: #8a96a3;
-}
-
-.v2board-traffic-chart .chart-container .axis line,
-.v2board-traffic-chart .chart-container .chart-label line {
-    stroke: #e8edf2;
-}
-
-.v2board-traffic-chart .chart-container .legend-dataset-text {
-    fill: #6c757d;
-    font-weight: 400;
-}
-
-.v2board-traffic-chart .graph-svg-tip {
-    font-family: inherit;
-    border-radius: 4px;
-    box-shadow: 0 4px 12px rgba(31, 45, 61, 0.16);
 }
 
 .v2board-traffic-chart-unavailable {
