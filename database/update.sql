@@ -218,7 +218,7 @@ ADD `two_year_price` int(11) NULL AFTER `year_price`,
 ADD `three_year_price` int(11) NULL AFTER `two_year_price`;
 
 ALTER TABLE `v2_user`
-ADD `is_staff` tinyint(1) NOT NULL DEFAULT '0' AFTER `is_admin`;
+DROP `is_staff`;
 
 ALTER TABLE `v2_coupon`
 CHANGE `code` `code` varchar(255) COLLATE 'utf8_general_ci' NOT NULL AFTER `id`;

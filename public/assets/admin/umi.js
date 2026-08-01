@@ -21923,13 +21923,6 @@
                     className: "form-group"
                 }, p.a.createElement("label", {
                     htmlFor: "example-text-input-alt"
-                }, "\u662f\u5426\u5458\u5de5"), p.a.createElement("div", null, p.a.createElement(o["a"], {
-                    checked: t.is_staff,
-                    onChange: e=>this.formChange("is_staff", e ? 1 : 0)
-                }))), p.a.createElement("div", {
-                    className: "form-group"
-                }, p.a.createElement("label", {
-                    htmlFor: "example-text-input-alt"
                 }, "\u5907\u6ce8"), p.a.createElement("div", null, p.a.createElement(u["a"].TextArea, {
                     rows: 4,
                     placeholder: "\u8bf7\u5728\u8fd9\u91cc\u8bb0\u5f55..",

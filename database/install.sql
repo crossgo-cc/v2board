@@ -373,7 +373,6 @@ CREATE TABLE `v2_user` (
                            `banned` tinyint(1) NOT NULL DEFAULT '0',
                            `is_admin` tinyint(1) NOT NULL DEFAULT '0',
                            `last_login_at` int(11) DEFAULT NULL,
-                           `is_staff` tinyint(1) NOT NULL DEFAULT '0',
                            `last_login_ip` int(11) DEFAULT NULL,
                            `uuid` varchar(36) NOT NULL,
                            `group_id` int(11) DEFAULT NULL,

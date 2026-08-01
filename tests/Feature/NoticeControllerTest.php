@@ -154,51 +154,6 @@ class NoticeControllerTest extends TestCase
         $this->assertFalse($notice->fresh()->is_pinned);
     }
 
-    public function testStaffCannotPinPublishedNotice(): void
-    {
-        $notice = Notice::create([
-            'title' => '线上公告',
-            'content' => '内容',
-            'show' => true,
-            'tags' => []
-        ]);
-
-        $this->postJson('/_test/notice/pin', [
-            'id' => $notice->id,
-            'is_pinned' => true,
-            'user' => [
-                'is_staff' => true,
-                'is_admin' => false
-            ]
-        ])->assertStatus(403);
-
-        $this->assertFalse($notice->fresh()->is_pinned);
-    }
-
-    public function testStaffCannotEditPublishedNotice(): void
-    {
-        $notice = Notice::create([
-            'title' => '线上公告',
-            'content' => '旧内容',
-            'show' => true,
-            'tags' => []
-        ]);
-
-        $this->postJson('/_test/notice/save', [
-            'id' => $notice->id,
-            'title' => '线上公告',
-            'content' => '**新内容**',
-            'tags' => [],
-            'user' => [
-                'is_staff' => true,
-                'is_admin' => false
-            ]
-        ])->assertStatus(403);
-
-        $this->assertTrue($notice->fresh()->show);
-        $this->assertSame('旧内容', $notice->fresh()->content);
-    }
-
     public function testAdminEditingPublishedNoticeKeepsItPublished(): void
     {
         $notice = Notice::create([
@@ -212,11 +167,7 @@ class NoticeControllerTest extends TestCase
             'id' => $notice->id,
             'title' => '线上公告',
             'content' => '**新内容**',
-            'tags' => [],
-            'user' => [
-                'is_staff' => true,
-                'is_admin' => true
-            ]
+            'tags' => []
         ])->assertOk();
 
         $this->assertTrue($notice->fresh()->show);
@@ -243,25 +194,4 @@ class NoticeControllerTest extends TestCase
         $this->assertTrue($notice->fresh()->show);
     }
 
-    public function testStaffCannotDeletePublishedNotice(): void
-    {
-        $notice = Notice::create([
-            'title' => '线上公告',
-            'content' => '内容',
-            'show' => true,
-            'tags' => []
-        ]);
-
-        $this->postJson('/_test/notice/drop', [
-            'id' => $notice->id,
-            'user' => [
-                'is_staff' => true,
-                'is_admin' => false
-            ]
-        ])->assertStatus(403);
-
-        $this->assertDatabaseHas('v2_notice', [
-            'id' => $notice->id
-        ]);
-    }
 }

@@ -48,8 +48,7 @@ class AuthService
                 $user = User::select([
                     'id',
                     'email',
-                    'is_admin',
-                    'is_staff'
+                    'is_admin'
                 ])
                     ->find($data['id']);
                 if (!$user) return false;

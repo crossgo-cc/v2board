@@ -30,9 +30,6 @@ class NoticeController extends Controller
             Notice::create($data);
         } else {
             $notice = Notice::findOrFail($id);
-            if ($this->isStaff($request) && $notice->show) {
-                abort(403, '员工不能修改已发布公告');
-            }
             $notice->update($data);
         }
         $this->forgetGuestCache();
@@ -65,9 +62,6 @@ class NoticeController extends Controller
             'is_pinned' => 'required|boolean'
         ]);
         $notice = Notice::findOrFail($data['id']);
-        if ($this->isStaff($request) && $notice->show) {
-            abort(403, '员工不能置顶已发布公告');
-        }
         $notice->is_pinned = $data['is_pinned'];
         $notice->save();
         $this->forgetGuestCache();
@@ -83,22 +77,12 @@ class NoticeController extends Controller
             'id' => 'required|integer'
         ]);
         $notice = Notice::findOrFail($data['id']);
-        if ($this->isStaff($request) && $notice->show) {
-            abort(403, '员工不能删除已发布公告');
-        }
         $notice->delete();
         $this->forgetGuestCache();
 
         return response([
             'data' => true
         ]);
-    }
-
-    private function isStaff(Request $request): bool
-    {
-        $user = $request->input('user', []);
-
-        return !empty($user['is_staff']) && empty($user['is_admin']);
     }
 
     private function forgetGuestCache(): void
