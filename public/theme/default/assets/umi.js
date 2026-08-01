@@ -27991,6 +27991,7 @@
                 this.chart = null,
                 this.chartCanvas = null,
                 this.chartLibrary = null,
+                this.chartType = null,
                 this.mounted = !1,
                 this.state = {
                     unavailable: !1
@@ -28017,6 +28018,7 @@
                 this.mounted = !1,
                 this.chart && this.chart.destroy(),
                 this.chart = null,
+                this.chartType = null,
                 this.chartCanvas = null
             }
             loadChart() {
@@ -28025,7 +28027,7 @@
                   , t = n=>import(e[n]).then(e=>{
                     var t = e.Chart;
                     if (!t) throw new Error("Chart.js module unavailable");
-                    return t.register(e.CategoryScale, e.LinearScale, e.LineController, e.LineElement, e.PointElement, e.Filler, e.Tooltip, e.Legend),
+                    return t.register(e.BarController, e.BarElement, e.CategoryScale, e.LinearScale, e.LineController, e.LineElement, e.PointElement, e.Filler, e.Tooltip, e.Legend),
                     t
                 }).catch(r=>{
                     if (n + 1 < e.length) return t(n + 1);
@@ -28034,43 +28036,58 @@
                 return window.__v2boardChartJsPromise = t(0),
                 window.__v2boardChartJsPromise
             }
+            getChartType() {
+                return 1 === this.props.data.length ? "bar" : "line"
+            }
             getData() {
                 var e = this.props
                   , t = e.data
                   , n = e.uploadLabel
-                  , r = e.downloadLabel;
+                  , r = e.downloadLabel
+                  , o = 1 === t.length;
                 return {
                     labels: t.map(e=>h()(1e3 * e.timestamp).format("MM/DD")),
                     datasets: [{
                         label: n,
                         data: t.map(e=>e.upload),
                         borderColor: "#39a97b",
-                        backgroundColor: "rgba(57, 169, 123, 0.08)",
-                        borderWidth: 2,
-                        pointRadius: 2.5,
+                        backgroundColor: o ? "#39a97b" : "rgba(57, 169, 123, 0.08)",
+                        borderWidth: o ? 0 : 2,
+                        borderRadius: o ? 4 : 0,
+                        borderSkipped: !1,
+                        barPercentage: .55,
+                        categoryPercentage: .6,
+                        maxBarThickness: 56,
+                        pointRadius: o ? 0 : 2.5,
                         pointHoverRadius: 5,
                         pointHitRadius: 12,
                         pointBackgroundColor: "#fff",
                         pointBorderColor: "#39a97b",
-                        fill: !0,
+                        fill: !o,
                         spanGaps: !0
                     }, {
                         label: r,
                         data: t.map(e=>e.download),
                         borderColor: "#357edd",
-                        backgroundColor: "rgba(53, 126, 221, 0.08)",
-                        borderWidth: 2,
-                        pointRadius: 2.5,
+                        backgroundColor: o ? "#357edd" : "rgba(53, 126, 221, 0.08)",
+                        borderWidth: o ? 0 : 2,
+                        borderRadius: o ? 4 : 0,
+                        borderSkipped: !1,
+                        barPercentage: .55,
+                        categoryPercentage: .6,
+                        maxBarThickness: 56,
+                        pointRadius: o ? 0 : 2.5,
                         pointHoverRadius: 5,
                         pointHitRadius: 12,
                         pointBackgroundColor: "#fff",
                         pointBorderColor: "#357edd",
-                        fill: !0,
+                        fill: !o,
                         spanGaps: !0
                     }]
                 }
             }
             getOptions() {
+                var e = "bar" === this.getChartType();
                 return {
                     responsive: !0,
                     maintainAspectRatio: !1,
@@ -28094,9 +28111,9 @@
                             position: "bottom",
                             labels: {
                                 color: "#6c757d",
-                                usePointStyle: !0,
-                                boxWidth: 8,
-                                padding: 12
+                                usePointStyle: !e,
+                                boxWidth: e ? 12 : 8,
+                                padding: e ? 14 : 12
                             }
                         },
                         tooltip: {
@@ -28113,6 +28130,7 @@
                     },
                     scales: {
                         x: {
+                            offset: e,
                             grid: {
                                 display: !1
                             },
@@ -28163,13 +28181,17 @@
             }
             updateChart() {
                 if (!this.chartLibrary || !this.chartCanvas || !this.props.data.length) return;
-                var e = this.getData();
-                this.chart ? (this.chart.data = e,
-                this.chart.update()) : this.chart = new this.chartLibrary(this.chartCanvas, {
-                    type: "line",
-                    data: e,
+                var e = this.getChartType()
+                  , t = this.getData();
+                this.chart && this.chartType !== e && (this.chart.destroy(),
+                this.chart = null),
+                this.chart ? (this.chart.data = t,
+                this.chart.update()) : (this.chart = new this.chartLibrary(this.chartCanvas, {
+                    type: e,
+                    data: t,
                     options: this.getOptions()
-                })
+                }),
+                this.chartType = e)
             }
             render() {
                 return l.a.createElement("div", {
