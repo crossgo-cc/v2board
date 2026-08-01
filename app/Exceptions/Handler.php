@@ -71,7 +71,7 @@ class Handler extends ExceptionHandler
                 return Arr::except($trace, ['args']);
             })->all(),
         ] : [
-            'message' => $this->isHttpException($e) ? $e->getMessage() : __("Uh-oh, we've had some problems, we're working on it."),
+            'message' => $this->isHttpException($e) ? $e->getMessage() : '遇到了些问题，我们正在进行处理',
         ];
     }
 }

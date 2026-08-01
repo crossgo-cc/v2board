@@ -82,7 +82,6 @@ CREATE TABLE `v2_invite_code` (
 DROP TABLE IF EXISTS `v2_knowledge`;
 CREATE TABLE `v2_knowledge` (
                                 `id` int(11) NOT NULL AUTO_INCREMENT,
-                                `language` char(5) NOT NULL COMMENT '語言',
                                 `category` varchar(255) NOT NULL COMMENT '分類名',
                                 `title` varchar(255) NOT NULL COMMENT '標題',
                                 `body` text NOT NULL COMMENT '內容',

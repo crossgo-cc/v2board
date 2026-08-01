@@ -27,7 +27,7 @@ class UserController extends Controller
     {
         $user = User::find($request->user['id']);
         if (!$user) {
-            abort(500, __('The user does not exist'));
+            abort(500, "该用户不存在");
         }
         $authService = new AuthService($user);
         return response([
@@ -39,7 +39,7 @@ class UserController extends Controller
     {
         $user = User::find($request->user['id']);
         if (!$user) {
-            abort(500, __('The user does not exist'));
+            abort(500, "该用户不存在");
         }
         $authService = new AuthService($user);
         return response([
@@ -64,7 +64,7 @@ class UserController extends Controller
     {
         $user = User::find($request->user['id']);
         if (!$user) {
-            abort(500, __('The user does not exist'));
+            abort(500, "该用户不存在");
         }
         if (!Helper::multiPasswordVerify(
             $user->password_algo,
@@ -72,13 +72,13 @@ class UserController extends Controller
             $request->input('old_password'),
             $user->password
         )) {
-            abort(500, __('The old password is wrong'));
+            abort(500, "旧密码有误");
         }
         $user->password = password_hash($request->input('new_password'), PASSWORD_DEFAULT);
         $user->password_algo = NULL;
         $user->password_salt = NULL;
         if (!$user->save()) {
-            abort(500, __('Save failed'));
+            abort(500, "保存失败");
         }
         $authService = new AuthService($user);
         $authService->removeAllSession();
@@ -90,26 +90,26 @@ class UserController extends Controller
     public function newPeriod(Request $request) 
     {
         if (!config('v2board.allow_new_period', 0)) {
-            abort(500, __('Renewal is not allowed'));
+            abort(500, "不允许续费");
         }
         DB::beginTransaction();
         try {
             $user = User::find($request->user['id']);
             if (!$user) {
-                abort(500, __('The user does not exist'));
+                abort(500, "该用户不存在");
             }
             if ($user->transfer_enable > $user->u + $user->d) {
-                abort(500, __('You have not used up your traffic, you cannot renew your subscription'));
+                abort(500, "流量尚未用完，无法续费");
             }
             $userService = new UserService();
             $reset_day = $userService->getResetDay($user);
             if ($reset_day === null) {
-                abort(500, __('You do not allow to renew the subscription'));
+                abort(500, "不允许续费");
             }
             unset($user->plan);
             $reset_period = $userService->getResetPeriod($user);
             if ($reset_period === null) {
-                abort(500, __('You do not allow to renew the subscription'));
+                abort(500, "不允许续费");
             }
             switch ($reset_period) {
                 case 1:
@@ -125,7 +125,7 @@ class UserController extends Controller
                 case 365:
                     break;
                 default:
-                    abort(500, __('Invalid reset period'));
+                    abort(500, "重置周期无效");
             }
             if ($reset_day <= 0) {
                 $reset_day = $reset_period;
@@ -138,10 +138,10 @@ class UserController extends Controller
                         'd' => 0
                     ]
                 )) {
-                    throw new \Exception(__('Save failed'));
+                    throw new \Exception("保存失败");
                 }
             } else {
-                abort(500, __('You do not have enough time to renew your subscription'));
+                abort(500, "剩余时间不足，无法续费");
             }
 
             DB::commit();
@@ -161,27 +161,27 @@ class UserController extends Controller
         try {
             $user = User::find($request->user['id']);
             if (!$user) {
-                abort(500, __('The user does not exist'));
+                abort(500, "该用户不存在");
             }
             $giftcard_input = $request->giftcard;
             $giftcard = Giftcard::where('code', $giftcard_input)->first();
 
             if (!$giftcard) {
-                abort(500, __('The gift card does not exist'));
+                abort(500, "礼品卡不存在");
             }
 
             $currentTime = time();
             if ($giftcard->started_at && $currentTime < $giftcard->started_at) {
-                abort(500, __('The gift card is not yet valid'));
+                abort(500, "礼品卡尚未生效");
             }
 
             if ($giftcard->ended_at && $currentTime > $giftcard->ended_at) {
-                abort(500, __('The gift card has expired'));
+                abort(500, "礼品卡已过期");
             }
 
             if ($giftcard->limit_use !== null) {
                 if (!is_numeric($giftcard->limit_use) || $giftcard->limit_use <= 0) {
-                    abort(500, __('The gift card usage limit has been reached'));
+                    abort(500, "礼品卡使用次数已达上限");
                 }
             }
 
@@ -191,7 +191,7 @@ class UserController extends Controller
             }
 
             if (in_array($user->id, $usedUserIds)) {
-                abort(500, __('The gift card has already been used by this user'));
+                abort(500, "该用户已经使用过此礼品卡");
             }
 
             $usedUserIds[] = $user->id;
@@ -209,7 +209,7 @@ class UserController extends Controller
                             $user->expired_at += $giftcard->value * 86400;
                         }
                     } else {
-                        abort(500, __('Not suitable gift card type'));
+                        abort(500, "礼品卡类型不适用");
                     }
                     break;
                 case 3:
@@ -234,11 +234,11 @@ class UserController extends Controller
                             $user->expired_at = $currentTime + $giftcard->value * 86400;
                         }
                     } else {
-                        abort(500, __('Not suitable gift card type'));
+                        abort(500, "礼品卡类型不适用");
                     }
                     break;
                 default:
-                    abort(500, __('Unknown gift card type'));
+                    abort(500, "未知礼品卡类型");
             }
 
             if ($giftcard->limit_use !== null) {
@@ -246,7 +246,7 @@ class UserController extends Controller
             }
 
             if (!$user->save() || !$giftcard->save()) {
-                throw new \Exception(__('Save failed'));
+                throw new \Exception("保存失败");
             }
 
             DB::commit();
@@ -287,7 +287,7 @@ class UserController extends Controller
             ])
             ->first();
         if (!$user) {
-            abort(500, __('The user does not exist'));
+            abort(500, "该用户不存在");
         }
         $user['avatar_url'] = 'https://cravatar.cn/avatar/' . md5($user->email) . '?s=64&d=identicon';
         return response([
@@ -328,12 +328,12 @@ class UserController extends Controller
             ])
             ->first();
         if (!$user) {
-            abort(500, __('The user does not exist'));
+            abort(500, "该用户不存在");
         }
         if ($user->plan_id) {
             $user['plan'] = Plan::find($user->plan_id);
             if (!$user['plan']) {
-                abort(500, __('Subscription plan does not exist'));
+                abort(500, "订阅计划不存在");
             }
         }
 
@@ -359,10 +359,10 @@ class UserController extends Controller
     {
         $user = User::find($request->user['id']);
         if (!$user) {
-            abort(500, __('The user does not exist'));
+            abort(500, "该用户不存在");
         }
         if (!$user->update(['telegram_id' => null])) {
-            abort(500, __('Unbind telegram failed'));
+            abort(500, "解绑 Telegram 失败");
         }
         return response([
             'data' => true
@@ -373,12 +373,12 @@ class UserController extends Controller
     {
         $user = User::find($request->user['id']);
         if (!$user) {
-            abort(500, __('The user does not exist'));
+            abort(500, "该用户不存在");
         }
         $user->uuid = Helper::guid(true);
         $user->token = Helper::guid();
         if (!$user->save()) {
-            abort(500, __('Reset failed'));
+            abort(500, "重置失败");
         }
         return response([
             'data' => Helper::getSubscribeUrl($user['token'])
@@ -396,12 +396,12 @@ class UserController extends Controller
 
         $user = User::find($request->user['id']);
         if (!$user) {
-            abort(500, __('The user does not exist'));
+            abort(500, "该用户不存在");
         }
         try {
             $user->update($updateData);
         } catch (\Exception $e) {
-            abort(500, __('Save failed'));
+            abort(500, "保存失败");
         }
 
         return response([
@@ -413,10 +413,10 @@ class UserController extends Controller
     {
         $user = User::find($request->user['id']);
         if (!$user) {
-            abort(500, __('The user does not exist'));
+            abort(500, "该用户不存在");
         }
         if ($request->input('transfer_amount') > $user->commission_balance) {
-            abort(500, __('Insufficient commission balance'));
+            abort(500, "推广佣金余额不足");
         }
         DB::beginTransaction();
         $order = new Order();
@@ -438,7 +438,7 @@ class UserController extends Controller
         $order->callback_no = '佣金划转 Commission transfer';
         if (!$order->save()||!$user->save()) {
             DB::rollback();
-            abort(500, __('Transfer failed'));
+            abort(500, "划转失败");
         }
 
         DB::commit();
@@ -452,7 +452,7 @@ class UserController extends Controller
     {
         $user = User::find($request->user['id']);
         if (!$user) {
-            abort(500, __('The user does not exist'));
+            abort(500, "该用户不存在");
         }
 
         $code = Helper::guid();

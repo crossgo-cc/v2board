@@ -14,14 +14,5 @@ window.settings = {
   // 背景
   background_url: '',
   // crisp
-  crisp_id: '',
-  i18n: [
-    'zh-CN',
-    'en-US',
-    'ja-JP',
-    'vi-VN',
-    'ko-KR',
-    'zh-TW',
-    'fa-IR'
-  ]
+  crisp_id: ''
 }

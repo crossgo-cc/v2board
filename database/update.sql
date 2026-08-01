@@ -615,3 +615,6 @@ ADD `is_pinned` tinyint(1) NOT NULL DEFAULT '0' AFTER `show`;
 ALTER TABLE `v2_notice`
 DROP INDEX `idx_notice_show_created`,
 ADD INDEX `idx_notice_show_pinned_created` (`show`, `is_pinned`, `created_at`, `id`);
+
+ALTER TABLE `v2_knowledge`
+DROP `language`;

@@ -70,20 +70,20 @@ class TicketController extends Controller
                         ->exists();
 
                     if (!$hasOrder) {
-                        throw new \Exception(__('请先购买套餐'));
+                        throw new \Exception('请先购买套餐');
                     }
                     break;
                 case 2:
                     // 完全禁止所有工单
-                    throw new \Exception(__('当前套餐不允许发起工单'));
+                    throw new \Exception('当前套餐不允许发起工单');
                     break;
                 default:
                     // 处理未知状态
-                    throw new \Exception(__('未知的工单状态'));
+                    throw new \Exception('未知的工单状态');
             }
 
             if ((int)Ticket::where('status', 0)->where('user_id', $request->user['id'])->count()) {
-                throw new \Exception(__('There are other unresolved tickets'));
+                throw new \Exception("存在其它工单尚未处理");
             }
 
             $imageBatch = rescue(
@@ -95,7 +95,7 @@ class TicketController extends Controller
 
             DB::beginTransaction();
             if ((int)Ticket::where('status', 0)->where('user_id', $request->user['id'])->lockForUpdate()->count()) {
-                throw new \Exception(__('There are other unresolved tickets'));
+                throw new \Exception("存在其它工单尚未处理");
             }
 
             $ticketData = $request->only(['subject', 'level']) + ['user_id' => $request->user['id']];
@@ -143,13 +143,13 @@ class TicketController extends Controller
             ->where('user_id', $request->user['id'])
             ->first();
         if (!$ticket) {
-            abort(500, __('Ticket does not exist'));
+            abort(500, "工单不存在");
         }
         if ($ticket->status) {
-            abort(500, __('The ticket is closed and cannot be replied'));
+            abort(500, "工单已关闭，无法回复");
         }
         if ($request->user['id'] == $this->getLastMessage($ticket->id)->user_id) {
-            abort(500, __('Please wait for the technical enginneer to reply'));
+            abort(500, "请等待技术支持回复");
         }
 
         $ticketImageService = new TicketImageService();
@@ -164,7 +164,7 @@ class TicketController extends Controller
             );
             $message = $ticketImageService->appendToMessage((string)$request->input('message'), $imageBatch);
             if (!$ticketService->reply($ticket, $message, $request->user['id'])) {
-                throw new \RuntimeException(__('Ticket reply failed'));
+                throw new \RuntimeException("工单回复失败");
             }
         } catch (\Throwable $e) {
             if (DB::transactionLevel() > 0) {
@@ -184,17 +184,17 @@ class TicketController extends Controller
     public function close(Request $request)
     {
         if (empty($request->input('id'))) {
-            abort(500, __('Invalid parameter'));
+            abort(500, "参数错误");
         }
         $ticket = Ticket::where('id', $request->input('id'))
             ->where('user_id', $request->user['id'])
             ->first();
         if (!$ticket) {
-            abort(500, __('Ticket does not exist'));
+            abort(500, "工单不存在");
         }
         $ticket->status = 1;
         if (!$ticket->save()) {
-            abort(500, __('Close failed'));
+            abort(500, "关闭失败");
         }
         return response([
             'data' => true
@@ -222,15 +222,15 @@ class TicketController extends Controller
 				)
 			)
 		) {
-            abort(500, __('Unsupported withdrawal method'));
+            abort(500, "不支持的提现方式");
         }
         $user = User::find($request->user['id']);
         $limit = config('v2board.commission_withdraw_limit', 100);
         if ($limit > ($user->commission_balance / 100)) {
-            abort(500, __('The current required minimum withdrawal commission is :limit', ['limit' => $limit]));
+            abort(500, '当前系统要求的最少提现佣金为：¥' . $limit . 'CNY');
         }
         DB::beginTransaction();
-        $subject = __('[Commission Withdrawal Request] This ticket is opened by the system');
+        $subject = "[提现申请] 本工单由系统发出";
         $ticket = Ticket::create([
             'subject' => $subject,
             'level' => 2,
@@ -238,12 +238,12 @@ class TicketController extends Controller
         ]);
         if (!$ticket) {
             DB::rollback();
-            abort(500, __('Failed to open ticket'));
+            abort(500, "工单创建失败");
         }
         $message = sprintf(
 			"%s\r\n%s",
-            __('Withdrawal method') . "：" . $request->input('withdraw_method'),
-            __('Withdrawal account') . "：" . $request->input('withdraw_account')
+            "提现方式" . "：" . $request->input('withdraw_method'),
+            "提现账号" . "：" . $request->input('withdraw_account')
         );
         $ticketMessage = TicketMessage::create([
             'user_id' => $request->user['id'],
@@ -252,7 +252,7 @@ class TicketController extends Controller
         ]);
         if (!$ticketMessage) {
             DB::rollback();
-            abort(500, __('Failed to open ticket'));
+            abort(500, "工单创建失败");
         }
         DB::commit();
         $this->sendNotify($ticket, $message);

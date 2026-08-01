@@ -18,7 +18,7 @@ class KnowledgeController extends Controller
                 ->where('show', 1)
                 ->first()
                 ->toArray();
-            if (!$knowledge) abort(500, __('Article does not exist'));
+            if (!$knowledge) abort(500, "文章不存在");
             $user = User::find($request->user['id']);
             $userService = new UserService();
             if (!$userService->isAvailable($user)) {
@@ -43,7 +43,6 @@ class KnowledgeController extends Controller
             ]);
         }
         $builder = Knowledge::select(['id', 'category', 'title', 'updated_at'])
-            ->where('language', $request->input('language'))
             ->where('show', 1)
             ->orderBy('sort', 'ASC');
         $keyword = $request->input('keyword');
@@ -72,7 +71,7 @@ class KnowledgeController extends Controller
         while (strpos($body, '<!--access start-->') !== false) {
             $accessData = $this->getBetween($body, '<!--access start-->', '<!--access end-->');
             if ($accessData) {
-                $body = str_replace($accessData, '<div class="v2board-no-access">'. __('You must have a valid subscription to view content in this area') .'</div>', $body);
+                $body = str_replace($accessData, '<div class="v2board-no-access">'. "您必须拥有有效的订阅才可以查看该区域的内容" .'</div>', $body);
             }
         }
     }

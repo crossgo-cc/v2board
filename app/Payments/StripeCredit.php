@@ -46,7 +46,7 @@ class StripeCredit {
         $currency = $this->config['currency'];
         $exchange = $this->exchange('CNY', strtoupper($currency));
         if (!$exchange) {
-            abort(500, __('Currency conversion has timed out, please try again later'));
+            abort(500, "货币转换超时，请稍后再试");
         }
         Stripe::setApiKey($this->config['stripe_sk_live']);
         try {
@@ -62,10 +62,10 @@ class StripeCredit {
             ]);
         } catch (\Exception $e) {
             info($e);
-            abort(500, __('Payment failed. Please check your credit card information'));
+            abort(500, "扣款失败，请检查信用卡信息");
         }
         if (!$charge->paid) {
-            abort(500, __('Payment failed. Please check your credit card information'));
+            abort(500, "扣款失败，请检查信用卡信息");
         }
         return [
             'type' => 2,

@@ -17,10 +17,10 @@ class PlanController extends Controller
         if ($request->input('id')) {
             $plan = Plan::where('id', $request->input('id'))->first();
             if (!$plan) {
-                abort(500, __('Subscription plan does not exist'));
+                abort(500, "订阅计划不存在");
             }
             if ((!$plan->show && !$plan->renew) || (!$plan->show && $user->plan_id !== $plan->id)) {
-                abort(500, __('Subscription plan does not exist'));
+                abort(500, "订阅计划不存在");
             }
             return response([
                 'data' => $plan

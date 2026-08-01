@@ -18,9 +18,7 @@ class MailService
         if (!Cache::put($flag, 1, 24 * 3600)) return;
         SendEmailJob::dispatch([
             'email' => $user->email,
-            'subject' => __('The traffic usage in :app_name has reached 95%', [
-                'app_name' => config('v2board.app_name', 'V2board')
-            ]),
+            'subject' => '在 ' . config('v2board.app_name', 'V2board') . ' 的已用流量已达到 95%',
             'template_name' => 'remindTraffic',
             'template_value' => [
                 'name' => config('v2board.app_name', 'V2Board'),
@@ -34,9 +32,7 @@ class MailService
         if (!($user->expired_at !== NULL && ($user->expired_at - 86400) < time() && $user->expired_at > time())) return;
         SendEmailJob::dispatch([
             'email' => $user->email,
-            'subject' => __('The service in :app_name is about to expire', [
-               'app_name' =>  config('v2board.app_name', 'V2board')
-            ]),
+            'subject' => '在 ' . config('v2board.app_name', 'V2board') . ' 的服务即将到期',
             'template_name' => 'remindExpire',
             'template_value' => [
                 'name' => config('v2board.app_name', 'V2Board'),
@@ -54,18 +50,18 @@ class MailService
         $currency = config('v2board.currency', 'CNY');
         SendEmailJob::dispatch([
             'email' => $user->email,
-            'subject' => __('The automatic traffic reset in :app_name failed', [
-                'app_name' => config('v2board.app_name', 'V2board')
-            ]),
+            'subject' => '在 ' . config('v2board.app_name', 'V2board') . ' 的自动重置流量失败',
             'template_name' => 'notify',
             'template_value' => [
                 'name' => config('v2board.app_name', 'V2Board'),
                 'url' => config('v2board.app_url'),
-                'content' => __('Your traffic has reached the automatic reset threshold, but your account balance is insufficient, the system failed to automatically purchase the traffic reset package. Reset package price: :reset_price :currency. Current balance: :balance :currency. Please top up and re-enable automatic traffic reset.', [
-                    'reset_price' => number_format($resetPrice / 100, 2),
-                    'balance' => number_format($user->balance / 100, 2),
-                    'currency' => $currency
-                ])
+                'content' => sprintf(
+                    "你的流量已达到自动重置阈值，但账户余额不足，系统未能完成自动购买流量重置包。\n\n重置包价格：%s %s\n当前余额：%s %s\n\n为避免影响使用，请尽快处理：\n1. 前往「钱包」充值，再到「我的」页面重新开启「自动重置流量」开关；或\n2. 直接到「订阅」页面手动购买流量重置包。\n\n请注意：本次扣费已失败，系统不会自动创建订单或再次尝试扣费，请按上述方式手动处理。",
+                    number_format($resetPrice / 100, 2),
+                    $currency,
+                    number_format($user->balance / 100, 2),
+                    $currency
+                )
             ]
         ]);
     }
@@ -79,18 +75,18 @@ class MailService
         $currency = config('v2board.currency', 'CNY');
         SendEmailJob::dispatch([
             'email' => $user->email,
-            'subject' => __('The automatic renewal in :app_name failed', [
-                'app_name' => config('v2board.app_name', 'V2board')
-            ]),
+            'subject' => '在 ' . config('v2board.app_name', 'V2board') . ' 的自动续费失败',
             'template_name' => 'notify',
             'template_value' => [
                 'name' => config('v2board.app_name', 'V2Board'),
                 'url' => config('v2board.app_url'),
-                'content' => __('Your subscription is about to expire, but your account balance is insufficient, the system failed to automatically renew your subscription. Renewal price: :renewal_price :currency. Current balance: :balance :currency. Please top up and re-enable automatic renewal.', [
-                    'renewal_price' => number_format($renewalPrice / 100, 2),
-                    'balance' => number_format($user->balance / 100, 2),
-                    'currency' => $currency
-                ])
+                'content' => sprintf(
+                    "你的订阅即将到期，但账户余额不足，系统未能完成自动续费。\n\n续费价格：%s %s\n当前余额：%s %s\n\n为避免影响使用，请尽快处理：\n1. 前往「钱包」充值，再到「我的」页面重新开启「自动续费」开关；或\n2. 直接到「订阅」页面手动下单续费。\n\n请注意：本次扣费已失败，系统不会自动创建订单或再次尝试扣费，请尽量在到期前完成上述操作。",
+                    number_format($renewalPrice / 100, 2),
+                    $currency,
+                    number_format($user->balance / 100, 2),
+                    $currency
+                )
             ]
         ]);
     }

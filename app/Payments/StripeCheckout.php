@@ -47,7 +47,7 @@ class StripeCheckout {
         $currency = $this->config['currency'];
         $exchange = $this->exchange('CNY', strtoupper($currency));
         if (!$exchange) {
-            abort(500, __('Currency conversion has timed out, please try again later'));
+            abort(500, "货币转换超时，请稍后再试");
         }
         $customFieldName = isset($this->config['stripe_custom_field_name']) ? $this->config['stripe_custom_field_name'] : 'Contact Infomation';
 

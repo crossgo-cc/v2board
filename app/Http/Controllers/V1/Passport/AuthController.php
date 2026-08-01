@@ -25,16 +25,14 @@ class AuthController extends Controller
         if ((int)config('v2board.register_limit_by_ip_enable', 0)) {
             $registerCountByIP = Cache::get(CacheKey::get('REGISTER_IP_RATE_LIMIT', $request->ip())) ?? 0;
             if ((int)$registerCountByIP >= (int)config('v2board.register_limit_count', 3)) {
-                abort(500, __('Register frequently, please try again after :minute minute', [
-                    'minute' => config('v2board.register_limit_expire', 60)
-                ]));
+                abort(500, '注册频繁，请等待 ' . config('v2board.register_limit_expire', 60) . ' 分钟后再次尝试');
             }
         }
         if ((int)config('v2board.recaptcha_enable', 0)) {
             $recaptcha = new ReCaptcha(config('v2board.recaptcha_key'));
             $recaptchaResp = $recaptcha->verify($request->input('recaptcha_data'));
             if (!$recaptchaResp->isSuccess()) {
-                abort(500, __('Invalid code is incorrect'));
+                abort(500, "验证码有误");
             }
         }
         if ((int)config('v2board.email_whitelist_enable', 0)) {
@@ -42,21 +40,21 @@ class AuthController extends Controller
                 $request->input('email'),
                 config('v2board.email_whitelist_suffix', Dict::EMAIL_WHITELIST_SUFFIX_DEFAULT))
             ) {
-                abort(500, __('Email suffix is not in the Whitelist'));
+                abort(500, "邮箱后缀不处于白名单中");
             }
         }
         if ((int)config('v2board.email_gmail_limit_enable', 0)) {
             $prefix = explode('@', $request->input('email'))[0];
             if (strpos($prefix, '.') !== false || strpos($prefix, '+') !== false) {
-                abort(500, __('Gmail alias is not supported'));
+                abort(500, "不支持 Gmail 别名邮箱");
             }
         }
         if ((int)config('v2board.stop_register', 0)) {
-            abort(500, __('Registration has closed'));
+            abort(500, "本站已关闭注册");
         }
         if ((int)config('v2board.invite_force', 0)) {
             if (empty($request->input('invite_code'))) {
-                abort(500, __('You must use the invitation code to register'));
+                abort(500, "必须使用邀请码才可以注册");
             }
         }
         $email = $request->input('email');
@@ -64,17 +62,17 @@ class AuthController extends Controller
         if ((int)config('v2board.email_verify', 0)) {
             $inputCode = $request->input('email_code');
             if (!is_string($inputCode) || !preg_match('/^\d{6}$/', $inputCode)) {
-                abort(500, __('Incorrect email verification code'));
+                abort(500, "邮箱验证码有误");
             }
             $cachedCode = Cache::get(CacheKey::get('EMAIL_VERIFY_CODE', $cacheKeyEmail));
             if ($cachedCode === null || $cachedCode === '' || !hash_equals((string)$cachedCode, $inputCode)) {
-                abort(500, __('Incorrect email verification code'));
+                abort(500, "邮箱验证码有误");
             }
         }
         $password = $request->input('password');
         $exist = User::where('email', $email)->first();
         if ($exist) {
-            abort(500, __('Email already exists'));
+            abort(500, "邮箱已在系统中存在");
         }
         $user = new User();
         $user->email = $email;
@@ -87,7 +85,7 @@ class AuthController extends Controller
                 ->first();
             if (!$inviteCode) {
                 if ((int)config('v2board.invite_force', 0)) {
-                    abort(500, __('Invalid invitation code'));
+                    abort(500, "邀请码无效");
                 }
             } else {
                 $user->invite_user_id = $inviteCode->user_id ? $inviteCode->user_id : null;
@@ -112,7 +110,7 @@ class AuthController extends Controller
         }
 
         if (!$user->save()) {
-            abort(500, __('Register failed'));
+            abort(500, "注册失败");
         }
         if ((int)config('v2board.email_verify', 0)) {
             Cache::forget(CacheKey::get('EMAIL_VERIFY_CODE', $cacheKeyEmail));
@@ -144,15 +142,13 @@ class AuthController extends Controller
         if ((int)config('v2board.password_limit_enable', 1)) {
             $passwordErrorCount = (int)Cache::get(CacheKey::get('PASSWORD_ERROR_LIMIT', $email), 0);
             if ($passwordErrorCount >= (int)config('v2board.password_limit_count', 5)) {
-                abort(500, __('There are too many password errors, please try again after :minute minutes.', [
-                    'minute' => config('v2board.password_limit_expire', 60)
-                ]));
+                abort(500, '密码错误次数过多，请 ' . config('v2board.password_limit_expire', 60) . ' 分钟后再试');
             }
         }
 
         $user = User::where('email', $email)->first();
         if (!$user) {
-            abort(500, __('Incorrect email or password'));
+            abort(500, "邮箱或密码错误");
         }
         if (!Helper::multiPasswordVerify(
             $user->password_algo,
@@ -167,11 +163,11 @@ class AuthController extends Controller
                     60 * (int)config('v2board.password_limit_expire', 60)
                 );
             }
-            abort(500, __('Incorrect email or password'));
+            abort(500, "邮箱或密码错误");
         }
 
         if ($user->banned) {
-            abort(500, __('Your account has been suspended'));
+            abort(500, "该账户已被停止使用");
         }
 
         $authService = new AuthService($user);
@@ -196,14 +192,14 @@ class AuthController extends Controller
             $key =  CacheKey::get('TEMP_TOKEN', $request->input('verify'));
             $userId = Cache::get($key);
             if (!$userId) {
-                abort(500, __('Token error'));
+                abort(500, "令牌有误");
             }
             $user = User::find($userId);
             if (!$user) {
-                abort(500, __('The user does not '));
+                abort(500, "该用户不存在");
             }
             if ($user->banned) {
-                abort(500, __('Your account has been suspended'));
+                abort(500, "该账户已被停止使用");
             }
             Cache::forget($key);
             $authService = new AuthService($user);
@@ -242,33 +238,33 @@ class AuthController extends Controller
         $password  = $request->input('password');
 
         if (!is_string($email) || !is_string($inputCode) || !is_string($password)) {
-            abort(500, __('Incorrect email verification code'));
+            abort(500, "邮箱验证码有误");
         }
         if (!preg_match('/^\d{6}$/', $inputCode)) {
-            abort(500, __('Incorrect email verification code'));
+            abort(500, "邮箱验证码有误");
         }
 
         $cacheKeyEmail         = strtolower(trim($email));
         $forgetRequestLimitKey = CacheKey::get('FORGET_REQUEST_LIMIT', $cacheKeyEmail);
         $forgetRequestLimit    = (int)Cache::get($forgetRequestLimitKey);
         if ($forgetRequestLimit >= 3) {
-            abort(500, __('Reset failed, Please try again later'));
+            abort(500, "重置失败，请稍后再试");
         }
 
         $cachedCode = Cache::get(CacheKey::get('EMAIL_VERIFY_CODE', $cacheKeyEmail));
         if ($cachedCode === null || $cachedCode === '' || !hash_equals((string)$cachedCode, $inputCode)) {
             Cache::put($forgetRequestLimitKey, $forgetRequestLimit + 1, 300);
-            abort(500, __('Incorrect email verification code'));
+            abort(500, "邮箱验证码有误");
         }
         $user = User::where('email', $email)->first();
         if (!$user) {
-            abort(500, __('This email is not registered in the system'));
+            abort(500, "该邮箱不存在系统中");
         }
         $user->password      = password_hash($password, PASSWORD_DEFAULT);
         $user->password_algo = null;
         $user->password_salt = null;
         if (!$user->save()) {
-            abort(500, __('Reset failed'));
+            abort(500, "重置失败");
         }
         Cache::forget(CacheKey::get('EMAIL_VERIFY_CODE', $cacheKeyEmail));
         (new AuthService($user))->removeAllSession();

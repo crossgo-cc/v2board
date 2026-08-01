@@ -22,9 +22,9 @@ class UserChangePassword extends FormRequest
     public function messages()
     {
         return [
-            'old_password.required' => __('Old password cannot be empty'),
-            'new_password.required' => __('New password cannot be empty'),
-            'new_password.min' => __('Password must be greater than 8 digits')
+            'old_password.required' => "旧密码不能为空",
+            'new_password.required' => "新密码不能为空",
+            'new_password.min' => "密码必须大于 8 个字符"
         ];
     }
 }

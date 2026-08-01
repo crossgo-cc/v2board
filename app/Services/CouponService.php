@@ -85,32 +85,30 @@ class CouponService
     public function check()
     {
         if (!$this->coupon || !$this->coupon->show) {
-            abort(500, __('Invalid coupon'));
+            abort(500, "优惠券无效");
         }
         if ($this->coupon->limit_use <= 0 && $this->coupon->limit_use !== NULL) {
-            abort(500, __('This coupon is no longer available'));
+            abort(500, "优惠券已无可用次数");
         }
         if (time() < $this->coupon->started_at) {
-            abort(500, __('This coupon has not yet started'));
+            abort(500, "优惠券还未到可用时间");
         }
         if (time() > $this->coupon->ended_at) {
-            abort(500, __('This coupon has expired'));
+            abort(500, "优惠券已过期");
         }
         if ($this->coupon->limit_plan_ids && $this->planId) {
             if (!in_array($this->planId, $this->coupon->limit_plan_ids)) {
-                abort(500, __('The coupon code cannot be used for this subscription'));
+                abort(500, "该订阅无法使用此优惠码");
             }
         }
         if ($this->coupon->limit_period && $this->period) {
             if (!in_array($this->period, $this->coupon->limit_period)) {
-                abort(500, __('The coupon code cannot be used for this period'));
+                abort(500, "此优惠券无法用于该付款周期");
             }
         }
         if ($this->coupon->limit_use_with_user !== NULL && $this->userId) {
             if (!$this->checkLimitUseWithUser()) {
-                abort(500, __('The coupon can only be used :limit_use_with_user per person', [
-                    'limit_use_with_user' => $this->coupon->limit_use_with_user
-                ]));
+                abort(500, '该优惠券每人只能使用 ' . $this->coupon->limit_use_with_user . ' 次');
             }
         }
     }

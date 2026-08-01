@@ -25,10 +25,10 @@ class TicketSave extends FormRequest
     public function messages()
     {
         return [
-            'subject.required' => __('Ticket subject cannot be empty'),
-            'level.required' => __('Ticket level cannot be empty'),
-            'level.in' => __('Incorrect ticket level format'),
-            'message.required' => __('Message cannot be empty'),
+            'subject.required' => "工单主题不能为空",
+            'level.required' => "工单等级不能为空",
+            'level.in' => "工单等级参数有误",
+            'message.required' => "消息不能为空",
             'subject.max' => '工单主题不能超过120个字符',
             'message.max' => '工单内容不能超过12000个字符',
             'images.max' => '每个工单最多上传3张图片',

@@ -32,7 +32,7 @@ class CommController extends Controller
     {
         $ip = $request->ip();
         if (RateLimiter::tooManyAttempts($ip, 3)) {
-            abort(429, __('Too many requests, please try again later.'));
+            abort(429, "请求过于频繁，请稍后再试");
         }
         RateLimiter::hit($ip, 60);
 
@@ -40,7 +40,7 @@ class CommController extends Controller
             $recaptcha = new ReCaptcha(config('v2board.recaptcha_key'));
             $recaptchaResp = $recaptcha->verify($request->input('recaptcha_data'));
             if (!$recaptchaResp->isSuccess()) {
-                abort(500, __('Invalid code is incorrect'));
+                abort(500, "验证码有误");
             }
         }
         $email = $request->input('email');
@@ -53,29 +53,29 @@ class CommController extends Controller
                 $request->input('email'),
                 config('v2board.email_whitelist_suffix', Dict::EMAIL_WHITELIST_SUFFIX_DEFAULT))
             ) {
-                abort(500, __('Email suffix is not in the Whitelist'));
+                abort(500, "邮箱后缀不处于白名单中");
             }
         }
         // 检查是否是gmail别名邮箱
         if ((int)config('v2board.email_gmail_limit_enable', 0)) {
             $prefix = explode('@', $request->input('email'))[0];
             if (strpos($prefix, '.') !== false || strpos($prefix, '+') !== false) {
-                abort(500, __('Gmail alias is not supported'));
+                abort(500, "不支持 Gmail 别名邮箱");
             }
         }
         if (isset($isforget)) {
             if ($isforget == 0 && $email_exists) {
-                abort(500, __('This email is registered'));
+                abort(500, "该邮箱已存在");
             } 
             if ($isforget == 1 && !$email_exists) {
-                abort(500, __('This email is not registered in the system'));
+                abort(500, "该邮箱不存在系统中");
             }
         }
         if (Cache::get(CacheKey::get('LAST_SEND_EMAIL_VERIFY_TIMESTAMP', $cacheKeyEmail))) {
-            abort(500, __('Email verification code has been sent, please request again later'));
+            abort(500, "验证码已发送，请过一会儿再请求");
         }
         $code = (string)rand(100000, 999999);
-        $subject = config('v2board.app_name', 'V2Board') . __('Email verification code');
+        $subject = config('v2board.app_name', 'V2Board') . "邮箱验证码";
 
         SendEmailJob::dispatch([
             'email' => $email,

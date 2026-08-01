@@ -14,16 +14,14 @@ class KnowledgeCategorySave extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required',
-            'language' => 'required'
+            'name' => 'required'
         ];
     }
 
     public function messages()
     {
         return [
-            'name.required' => '分类名称不能为空',
-            'language.required' => '分类语言不能为空'
+            'name.required' => '分类名称不能为空'
         ];
     }
 }

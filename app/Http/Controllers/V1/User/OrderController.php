@@ -46,7 +46,7 @@ class OrderController extends Controller
             ->where('trade_no', $request->input('trade_no'))
             ->first();
         if (!$order) {
-            abort(500, __('Order does not exist or has been paid'));
+            abort(500, "订单不存在或已支付");
         }
         if ($order->plan_id == 0) {
             $order['plan'] = [
@@ -63,7 +63,7 @@ class OrderController extends Controller
         $order['plan'] = Plan::find($order->plan_id);
         $order['try_out_plan_id'] = (int)config('v2board.try_out_plan_id');
         if (!$order['plan']) {
-            abort(500, __('Subscription plan does not exist'));
+            abort(500, "订阅计划不存在");
         }
         if ($order->surplus_order_ids) {
             $order['surplus_orders'] = Order::whereIn('id', $order->surplus_order_ids)->get();
@@ -77,15 +77,15 @@ class OrderController extends Controller
     {
         $userService = new UserService();
         if ($userService->isNotCompleteOrderByUserId($request->user['id'])) {
-            abort(500, __('You have an unpaid or pending order, please try again later or cancel it'));
+            abort(500, "您有未付款或开通中的订单，请稍后再试或将其取消");
         }
         if ($request->input('plan_id') == 0) {
             $amount = $request->input('deposit_amount');
             if ($amount <= 0) {
-                abort(500, __('Failed to create order, deposit amount must be greater than 0'));
+                abort(500, "订单创建失败，充值金额必须大于 0");
             }
             if ($amount >= 9999999 ) {
-                abort(500, __('Deposit amount too large, please contact the administrator'));
+                abort(500, "充值金额过大，请联系管理员");
             }
             $user = User::find($request->user['id']);
             DB::beginTransaction();
@@ -102,7 +102,7 @@ class OrderController extends Controller
 
             if (!$order->save()) {
                 DB::rollback();
-                abort(500, __('Failed to create order'));
+                abort(500, "订单创建失败");
             }
     
             DB::commit();
@@ -117,36 +117,36 @@ class OrderController extends Controller
         $user = User::find($request->user['id']);
 
         if (!$plan) {
-            abort(500, __('Subscription plan does not exist'));
+            abort(500, "订阅计划不存在");
         }
 
         if ($user->plan_id !== $plan->id && !$planService->haveCapacity() && $request->input('period') !== 'reset_price') {
-            abort(500, __('Current product is sold out'));
+            abort(500, "当前商品已售罄");
         }
 
         if ($plan[$request->input('period')] === NULL) {
-            abort(500, __('This payment period cannot be purchased, please choose another period'));
+            abort(500, "该订阅周期无法进行购买，请选择其它周期");
         }
 
         if ($request->input('period') === 'reset_price') {
             if (!$userService->isAvailable($user) || $plan->id !== $user->plan_id) {
-                abort(500, __('Subscription has expired or no active subscription, unable to purchase Data Reset Package'));
+                abort(500, "订阅已过期或无有效订阅，无法购买重置包");
             }
         }
 
         if ((!$plan->show && !$plan->renew) || (!$plan->show && $user->plan_id !== $plan->id)) {
             if ($request->input('period') !== 'reset_price') {
-                abort(500, __('This subscription has been sold out, please choose another subscription'));
+                abort(500, "该订阅已售罄，请更换其它订阅");
             }
         }
 
         if (!$plan->renew && $user->plan_id == $plan->id && $request->input('period') !== 'reset_price') {
-            abort(500, __('This subscription cannot be renewed, please change to another subscription'));
+            abort(500, "该订阅无法续费，请更换其它订阅");
         }
 
 
         if (!$plan->show && $plan->renew && !$userService->isAvailable($user)) {
-            abort(500, __('This subscription has expired, please change to another subscription'));
+            abort(500, "订阅已过期，请更换其它订阅");
         }
 
         DB::beginTransaction();
@@ -162,7 +162,7 @@ class OrderController extends Controller
             $couponService = new CouponService($request->input('coupon_code'));
             if (!$couponService->use($order)) {
                 DB::rollBack();
-                abort(500, __('Coupon failed'));
+                abort(500, "优惠券使用失败");
             }
             $order->coupon_id = $couponService->getId();
         }
@@ -176,14 +176,14 @@ class OrderController extends Controller
             if ($remainingBalance > 0) {
                 if (!$userService->addBalance($order->user_id, - $order->total_amount)) {
                     DB::rollBack();
-                    abort(500, __('Insufficient balance'));
+                    abort(500, "余额不足");
                 }
                 $order->balance_amount = $order->total_amount;
                 $order->total_amount = 0;
             } else {
                 if (!$userService->addBalance($order->user_id, - $user->balance)) {
                     DB::rollBack();
-                    abort(500, __('Insufficient balance'));
+                    abort(500, "余额不足");
                 }
                 $order->balance_amount = $user->balance;
                 $order->total_amount -= $user->balance;
@@ -194,7 +194,7 @@ class OrderController extends Controller
 
         if (!$order->save()) {
             DB::rollback();
-            abort(500, __('Failed to create order'));
+            abort(500, "订单创建失败");
         }
 
         DB::commit();
@@ -213,7 +213,7 @@ class OrderController extends Controller
             ->where('status', 0)
             ->first();
         if (!$order) {
-            abort(500, __('Order does not exist or has been paid'));
+            abort(500, "订单不存在或已支付");
         }
         // free process
         if ($order->total_amount <= 0) {
@@ -225,14 +225,14 @@ class OrderController extends Controller
             ]);
         }
         $payment = Payment::find($method);
-        if (!$payment || $payment->enable !== 1) abort(500, __('Payment method is not available'));
+        if (!$payment || $payment->enable !== 1) abort(500, "支付方式不可用");
         $paymentService = new PaymentService($payment->payment, $payment->id);
         $order->handling_amount = NULL;
         if ($payment->handling_fee_fixed || $payment->handling_fee_percent) {
             $order->handling_amount = round(($order->total_amount * ($payment->handling_fee_percent / 100)) + $payment->handling_fee_fixed);
         }
         $order->payment_id = $method;
-        if (!$order->save()) abort(500, __('Request failed, please try again later'));
+        if (!$order->save()) abort(500, "请求失败，请稍后再试");
         $result = $paymentService->pay([
             'trade_no' => $tradeNo,
             'total_amount' => isset($order->handling_amount) ? ($order->total_amount + $order->handling_amount) : $order->total_amount,
@@ -252,7 +252,7 @@ class OrderController extends Controller
             ->where('user_id', $request->user['id'])
             ->first();
         if (!$order) {
-            abort(500, __('Order does not exist'));
+            abort(500, "订单不存在");
         }
         return response([
             'data' => $order->status
@@ -281,20 +281,20 @@ class OrderController extends Controller
     public function cancel(Request $request)
     {
         if (empty($request->input('trade_no'))) {
-            abort(500, __('Invalid parameter'));
+            abort(500, "参数错误");
         }
         $order = Order::where('trade_no', $request->input('trade_no'))
             ->where('user_id', $request->user['id'])
             ->first();
         if (!$order) {
-            abort(500, __('Order does not exist'));
+            abort(500, "订单不存在");
         }
         if ($order->status !== 0) {
-            abort(500, __('You can only cancel pending orders'));
+            abort(500, "只可以取消待支付订单");
         }
         $orderService = new OrderService($order);
         if (!$orderService->cancel()) {
-            abort(500, __('Cancel failed'));
+            abort(500, "取消失败");
         }
         return response([
             'data' => true

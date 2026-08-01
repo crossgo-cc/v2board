@@ -83,7 +83,7 @@ class StripeALL {
         $nextAction = null;
         
         if (!$stripeIntents['next_action']) {
-            throw new abort(__('Payment gateway request failed'));
+            throw new abort("支付网关请求失败");
         }else {
             $nextAction = $stripeIntents['next_action'];
         }

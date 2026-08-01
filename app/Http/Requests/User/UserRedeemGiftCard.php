@@ -21,7 +21,7 @@ class UserRedeemGiftCard extends FormRequest
     public function messages()
     {
         return [
-            'giftcard.required' => __('Giftcard cannot be empty')
+            'giftcard.required' => "礼品卡不能为空"
         ];
     }
 }

@@ -44,7 +44,6 @@ class Kernel extends HttpKernel
 //            \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
 //            \Illuminate\Session\Middleware\StartSession::class,
             \App\Http\Middleware\ForceJson::class,
-            \App\Http\Middleware\Language::class,
             'bindings',
         ],
     ];

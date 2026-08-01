@@ -22,9 +22,9 @@ class OrderSave extends FormRequest
     public function messages()
     {
         return [
-            'plan_id.required' => __('Plan ID cannot be empty'),
-            'period.required' => __('Plan period cannot be empty'),
-            'period.in' => __('Wrong plan period')
+            'plan_id.required' => "套餐 ID 不能为空",
+            'period.required' => "套餐周期不能为空",
+            'period.in' => "套餐周期参数有误"
         ];
     }
 }

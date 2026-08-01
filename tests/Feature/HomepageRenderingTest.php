@@ -87,6 +87,68 @@ class HomepageRenderingTest extends TestCase
         $this->assertStringContainsString("homepage_js: @json(\$theme_config['homepage_js'] ?? '')", $blade);
     }
 
+    public function testApplicationsDoNotExposeLanguageSwitching(): void
+    {
+        $frontend = file_get_contents(public_path('theme/default/assets/umi.js'));
+        $adminFrontend = file_get_contents(public_path('assets/admin/umi.js'));
+        $blade = file_get_contents(public_path('theme/default/dashboard.blade.php'));
+
+        foreach ([$frontend, $adminFrontend, $blade] as $source) {
+            $this->assertStringNotContainsString('navigator.language', $source);
+            $this->assertStringNotContainsString('umi_locale', $source);
+            $this->assertStringNotContainsString('Content-Language', $source);
+            $this->assertStringNotContainsString('i18nText', $source);
+        }
+
+        $this->assertStringNotContainsString('window.settings.i18n', $blade);
+        $this->assertStringNotContainsString('/assets/i18n/', $blade);
+        $this->assertStringNotContainsString('fa-language', $frontend);
+        $this->assertStringNotContainsString('v2board-login-i18n-btn', $frontend);
+    }
+
+    public function testBundlesDoNotIncludeI18nRuntime(): void
+    {
+        $bundles = [
+            public_path('theme/default/assets/umi.js'),
+            public_path('assets/admin/umi.js'),
+            public_path('theme/default/assets/components.async.js'),
+            public_path('assets/admin/components.async.js'),
+            public_path('theme/default/assets/vendors.async.js'),
+            public_path('assets/admin/vendors.async.js'),
+        ];
+
+        foreach ($bundles as $path) {
+            $source = file_get_contents($path);
+
+            foreach ([
+                'JRPe',
+                'LLXN',
+                'uct0',
+                'xmVa',
+                'IntlProvider',
+                'IntlMessageFormat',
+                '__addLocaleData',
+                'umi-plugin-locale',
+                'pluralRuleFunction',
+                'navigator.language',
+                'navigator.browserLanguage',
+            ] as $token) {
+                $this->assertStringNotContainsString($token, $source, $path);
+            }
+        }
+
+        $frontend = file_get_contents(public_path('theme/default/assets/umi.js'));
+        $this->assertStringContainsString('formatMessage: r', $frontend);
+        $this->assertStringContainsString('replace(/\{([\w]+)\}/g', $frontend);
+        $this->assertStringNotContainsString('formatHTMLMessage', $frontend);
+        $this->assertStringContainsString('WEpk: function', $frontend);
+        $this->assertStringContainsString('WFJy: function', $frontend);
+        $this->assertStringContainsString('aRTE: function', $frontend);
+
+        $adminFrontend = file_get_contents(public_path('assets/admin/umi.js'));
+        $this->assertStringContainsString('a0xu: function', $adminFrontend);
+    }
+
     public function testTicketImageSettingComesFromUserConfigInsteadOfBlade(): void
     {
         config(['v2board.ticket_image_enable' => 1]);
