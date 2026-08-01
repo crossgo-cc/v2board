@@ -2,7 +2,9 @@
 
 namespace Tests\Feature;
 
+use App\Http\Controllers\V1\Admin\ThemeController;
 use App\Http\Controllers\V1\User\CommController;
+use Illuminate\Support\Facades\Route;
 use Tests\TestCase;
 
 class HomepageRenderingTest extends TestCase
@@ -18,6 +20,28 @@ class HomepageRenderingTest extends TestCase
         $this->assertArrayHasKey('homepage_js', $fields);
         $this->assertSame('textarea', $fields['homepage_js']['field_type']);
         $this->assertSame('', $fields['homepage_js']['default_value']);
+    }
+
+    public function testLegacyThemeConfigGetsNewHomepageDefaults(): void
+    {
+        config([
+            'theme.default' => [
+                'theme_color' => 'default',
+                'background_url' => '',
+                'theme_sidebar' => 'light',
+                'theme_header' => 'dark',
+                'custom_html' => 'footer'
+            ]
+        ]);
+        Route::post('/_test/theme/get-config', [ThemeController::class, 'getThemeConfig']);
+
+        $this->postJson('/_test/theme/get-config', [
+            'name' => 'default'
+        ])
+            ->assertOk()
+            ->assertJsonPath('data.homepage', '')
+            ->assertJsonPath('data.homepage_js', '')
+            ->assertJsonPath('data.custom_html', 'footer');
     }
 
     public function testHomepageIsEmbeddedWithSafeJsonEncoding(): void
