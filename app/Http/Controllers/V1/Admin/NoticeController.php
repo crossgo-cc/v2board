@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\NoticeSave;
 use App\Models\Notice;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class NoticeController extends Controller
 {
@@ -34,6 +35,7 @@ class NoticeController extends Controller
             }
             $notice->update($data);
         }
+        $this->forgetGuestCache();
 
         return response([
             'data' => true
@@ -49,6 +51,7 @@ class NoticeController extends Controller
         $notice = Notice::findOrFail($data['id']);
         $notice->show = $data['show'];
         $notice->save();
+        $this->forgetGuestCache();
 
         return response([
             'data' => true
@@ -67,6 +70,7 @@ class NoticeController extends Controller
         }
         $notice->is_pinned = $data['is_pinned'];
         $notice->save();
+        $this->forgetGuestCache();
 
         return response([
             'data' => true
@@ -83,6 +87,7 @@ class NoticeController extends Controller
             abort(403, '员工不能删除已发布公告');
         }
         $notice->delete();
+        $this->forgetGuestCache();
 
         return response([
             'data' => true
@@ -94,5 +99,12 @@ class NoticeController extends Controller
         $user = $request->input('user', []);
 
         return !empty($user['is_staff']) && empty($user['is_admin']);
+    }
+
+    private function forgetGuestCache(): void
+    {
+        for ($pageSize = 1; $pageSize <= 10; $pageSize++) {
+            Cache::forget("guest_notice_fetch_{$pageSize}");
+        }
     }
 }

@@ -41,6 +41,18 @@
         },
         "default_value": "dark"
     }, {
+        "label": "自定义主页HTML",
+        "placeholder": "留空时访问主页将跳转到登录页",
+        "field_name": "homepage",
+        "field_type": "textarea",
+        "default_value": ""
+    }, {
+        "label": "自定义主页JS",
+        "placeholder": "请输入主页JavaScript",
+        "field_name": "homepage_js",
+        "field_type": "textarea",
+        "default_value": ""
+    }, {
         "label": "自定义页脚HTML",
         "placeholder": "可以实现客服JS代码的加入等",
         "field_name": "custom_html",

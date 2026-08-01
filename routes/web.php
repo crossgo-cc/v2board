@@ -25,8 +25,7 @@ Route::get('/', function (Request $request) {
         'theme' => config('v2board.frontend_theme', 'default'),
         'version' => config('app.version'),
         'description' => config('v2board.app_description', 'V2Board is best'),
-        'logo' => config('v2board.logo'),
-        'ticket_image_enable' => (int)config('v2board.ticket_image_enable', 0)
+        'logo' => config('v2board.logo')
     ];
 
     if (!config("theme.{$renderParams['theme']}")) {

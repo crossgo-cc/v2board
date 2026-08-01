@@ -30,8 +30,9 @@
                 color: '{{$theme_config['theme_color']}}',
             },
             version: '{{$version}}',
-            ticket_image_enable: {{$ticket_image_enable}},
             background_url: '{{$theme_config['background_url']}}',
+            homepage: @json($theme_config['homepage'] ?? ''),
+            homepage_js: @json($theme_config['homepage_js'] ?? ''),
             description: '{{$description}}',
             i18n: [
                 'zh-CN',

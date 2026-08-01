@@ -12,6 +12,7 @@ class CommController extends Controller
     {
         return response([
             'data' => [
+                'app_name' => config('v2board.app_name', 'V2Board'),
                 'tos_url' => config('v2board.tos_url'),
                 'is_email_verify' => (int)config('v2board.email_verify', 0) ? 1 : 0,
                 'is_invite_force' => (int)config('v2board.invite_force', 0) ? 1 : 0,
@@ -23,6 +24,12 @@ class CommController extends Controller
                 'app_description' => config('v2board.app_description'),
                 'app_url' => config('v2board.app_url'),
                 'logo' => config('v2board.logo'),
+                'is_register' => (int)config('v2board.stop_register', 0) ? 0 : 1,
+                'is_try_out' => (int)config('v2board.try_out_plan_id', 0) ? 1 : 0,
+                'try_out_hour' => (int)config('v2board.try_out_hour', 1),
+                'currency' => config('v2board.currency', 'CNY'),
+                'currency_symbol' => config('v2board.currency_symbol', '¥'),
+                'telegram_discuss_link' => config('v2board.telegram_discuss_link'),
             ]
         ]);
     }

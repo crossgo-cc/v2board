@@ -16697,25 +16697,42 @@
           , a = n.n(i);
         class s extends o.a.Component {
             componentDidMount() {
-                window.settings.homepage || a.a.push("/login")
+                if (this.mounted = !0,
+                !window.settings.homepage)
+                    return void a.a.push("/login");
+                this.runHomepageJavascript()
             }
-            decode(e) {
-                var t = window.atob(e);
-                return decodeURI(t)
+            componentWillUnmount() {
+                this.mounted = !1,
+                this.cleanupHomepage()
+            }
+            runHomepageJavascript() {
+                window.settings.homepage_js && window.requestAnimationFrame(()=>{
+                    if (this.mounted)
+                        try {
+                            var e = new Function(window.settings.homepage_js).call(window);
+                            this.cleanup = "function" === typeof e ? e : null
+                        } catch (e) {
+                            console.error("[V2Board] homepage script failed", e)
+                        }
+                }
+                )
+            }
+            cleanupHomepage() {
+                if ("function" === typeof this.cleanup)
+                    try {
+                        this.cleanup()
+                    } catch (e) {
+                        console.error("[V2Board] homepage cleanup failed", e)
+                    }
+                this.cleanup = null
             }
             render() {
                 return window.settings.homepage ? o.a.createElement("div", {
                     dangerouslySetInnerHTML: {
-                        __html: this.decode(window.settings.homepage)
+                        __html: window.settings.homepage
                     }
-                }) : o.a.createElement("div", {
-                    style: {
-                        textAlign: "center",
-                        paddingTop: 50
-                    }
-                }, o.a.createElement("a", {
-                    href: "https://github.com/wyx2685/v2board"
-                }, "v2board"), " is best.")
+                }) : o.a.createElement("div", null)
             }
         }
     },
@@ -18492,7 +18509,7 @@
                     onChange: e=>this.props.onChange(e)
                 }), s.a.createElement("div", {
                     className: "ticket-composer-tools"
-                }, parseInt(window.settings.ticket_image_enable) ? s.a.createElement("label", {
+                }, parseInt(this.props.ticketImageEnable) ? s.a.createElement("label", {
                     className: "btn btn-sm btn-alt-primary mb-0"
                 }, "+", s.a.createElement("input", {
                     type: "file",
@@ -18512,7 +18529,7 @@
                         this.refs.message && (this.refs.message.value = "")
                     }
                     )
-                }, this.props.sending ? "\u53d1\u9001\u4e2d..." : "\u53d1\u9001")), parseInt(window.settings.ticket_image_enable) ? s.a.createElement("div", {
+                }, this.props.sending ? "\u53d1\u9001\u4e2d..." : "\u53d1\u9001")), parseInt(this.props.ticketImageEnable) ? s.a.createElement("div", {
                     className: "ticket-image-previews"
                 }, (this.props.images || []).map((e,t)=>s.a.createElement("div", {
                     className: "ticket-image-preview",
@@ -18535,6 +18552,9 @@
             }
             componentDidMount() {
                 this.fetchData(),
+                this.props.dispatch({
+                    type: "comm/config"
+                }),
                 r = (()=>setTimeout(()=>{
                     this.fetchData(),
                     "function" === typeof r && r()
@@ -18604,6 +18624,7 @@
                   , r = e.replyLoading;
                 return s.a.createElement(h, {
                     ticket: t,
+                    ticketImageEnable: this.props.comm.config.ticket_image_enable,
                     onKeyDown: (e,t)=>{
                         13 !== e.keyCode || !e.ctrlKey && !e.metaKey || (e.preventDefault(),
                         r || this.reply(t))
@@ -18629,10 +18650,12 @@
         }
         t["default"] = Object(c["c"])(e=>{
             var t = e.header
-              , n = e.ticket;
+              , n = e.ticket
+              , r = e.comm;
             return {
                 header: t,
-                ticket: n
+                ticket: n,
+                comm: r
             }
         }
         )(m)
@@ -53367,6 +53390,9 @@
             componentDidMount() {
                 this.props.dispatch({
                     type: "ticket/fetch"
+                }),
+                this.props.dispatch({
+                    type: "comm/config"
                 })
             }
             componentDidUpdate(e) {
@@ -53634,7 +53660,7 @@
                     placeholder: "\u8bf7\u8be6\u7ec6\u63cf\u8ff0\u60c5\u51b5",
                     onChange: e=>this.setSaveData("message", e.target.value),
                     value: r.message
-                })), parseInt(window.settings.ticket_image_enable) ? m.a.createElement("div", {
+                })), parseInt(this.props.comm.config.ticket_image_enable) ? m.a.createElement("div", {
                     className: "form-group"
                 }, m.a.createElement("label", {
                     className: "btn btn-sm btn-alt-primary mb-2",
@@ -53662,9 +53688,11 @@
             }
         }
         t["default"] = Object(y["c"])(e=>{
-            var t = e.ticket;
+            var t = e.ticket
+              , n = e.comm;
             return {
-                ticket: t
+                ticket: t,
+                comm: n
             }
         }
         )(x)

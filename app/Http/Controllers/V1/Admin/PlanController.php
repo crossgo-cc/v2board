@@ -11,6 +11,7 @@ use App\Models\Plan;
 use App\Models\User;
 use App\Services\PlanService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class PlanController extends Controller
@@ -55,6 +56,7 @@ class PlanController extends Controller
                 abort(500, '保存失败');
             }
             DB::commit();
+            Cache::forget('guest_plan_fetch');
             return response([
                 'data' => true
             ]);
@@ -62,6 +64,7 @@ class PlanController extends Controller
         if (!Plan::create($params)) {
             abort(500, '创建失败');
         }
+        Cache::forget('guest_plan_fetch');
         return response([
             'data' => true
         ]);
@@ -81,8 +84,10 @@ class PlanController extends Controller
                 abort(500, '该订阅ID不存在');
             }
         }
+        $deleted = $plan->delete();
+        if ($deleted) Cache::forget('guest_plan_fetch');
         return response([
-            'data' => $plan->delete()
+            'data' => $deleted
         ]);
     }
 
@@ -103,6 +108,7 @@ class PlanController extends Controller
         } catch (\Exception $e) {
             abort(500, '保存失败');
         }
+        Cache::forget('guest_plan_fetch');
 
         return response([
             'data' => true
@@ -119,6 +125,7 @@ class PlanController extends Controller
             }
         }
         DB::commit();
+        Cache::forget('guest_plan_fetch');
         return response([
             'data' => true
         ]);
