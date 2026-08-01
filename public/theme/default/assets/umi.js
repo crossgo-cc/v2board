@@ -28001,8 +28001,11 @@
                 }
             }
             componentDidMount() {
-                this.mounted = !0,
-                this.props.onLoadingChange && this.props.onLoadingChange(!0),
+                this.mounted = !0;
+                var e = window.__v2boardChartJs;
+                e ? (this.chartLibrary = e,
+                this.updateChart(),
+                this.props.onLoadingChange && this.props.onLoadingChange(!1)) : (this.props.onLoadingChange && this.props.onLoadingChange(!0),
                 this.loadChart().then(e=>{
                     this.mounted && (this.chartLibrary = e,
                     this.updateChart(),
@@ -28012,10 +28015,18 @@
                         unavailable: !0
                     }),
                     this.props.onLoadingChange && this.props.onLoadingChange(!1))
+                }))
+            }
+            hasDataChanged(e) {
+                var t = this.props.data;
+                if (!e || !t || e.length !== t.length) return !0;
+                return e.some((e,n)=>{
+                    var r = t[n];
+                    return !r || e.timestamp !== r.timestamp || e.upload !== r.upload || e.download !== r.download
                 })
             }
             componentDidUpdate(e) {
-                e.data !== this.props.data && this.updateChart()
+                (e.uploadLabel !== this.props.uploadLabel || e.downloadLabel !== this.props.downloadLabel || this.hasDataChanged(e.data)) && this.updateChart()
             }
             componentWillUnmount() {
                 this.mounted = !1,
@@ -28025,8 +28036,9 @@
                 this.chartCanvas = null
             }
             loadChart() {
+                if (window.__v2boardChartJs) return Promise.resolve(window.__v2boardChartJs);
                 if (window.__v2boardChartJsPromise) return window.__v2boardChartJsPromise;
-                var e = ["https://esm.sh/chart.js@4.4.9?target=es2020", "https://cdn.jsdelivr.net/npm/chart.js@4.4.9/+esm", "https://unpkg.com/chart.js@4.4.9/dist/chart.js"]
+                var e = ["https://cdn.jsdmirror.com/npm/chart.js@4.4.9/+esm", "https://esm.sh/chart.js@4.4.9?target=es2020", "https://cdn.jsdelivr.net/npm/chart.js@4.4.9/+esm", "https://unpkg.com/chart.js@4.4.9/dist/chart.js"]
                   , t = n=>import(e[n]).then(e=>{
                     var t = e.Chart;
                     if (!t) throw new Error("Chart.js module unavailable");
@@ -28036,7 +28048,13 @@
                     if (n + 1 < e.length) return t(n + 1);
                     throw r
                 });
-                return window.__v2boardChartJsPromise = t(0),
+                return window.__v2boardChartJsPromise = t(0).then(e=>{
+                    return window.__v2boardChartJs = e,
+                    e
+                }).catch(e=>{
+                    window.__v2boardChartJsPromise = null;
+                    throw e
+                }),
                 window.__v2boardChartJsPromise
             }
             getChartType() {
@@ -28215,7 +28233,7 @@
                     chartLoading: !1
                 },
                 this.setChartLoading = e=>{
-                    this.setState({
+                    this.state.chartLoading !== e && this.setState({
                         chartLoading: e
                     })
                 }
@@ -28379,7 +28397,8 @@
                 var e = this.props.stat
                   , t = e.traffics
                   , n = e.getTrafficLogLoading
-                  , chartLoading = n || this.state.chartLoading
+                  , initialLoading = n && !t.length
+                  , chartLoading = initialLoading || this.state.chartLoading
                   , r = [{
                     title: Object(v["formatMessage"])({
                         id: "\u8bb0\u5f55\u65f6\u95f4"
@@ -28450,7 +28469,7 @@
                     className: "block block-rounded  ".concat(chartLoading ? "block-mode-loading" : "")
                 }, l.a.createElement("div", {
                     className: "bg-white"
-                }, this.renderTrafficOverview(t))), this.renderTrafficList(t, r, n))))
+                }, this.renderTrafficOverview(t))), this.renderTrafficList(t, r, initialLoading))))
             }
         }
         t["default"] = Object(m["c"])(e=>{
