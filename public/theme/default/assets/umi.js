@@ -28002,13 +28002,16 @@
             }
             componentDidMount() {
                 this.mounted = !0,
+                this.props.onLoadingChange && this.props.onLoadingChange(!0),
                 this.loadChart().then(e=>{
                     this.mounted && (this.chartLibrary = e,
-                    this.updateChart())
+                    this.updateChart(),
+                    this.props.onLoadingChange && this.props.onLoadingChange(!1))
                 }).catch(()=>{
-                    this.mounted && this.setState({
+                    this.mounted && (this.setState({
                         unavailable: !0
-                    })
+                    }),
+                    this.props.onLoadingChange && this.props.onLoadingChange(!1))
                 })
             }
             componentDidUpdate(e) {
@@ -28206,6 +28209,17 @@
             }
         }
         class y extends l.a.Component {
+            constructor(e) {
+                super(e),
+                this.state = {
+                    chartLoading: !1
+                },
+                this.setChartLoading = e=>{
+                    this.setState({
+                        chartLoading: e
+                    })
+                }
+            }
             componentDidMount() {
                 this.props.dispatch({
                     type: "stat/getTrafficLog"
@@ -28308,6 +28322,7 @@
                     data: n,
                     uploadLabel: o,
                     downloadLabel: i,
+                    onLoadingChange: this.setChartLoading,
                     errorLabel: Object(v["formatMessage"])({
                         id: "\u56fe\u8868\u6682\u65f6\u65e0\u6cd5\u52a0\u8f7d\uff0c\u660e\u7ec6\u6570\u636e\u4ecd\u53ef\u67e5\u770b"
                     })
@@ -28327,6 +28342,7 @@
                 var e = this.props.stat
                   , t = e.traffics
                   , n = e.getTrafficLogLoading
+                  , o = n || this.state.chartLoading
                   , r = [{
                     title: Object(v["formatMessage"])({
                         id: "\u8bb0\u5f55\u65f6\u95f4"
@@ -28394,7 +28410,7 @@
                 }, l.a.createElement("div", {
                     className: "content content-full"
                 }, l.a.createElement("div", {
-                    className: "block block-rounded  ".concat(n ? "block-mode-loading" : "")
+                    className: "block block-rounded  ".concat(o ? "block-mode-loading" : "")
                 }, l.a.createElement("div", {
                     className: "bg-white"
                 }, this.renderTrafficOverview(t), l.a.createElement("div", {
