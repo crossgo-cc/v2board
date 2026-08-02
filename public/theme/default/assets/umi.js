@@ -15846,7 +15846,8 @@
                 }, l.a.createElement("strong", null, Object(m["formatMessage"])({
                     id: "\u6e29\u99a8\u63d0\u793a"
                 }), "\uff1a"), Object(m["formatMessage"])({
-                    id: "\u8bf7\u786e\u4fdd\u8d26\u6237\u4f59\u989d\u5145\u8db3\u8bf4\u660e"
+                    id: "\u8bf7\u786e\u4fdd\u8d26\u6237\u4f59\u989d\u5145\u8db3\u8bf4\u660e",
+                    defaultMessage: "\u81ea\u52a8\u7eed\u8d39 / \u81ea\u52a8\u91cd\u7f6e\u6d41\u91cf\u5c06\u4ece\u4f59\u989d\u6263\u8d39\uff0c\u8bf7\u63d0\u524d\u5145\u503c\u4ee5\u786e\u4fdd\u4f59\u989d\u5145\u8db3\u3002"
                 })), l.a.createElement("div", {
                     className: "pt-0"
                 }, l.a.createElement(a["a"], {
@@ -15882,17 +15883,20 @@
                 }, l.a.createElement("div", null, l.a.createElement("strong", null, Object(m["formatMessage"])({
                     id: "\u81ea\u52a8\u7eed\u8d39"
                 }), "\uff1a"), Object(m["formatMessage"])({
-                    id: "\u81ea\u52a8\u7eed\u8d39\u8bf4\u660e"
+                    id: "\u81ea\u52a8\u7eed\u8d39\u8bf4\u660e",
+                    defaultMessage: "\u5230\u671f\u524d 3 \u5929\u81ea\u52a8\u4ece\u4f59\u989d\u6263\u8d39\u7eed\u8ba2\u5f53\u524d\u5957\u9910\uff08\u6309\u4e0a\u6b21\u8ba2\u5355\u5468\u671f\uff09\u3002\u4f59\u989d\u4e0d\u8db3\u5c06\u5173\u95ed\u5e76\u53d1\u90ae\u4ef6\u901a\u77e5\u3002"
                 })), l.a.createElement("div", {
                     className: "mt-1"
                 }, l.a.createElement("strong", null, Object(m["formatMessage"])({
                     id: "\u81ea\u52a8\u91cd\u7f6e\u6d41\u91cf"
                 }), "\uff1a"), Object(m["formatMessage"])({
-                    id: "\u81ea\u52a8\u91cd\u7f6e\u6d41\u91cf\u8bf4\u660e"
+                    id: "\u81ea\u52a8\u91cd\u7f6e\u6d41\u91cf\u8bf4\u660e",
+                    defaultMessage: "\u6d41\u91cf\u7528\u5230 90% \u65f6\u81ea\u52a8\u4ece\u4f59\u989d\u6263\u8d39\u8d2d\u4e70\u91cd\u7f6e\u5305\u5e76\u6e05\u96f6\u5df2\u7528\u6d41\u91cf\u3002\u4f59\u989d\u4e0d\u8db3\u5c06\u5173\u95ed\u5e76\u53d1\u90ae\u4ef6\u901a\u77e5\u3002"
                 }))), l.a.createElement("span", {
                     className: "text-muted",
                     title: Object(m["formatMessage"])({
-                        id: "\u81ea\u52a8\u7eed\u8d39\u8bf4\u660e"
+                        id: "\u81ea\u52a8\u7eed\u8d39\u8bf4\u660e",
+                        defaultMessage: "\u5230\u671f\u524d 3 \u5929\u81ea\u52a8\u4ece\u4f59\u989d\u6263\u8d39\u7eed\u8ba2\u5f53\u524d\u5957\u9910\uff08\u6309\u4e0a\u6b21\u8ba2\u5355\u5468\u671f\uff09\u3002\u4f59\u989d\u4e0d\u8db3\u5c06\u5173\u95ed\u5e76\u53d1\u90ae\u4ef6\u901a\u77e5\u3002"
                     }),
                     style: {
                         cursor: "pointer"
@@ -15906,7 +15910,8 @@
                 })), l.a.createElement("span", {
                     className: "text-muted ml-3",
                     title: Object(m["formatMessage"])({
-                        id: "\u81ea\u52a8\u91cd\u7f6e\u6d41\u91cf\u8bf4\u660e"
+                        id: "\u81ea\u52a8\u91cd\u7f6e\u6d41\u91cf\u8bf4\u660e",
+                        defaultMessage: "\u6d41\u91cf\u7528\u5230 90% \u65f6\u81ea\u52a8\u4ece\u4f59\u989d\u6263\u8d39\u8d2d\u4e70\u91cd\u7f6e\u5305\u5e76\u6e05\u96f6\u5df2\u7528\u6d41\u91cf\u3002\u4f59\u989d\u4e0d\u8db3\u5c06\u5173\u95ed\u5e76\u53d1\u90ae\u4ef6\u901a\u77e5\u3002"
                     }),
                     style: {
                         cursor: "pointer"
