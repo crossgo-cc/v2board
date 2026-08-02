@@ -132,7 +132,8 @@ class NoticeControllerTest extends TestCase
             ->assertJsonPath('data.0.title', '较早的置顶公告')
             ->assertJsonPath('data.0.is_pinned', true)
             ->assertJsonPath('data.0.is_latest', false)
-            ->assertJsonPath('data.1.title', '较新的普通公告');
+            ->assertJsonPath('data.1.title', '较新的普通公告')
+            ->assertJsonPath('data.1.is_latest', true);
     }
 
     public function testLatestPinnedNoticeReceivesBothStates(): void

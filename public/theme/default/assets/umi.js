@@ -28681,9 +28681,13 @@
                 }, l.a.createElement("div", {
                     className: "d-flex align-items-center mb-1"
                 }, e.is_pinned ? l.a.createElement("span", {
-                    className: "badge badge-primary mr-2"
+                    className: "badge badge-warning mr-2"
                 }, Object(b["formatMessage"])({
                     id: "\u7f6e\u9876"
+                })) : null, e.is_latest ? l.a.createElement("span", {
+                    className: "badge badge-primary mr-2"
+                }, Object(b["formatMessage"])({
+                    id: "\u6700\u65b0"
                 })) : null, l.a.createElement("h5", {
                     className: "font-size-base mb-0 text-truncate"
                 }, e.title)), l.a.createElement("div", {
