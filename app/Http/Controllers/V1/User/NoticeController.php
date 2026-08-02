@@ -31,6 +31,10 @@ class NoticeController extends Controller
         $current = $params['current'] ?? 1;
         $pageSize = $params['pageSize'] ?? 5;
 
+        $latestId = Notice::where('show', 1)
+            ->orderByDesc('created_at')
+            ->orderByDesc('id')
+            ->value('id');
         $model = Notice::where('show', 1);
         $total = $model->count();
         $res = $model->orderByDesc('is_pinned')
@@ -38,6 +42,12 @@ class NoticeController extends Controller
             ->orderByDesc('id')
             ->forPage($current, $pageSize)
             ->get();
+        $res->each(function (Notice $notice) use ($latestId) {
+            $notice->setAttribute(
+                'is_latest',
+                $latestId !== null && (int) $notice->getKey() === (int) $latestId
+            );
+        });
 
         return response([
             'data' => $res,

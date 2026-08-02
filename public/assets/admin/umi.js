@@ -28859,9 +28859,15 @@
                 )
             }
             save() {
+                var e = p()({}, this.state.submit, {
+                    is_pinned: this.state.submit.is_pinned ? 1 : 0
+                });
+                delete e.show;
+                delete e.created_at;
+                delete e.updated_at;
                 this.props.dispatch({
                     type: "notice/save",
-                    params: p()({}, this.state.submit),
+                    params: e,
                     callback: ()=>{
                         this.modalVisible()
                     }

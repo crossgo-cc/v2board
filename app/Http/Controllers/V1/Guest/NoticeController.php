@@ -25,6 +25,7 @@ class NoticeController extends Controller
                 'content',
                 'img_url',
                 'tags',
+                'is_pinned',
                 'created_at'
             ])
                 ->where('show', 1)
@@ -40,6 +41,7 @@ class NoticeController extends Controller
                             'title' => $notice->title,
                             'content' => $notice->content,
                             'img_url' => $notice->img_url,
+                            'is_pinned' => $notice->is_pinned,
                             'created_at' => $notice->created_at
                         ]);
 

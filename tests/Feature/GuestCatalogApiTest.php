@@ -74,7 +74,7 @@ class GuestCatalogApiTest extends TestCase
     {
         $time = time();
         DB::table('v2_notice')->insert([
-            $this->notice(1, '首页公告', true, ['首页'], $time),
+            $this->notice(1, '首页公告', true, ['首页'], $time, true),
             $this->notice(2, '用户公告', true, ['弹窗'], $time + 1),
             $this->notice(3, '未发布首页公告', false, ['首页'], $time + 2)
         ]);
@@ -84,6 +84,7 @@ class GuestCatalogApiTest extends TestCase
 
         $this->assertCount(1, $notices);
         $this->assertSame('首页公告', $notices[0]['title']);
+        $this->assertTrue($notices[0]['is_pinned']);
         $this->assertArrayNotHasKey('show', $notices[0]);
         $this->assertArrayNotHasKey('tags', $notices[0]);
     }
@@ -198,14 +199,14 @@ class GuestCatalogApiTest extends TestCase
         ];
     }
 
-    private function notice(int $id, string $title, bool $show, array $tags, int $time): array
+    private function notice(int $id, string $title, bool $show, array $tags, int $time, bool $isPinned = false): array
     {
         return [
             'id' => $id,
             'title' => $title,
             'content' => '公告内容',
             'show' => $show,
-            'is_pinned' => false,
+            'is_pinned' => $isPinned,
             'img_url' => null,
             'tags' => json_encode($tags),
             'created_at' => $time,

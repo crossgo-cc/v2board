@@ -131,7 +131,39 @@ class NoticeControllerTest extends TestCase
             ->assertOk()
             ->assertJsonPath('data.0.title', '较早的置顶公告')
             ->assertJsonPath('data.0.is_pinned', true)
+            ->assertJsonPath('data.0.is_latest', false)
             ->assertJsonPath('data.1.title', '较新的普通公告');
+    }
+
+    public function testLatestPinnedNoticeReceivesBothStates(): void
+    {
+        $time = time();
+        DB::table('v2_notice')->insert([
+            [
+                'title' => '较早的普通公告',
+                'content' => '普通内容',
+                'show' => 1,
+                'is_pinned' => 0,
+                'created_at' => $time - 100,
+                'updated_at' => $time - 100
+            ],
+            [
+                'title' => '最新的置顶公告',
+                'content' => '置顶内容',
+                'show' => 1,
+                'is_pinned' => 1,
+                'created_at' => $time,
+                'updated_at' => $time
+            ]
+        ]);
+
+        $this->getJson('/_test/notice/fetch?current=1&pageSize=10')
+            ->assertOk()
+            ->assertJsonPath('data.0.title', '最新的置顶公告')
+            ->assertJsonPath('data.0.is_pinned', true)
+            ->assertJsonPath('data.0.is_latest', true)
+            ->assertJsonPath('data.1.is_pinned', false)
+            ->assertJsonPath('data.1.is_latest', false);
     }
 
     public function testAdminCanCreateAndTogglePinnedNotice(): void
