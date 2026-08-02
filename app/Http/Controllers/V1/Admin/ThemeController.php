@@ -62,6 +62,7 @@ class ThemeController extends Controller
         }
         $config = config("theme.{$payload['name']}", []);
         if (!is_array($config)) $config = [];
+        $config = array_intersect_key($config, $defaults);
 
         return response([
             'data' => array_merge($defaults, $config)

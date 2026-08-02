@@ -16509,42 +16509,131 @@
         n("3a4m"))
           , a = n.n(i);
         class s extends o.a.Component {
+            constructor() {
+                super(...arguments),
+                this.homepageUnmount = null,
+                this.homepageHost = null,
+                this.homepageShadowRoot = null,
+                this.homepageRoot = null,
+                this.homepageBlobUrl = null,
+                this.homepageCleanupStarted = !1,
+                this.homepageRunId = 0
+            }
+            setHomepageHost(e) {
+                if (!e || this.homepageHost === e)
+                    return;
+                this.homepageHost = e;
+                if ("function" !== typeof e.attachShadow)
+                    return console.error("[V2Board] homepage Shadow DOM is not supported"),
+                    void (this.homepageRoot = e);
+                this.homepageShadowRoot = e.attachShadow({
+                    mode: "open"
+                }),
+                this.homepageRoot = document.createElement("div"),
+                this.homepageShadowRoot.appendChild(this.homepageRoot)
+            }
             componentDidMount() {
                 if (this.mounted = !0,
-                !window.settings.homepage)
+                "string" !== typeof window.settings.custom_homepage_js || !window.settings.custom_homepage_js.trim())
                     return void a.a.push("/login");
-                this.runHomepageJavascript()
+                this.runHomepageScript()
             }
             componentWillUnmount() {
                 this.mounted = !1,
                 this.cleanupHomepage()
             }
-            runHomepageJavascript() {
-                window.settings.homepage_js && window.requestAnimationFrame(()=>{
-                    if (this.mounted)
-                        try {
-                            var e = new Function(window.settings.homepage_js).call(window);
-                            this.cleanup = "function" === typeof e ? e : null
-                        } catch (e) {
-                            console.error("[V2Board] homepage script failed", e)
-                        }
+            runHomepageScript() {
+                var n = ++this.homepageRunId;
+                window.requestAnimationFrame(()=>{
+                    if (!this.mounted || !this.homepageRoot || n !== this.homepageRunId)
+                        return;
+                    var e = window.settings.custom_homepage_js;
+                    if ("string" !== typeof e || !(e = e.trim()))
+                        return;
+                    if (!window.Blob || !window.URL || "function" !== typeof window.URL.createObjectURL || "function" !== typeof window.URL.revokeObjectURL)
+                        return void (console.error("[V2Board] homepage source requires Blob URL support"),
+                        this.cleanupHomepage());
+                    var t;
+                    try {
+                        t = window.URL.createObjectURL(new window.Blob([e], {
+                            type: "text/javascript"
+                        })),
+                        this.homepageBlobUrl = t
+                    } catch (e) {
+                        return console.error("[V2Board] homepage source could not be loaded", e),
+                        void this.cleanupHomepage()
+                    }
+                    import(t).then(e=>{
+                        this.releaseHomepageBlobUrl(t);
+                        if (!this.mounted || n !== this.homepageRunId)
+                            return;
+                        var r = e && ("function" === typeof e.mount ? e.mount : e.default && "function" === typeof e.default.mount ? e.default.mount : "function" === typeof e.default ? e.default : null);
+                        if ("function" !== typeof r)
+                            throw new Error("homepage module must export mount(container)");
+                        this.registerHomepageUnmount(r(this.homepageRoot), n)
+                    }
+                    ).catch(e=>{
+                        this.releaseHomepageBlobUrl(t),
+                        n === this.homepageRunId && this.mounted && (console.error("[V2Board] homepage module failed", e),
+                        this.cleanupHomepage())
+                    }
+                    )
                 }
                 )
             }
-            cleanupHomepage() {
-                if ("function" === typeof this.cleanup)
-                    try {
-                        this.cleanup()
-                    } catch (e) {
-                        console.error("[V2Board] homepage cleanup failed", e)
+            releaseHomepageBlobUrl(e) {
+                e && this.homepageBlobUrl === e && (window.URL.revokeObjectURL(e),
+                this.homepageBlobUrl = null)
+            }
+            registerHomepageUnmount(e, t) {
+                if (e && "function" === typeof e.then)
+                    return void e.then(e=>{
+                        if (t !== this.homepageRunId || !this.mounted)
+                            return void this.disposeHomepageUnmount(e);
+                        this.registerHomepageUnmount(e, t)
+                    }).catch(e=>{
+                        t === this.homepageRunId && this.mounted && (console.error("[V2Board] homepage mount failed", e),
+                        this.cleanupHomepage())
                     }
-                this.cleanup = null
+                    );
+                if (t !== this.homepageRunId || !this.mounted)
+                    return void this.disposeHomepageUnmount(e);
+                if (!e || "function" !== typeof e.unmount)
+                    throw new Error("homepage mount must return { unmount() }");
+                this.homepageUnmount = e
+            }
+            disposeHomepageUnmount(e) {
+                if (!e || "function" !== typeof e.unmount)
+                    return;
+                try {
+                    var t = e.unmount.call(e);
+                    t && "function" === typeof t.catch && t.catch(e=>{
+                        console.error("[V2Board] homepage unmount failed", e)
+                    }
+                    )
+                } catch (e) {
+                    console.error("[V2Board] homepage unmount failed", e)
+                }
+            }
+            cleanupHomepage() {
+                if (this.homepageCleanupStarted)
+                    return;
+                this.homepageCleanupStarted = !0,
+                this.homepageRunId += 1,
+                this.releaseHomepageBlobUrl(this.homepageBlobUrl),
+                this.disposeHomepageUnmount(this.homepageUnmount),
+                this.homepageUnmount = null,
+                this.homepageRoot && (this.homepageRoot.innerHTML = ""),
+                this.homepageShadowRoot && (this.homepageShadowRoot.innerHTML = ""),
+                this.homepageRoot = null,
+                this.homepageShadowRoot = null,
+                this.homepageHost = null
             }
             render() {
-                return window.settings.homepage ? o.a.createElement("div", {
-                    dangerouslySetInnerHTML: {
-                        __html: window.settings.homepage
-                    }
+                var e = window.settings.custom_homepage_js;
+                return "string" === typeof e && e.trim() ? o.a.createElement("div", {
+                    id: "v2board-homepage-root",
+                    ref: e=>this.setHomepageHost(e)
                 }) : o.a.createElement("div", null)
             }
         }

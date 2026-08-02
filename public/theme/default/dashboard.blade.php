@@ -31,8 +31,7 @@
             },
             version: '{{$version}}',
             background_url: '{{$theme_config['background_url']}}',
-            homepage: @json($theme_config['homepage'] ?? ''),
-            homepage_js: @json($theme_config['homepage_js'] ?? ''),
+            custom_homepage_js: @json($theme_config['custom_homepage_js'] ?? ''),
             description: '{{$description}}',
             logo: '{{$logo}}'
         }
@@ -41,7 +40,7 @@
 
 <body>
 <div id="root"></div>
-{!! $theme_config['custom_html'] !!}
+{!! $theme_config['custom_footer_html'] ?? '' !!}
 <script src="/theme/{{$theme}}/assets/vendors.async.js?v={{$version}}"></script>
 <script src="/theme/{{$theme}}/assets/components.async.js?v={{$version}}"></script>
 <script src="/theme/{{$theme}}/assets/umi.js?v={{$version}}"></script>

@@ -41,21 +41,16 @@
         },
         "default_value": "dark"
     }, {
-        "label": "自定义主页HTML",
-        "placeholder": "留空时访问主页将跳转到登录页",
-        "field_name": "homepage",
+        "label": "自定义主页 JS 源码",
+        "placeholder": "粘贴 Vite build 生成的 ESM JavaScript 源码；源码会在浏览器内通过 Blob ESM 加载；需导出 mount(container)，CSS 请使用 container.getRootNode() 注入 Shadow Root，配置请使用 window.settings；必须返回 { unmount() {} }；支持默认导出 mount；留空时访问主页将跳转到登录页",
+        "field_name": "custom_homepage_js",
         "field_type": "textarea",
         "default_value": ""
     }, {
-        "label": "自定义主页JS",
-        "placeholder": "请输入主页JavaScript",
-        "field_name": "homepage_js",
+        "label": "自定义页脚 HTML",
+        "placeholder": "可以加入客服、统计等 HTML 和 JS 代码",
+        "field_name": "custom_footer_html",
         "field_type": "textarea",
         "default_value": ""
-    }, {
-        "label": "自定义页脚HTML",
-        "placeholder": "可以实现客服JS代码的加入等",
-        "field_name": "custom_html",
-        "field_type": "textarea"
     }]
 }
