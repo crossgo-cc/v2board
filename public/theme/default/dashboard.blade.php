@@ -31,7 +31,6 @@
             },
             version: '{{$version}}',
             background_url: '{{$theme_config['background_url']}}',
-            custom_homepage_js: @json($theme_config['custom_homepage_js'] ?? ''),
             description: '{{$description}}',
             logo: '{{$logo}}'
         }

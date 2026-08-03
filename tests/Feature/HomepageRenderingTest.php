@@ -19,19 +19,12 @@ class HomepageRenderingTest extends TestCase
             'background_url',
             'theme_sidebar',
             'theme_header',
-            'custom_homepage_js',
             'custom_footer_html'
         ], array_keys($fields));
-        $this->assertArrayHasKey('custom_homepage_js', $fields);
         $this->assertArrayHasKey('custom_footer_html', $fields);
-        $this->assertSame('textarea', $fields['custom_homepage_js']['field_type']);
-        $this->assertSame('', $fields['custom_homepage_js']['default_value']);
-        $this->assertSame('自定义主页 JS 源码', $fields['custom_homepage_js']['label']);
-        foreach (['Vite', 'ESM', 'mount', 'unmount', 'Blob'] as $token) {
-            $this->assertStringContainsString($token, $fields['custom_homepage_js']['placeholder']);
-        }
         $this->assertSame('textarea', $fields['custom_footer_html']['field_type']);
         $this->assertSame('自定义页脚 HTML', $fields['custom_footer_html']['label']);
+        $this->assertArrayNotHasKey('custom_homepage_js', $fields);
         $this->assertArrayNotHasKey('homepage_js', $fields);
     }
 
@@ -52,101 +45,49 @@ class HomepageRenderingTest extends TestCase
             'name' => 'default'
         ])
             ->assertOk()
-            ->assertJsonPath('data.custom_homepage_js', '')
             ->assertJsonPath('data.custom_footer_html', '');
 
         $this->assertArrayNotHasKey('custom_html', $response->json('data'));
+        $this->assertArrayNotHasKey('custom_homepage_js', $response->json('data'));
     }
 
-    public function testHomepageSettingsAreEmbeddedWithSafeJsonEncoding(): void
+    public function testHomepageDoesNotEmbedCustomJavascript(): void
     {
-        $script = 'export function mount(container) { return { unmount() {} }; } // 中文 50%';
         $footer = '<script>window.__footerTest = "中文 50%";</script>';
         $response = $this->getHomepage([
-            'custom_homepage_js' => $script,
             'custom_footer_html' => $footer
         ]);
-        $jsonOptions = JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT;
 
         $response->assertOk()
-            ->assertSee('custom_homepage_js: ' . json_encode($script, $jsonOptions), false)
             ->assertSee($footer, false)
+            ->assertDontSee('custom_homepage_js', false)
             ->assertDontSee('homepage_url', false);
     }
 
-    public function testDisabledHomepageKeepsLoginRedirectBehavior(): void
+    public function testHomepageKeepsLoginRedirectBehavior(): void
     {
         $response = $this->getHomepage();
         $frontend = file_get_contents(public_path('theme/default/assets/umi.js'));
 
         $response->assertOk()
-            ->assertSee('custom_homepage_js: ""', false);
-        $this->assertStringContainsString('!window.settings.custom_homepage_js.trim()', $frontend);
+            ->assertDontSee('custom_homepage_js', false);
         $this->assertStringContainsString('a.a.push("/login")', $frontend);
+        $this->assertStringNotContainsString('new window.Blob', $frontend);
+        $this->assertStringNotContainsString('this.homepageBlobUrl', $frontend);
+        $this->assertStringNotContainsString('import(t)', $frontend);
     }
 
-    public function testHomepageRendersDirectlyAndRunsWithCleanup(): void
+    public function testHomepageRuntimeDoesNotLoadCustomSource(): void
     {
         $frontend = file_get_contents(public_path('theme/default/assets/umi.js'));
         $blade = file_get_contents(public_path('theme/default/dashboard.blade.php'));
 
-        $this->assertStringContainsString('this.runHomepageScript()', $frontend);
-        $this->assertStringContainsString('import(t).then', $frontend);
-        $this->assertStringContainsString('this.registerHomepageUnmount', $frontend);
-        $this->assertStringContainsString('this.homepageUnmount', $frontend);
-        $this->assertStringContainsString('this.setHomepageHost', $frontend);
-        $this->assertStringContainsString('e.attachShadow', $frontend);
-        $this->assertStringContainsString('mode: "open"', $frontend);
-        $this->assertStringContainsString('this.homepageShadowRoot.appendChild', $frontend);
-        $this->assertStringContainsString('mount(container)', $frontend);
-        $this->assertStringContainsString('new window.Blob', $frontend);
-        $this->assertStringContainsString('window.URL.createObjectURL', $frontend);
-        $this->assertStringContainsString('window.URL.revokeObjectURL', $frontend);
-        $this->assertStringContainsString('this.homepageBlobUrl', $frontend);
-        $this->assertStringContainsString('id: "v2board-homepage-root"', $frontend);
-        $this->assertStringContainsString('this.homepageRoot.innerHTML = ""', $frontend);
-        $this->assertStringContainsString('componentWillUnmount()', $frontend);
-        $this->assertStringContainsString('this.cleanupHomepage()', $frontend);
-        $this->assertStringContainsString("custom_homepage_js: @json(\$theme_config['custom_homepage_js'] ?? '')", $blade);
-        $this->assertStringContainsString("{!! \$theme_config['custom_footer_html'] ?? '' !!}", $blade);
-        $this->assertStringNotContainsString('getHomepageScriptUrl', $frontend);
-        $this->assertStringNotContainsString('window.settings.homepage', $frontend);
-        $this->assertStringNotContainsString('window.settings.homepage_js', $frontend);
-        $this->assertStringNotContainsString("homepage_js: @json(\$theme_config['homepage_js'] ?? '')", $blade);
-    }
-
-    public function testHomepageRuntimeSupportsViteMountContract(): void
-    {
-        $frontend = file_get_contents(public_path('theme/default/assets/umi.js'));
-
-        foreach (['custom_homepage_js', 'setHomepageHost', 'attachShadow', 'homepageShadowRoot', 'new window.Blob', 'window.URL.createObjectURL', 'window.URL.revokeObjectURL', 'import(t)', 'e.mount', 'e.default', 'this.registerHomepageUnmount', 'this.disposeHomepageUnmount', 'must export mount(container)', 'must return { unmount() }', 'homepageUnmount', 'homepageBlobUrl', 'homepageCleanupStarted'] as $token) {
-            $this->assertStringContainsString($token, $frontend);
+        foreach (['custom_homepage_js', 'homepage_js', 'new window.Blob', 'window.URL.createObjectURL', 'window.URL.revokeObjectURL', 'import(t)', 'homepageBlobUrl', 'homepageShadowRoot', 'setHomepageHost'] as $token) {
+            $this->assertStringNotContainsString($token, $frontend);
+            $this->assertStringNotContainsString($token, $blade);
         }
 
-        $this->assertStringNotContainsString('new window.DOMParser', $frontend);
-        $this->assertStringNotContainsString('getHomepageScriptUrl', $frontend);
-        $this->assertStringNotContainsString('createHomepageRuntime', $frontend);
-        $this->assertStringNotContainsString('this.homepageScriptObserver', $frontend);
-        $this->assertStringNotContainsString('externalScripts', $frontend);
-        $this->assertStringNotContainsString('externalAssets', $frontend);
-    }
-
-    public function testHomepageRuntimeCleansHomepageOwnedNodesAndCallbacks(): void
-    {
-        $frontend = file_get_contents(public_path('theme/default/assets/umi.js'));
-
-        $this->assertStringContainsString('this.disposeHomepageUnmount(this.homepageUnmount)', $frontend);
-        $this->assertStringContainsString('this.homepageUnmount = null', $frontend);
-        $this->assertStringContainsString('this.releaseHomepageBlobUrl(this.homepageBlobUrl)', $frontend);
-        $this->assertStringContainsString('this.homepageBlobUrl = null', $frontend);
-        $this->assertStringContainsString('this.homepageCleanupStarted', $frontend);
-        $this->assertStringContainsString('this.homepageShadowRoot.innerHTML = ""', $frontend);
-        $this->assertStringContainsString('this.homepageRoot = null', $frontend);
-        $this->assertStringContainsString('this.homepageShadowRoot = null', $frontend);
-        $this->assertStringContainsString('this.homepageUnmount = e', $frontend);
-        $this->assertStringContainsString('e.unmount.call(e)', $frontend);
-        $this->assertStringContainsString('this.homepageRunId += 1', $frontend);
-        $this->assertStringContainsString('this.homepageRoot.innerHTML = ""', $frontend);
+        $this->assertStringContainsString("{!! \$theme_config['custom_footer_html'] ?? '' !!}", $blade);
     }
 
     public function testApplicationsDoNotExposeLanguageSwitching(): void
@@ -237,7 +178,6 @@ class HomepageRenderingTest extends TestCase
                 'background_url' => '',
                 'theme_sidebar' => 'light',
                 'theme_header' => 'dark',
-                'custom_homepage_js' => '',
                 'custom_footer_html' => ''
             ], $homepageConfig)
         ]);
