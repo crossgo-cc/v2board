@@ -618,3 +618,10 @@ ADD INDEX `idx_notice_show_pinned_created` (`show`, `is_pinned`, `created_at`, `
 
 ALTER TABLE `v2_knowledge`
 DROP `language`;
+
+ALTER TABLE `v2_server_route`
+ADD `sort` int(11) NOT NULL DEFAULT '0' AFTER `id`;
+
+UPDATE `v2_server_route`
+SET `sort` = `id`
+WHERE `sort` = 0;

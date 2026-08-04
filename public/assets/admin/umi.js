@@ -2959,6 +2959,71 @@
                                 }
                         }, e)
                     })()
+                },
+                sort(e, t) {
+                    var n = e.fromIndex
+                      , r = e.toIndex
+                      , i = t.select
+                      , p = t.put;
+                    if (n < 0 || r < 0 || n === r) return;
+                    return a().mark(function e() {
+                        var t, l, c, s;
+                        return a().wrap(function(e) {
+                            while (1)
+                                switch (e.prev = e.next) {
+                                case 0:
+                                    return e.next = 2,
+                                    p({
+                                        type: "setState",
+                                        payload: {
+                                            fetchLoading: !0
+                                        }
+                                    });
+                                case 2:
+                                    return e.next = 4,
+                                    i(e=>e.serverRoute);
+                                case 4:
+                                    return t = e.sent,
+                                    l = t.routes,
+                                    s = l.slice(),
+                                    n < r ? (l.splice(r + 1, 0, l[n]),
+                                    l.splice(n, 1)) : (l.splice(r, 0, l[n]),
+                                    l.splice(n + 1, 1)),
+                                    e.next = 9,
+                                    p({
+                                        type: "setState",
+                                        payload: {
+                                            routes: l
+                                        }
+                                    });
+                                case 9:
+                                    return e.next = 11,
+                                    Object(o["b"])("/" + window.settings.secure_path + "/server/route/sort", {
+                                        route_ids: l.map(e=>e.id)
+                                    }).catch(()=>null);
+                                case 11:
+                                    return c = e.sent,
+                                    e.next = 13,
+                                    p({
+                                        type: "setState",
+                                        payload: c && 200 === c.code ? {
+                                            fetchLoading: !1
+                                        } : {
+                                            routes: s,
+                                            fetchLoading: !1
+                                        }
+                                    });
+                                case 13:
+                                    return e.next = 15,
+                                    p({
+                                        type: "fetch"
+                                    });
+                                case 15:
+                                case "end":
+                                    return e.stop()
+                                }
+                        }, e)
+                    })()
                 }
             }
         }
@@ -101799,7 +101864,8 @@
         n("2fM7"))
           , y = (n("5NDa"),
         n("5rEg"))
-          , b = n("tI4l");
+          , b = n("tI4l")
+          , S = n("qqou");
         class w extends f.a.Component {
             constructor(e) {
                 super(e),
@@ -102009,6 +102075,18 @@
                   , t = e.routes
                   , n = e.fetchLoading
                   , r = [{
+                    title: "\u6392\u5e8f",
+                    dataIndex: "sort",
+                    key: "sort",
+                    render: (e,t)=>{
+                        return f.a.createElement(s["a"], {
+                            type: "menu",
+                            style: {
+                                cursor: "move"
+                            }
+                        })
+                    }
+                }, {
                     title: "ID",
                     dataIndex: "id",
                     key: "id"
@@ -102068,12 +102146,22 @@
                     onClick: ()=>this.modalVisible()
                 }, f.a.createElement(s["a"], {
                     type: "plus"
-                }), " \u6dfb\u52a0\u8def\u7531"))), f.a.createElement(o["a"], {
+                }), " \u6dfb\u52a0\u8def\u7531"))), f.a.createElement(S["a"], {
+                    onDragEnd: (e,t)=>{
+                        this.props.dispatch({
+                            type: "serverRoute/sort",
+                            fromIndex: e,
+                            toIndex: t
+                        })
+                    },
+                    nodeSelector: "tr",
+                    handleSelector: "i"
+                }, f.a.createElement(o["a"], {
                     tableLayout: "auto",
                     columns: r,
                     dataSource: t,
                     pagination: !1
-                })))))
+                }))))))
             }
         }
         t["default"] = Object(p["c"])(e=>{

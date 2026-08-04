@@ -224,6 +224,7 @@ CREATE TABLE `v2_server_group` (
 DROP TABLE IF EXISTS `v2_server_route`;
 CREATE TABLE `v2_server_route` (
                                    `id` int(11) NOT NULL AUTO_INCREMENT,
+                                   `sort` int(11) NOT NULL DEFAULT '0',
                                    `remarks` varchar(255) NOT NULL,
                                    `match` text NOT NULL,
                                    `action` varchar(11) NOT NULL,

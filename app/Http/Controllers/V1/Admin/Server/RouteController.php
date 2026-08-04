@@ -3,15 +3,19 @@
 namespace App\Http\Controllers\V1\Admin\Server;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\RouteSort;
 use App\Models\ServerRoute;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class RouteController extends Controller
 {
     public function fetch(Request $request)
     {
-        $routes = ServerRoute::get();
+        $routes = ServerRoute::orderBy('sort', 'ASC')
+            ->orderBy('id', 'ASC')
+            ->get();
         foreach ($routes as $k => $route) {
             $array = json_decode($route->match, true);
             if (is_array($array)) $routes[$k]['match'] = $array;
@@ -51,7 +55,35 @@ class RouteController extends Controller
                 abort(500, '保存失败');
             }
         }
+        $params['sort'] = (int) ServerRoute::max('sort') + 1;
         if (!ServerRoute::create($params)) abort(500, '创建失败');
+        return [
+            'data' => true
+        ];
+    }
+
+    public function sort(RouteSort $request)
+    {
+        $routeIds = $request->input('route_ids');
+        if (count($routeIds) !== ServerRoute::whereIn('id', $routeIds)->count()
+            || count($routeIds) !== ServerRoute::count()) {
+            abort(422, '路由参数有误');
+        }
+
+        DB::beginTransaction();
+        try {
+            foreach ($routeIds as $index => $routeId) {
+                $route = ServerRoute::find($routeId);
+                if (!$route || !$route->update(['sort' => $index + 1])) {
+                    throw new \RuntimeException('路由不存在');
+                }
+            }
+            DB::commit();
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            abort(500, '保存失败');
+        }
+
         return [
             'data' => true
         ];
