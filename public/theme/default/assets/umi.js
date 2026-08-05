@@ -28549,7 +28549,7 @@
                     className: "list-group-item list-group-item-action",
                     href: "javascript:void(0)",
                     key: e.id,
-                    onClick: ()=>h.a.push("/notice")
+                    onClick: ()=>h.a.push("/notice?id=".concat(e.id))
                 }, l.a.createElement("div", {
                     className: "d-flex align-items-center"
                 }, l.a.createElement("div", {
@@ -29045,15 +29045,27 @@
                     notices: [],
                     total: 0,
                     current: 1,
-                    loading: !0
+                    loading: !0,
+                    targetId: null
                 }
             }
             componentDidMount() {
-                this.fetch(1)
+                var e = this.props.location && this.props.location.query && this.props.location.query.id
+                  , t = parseInt(e, 10);
+                this.fetch(1, t > 0 ? t : null)
             }
-            fetch(e) {
+            componentDidUpdate(e) {
+                var t = e.location && e.location.query && e.location.query.id
+                  , n = this.props.location && this.props.location.query && this.props.location.query.id;
+                if (t !== n) {
+                    var r = parseInt(n, 10);
+                    this.fetch(1, r > 0 ? r : null)
+                }
+            }
+            fetch(e, n) {
                 this.setState({
-                    loading: !0
+                    loading: !0,
+                    targetId: n || null
                 }),
                 Object(s["a"])("/user/notice/fetch", {
                     current: e,
@@ -29062,7 +29074,10 @@
                     200 === t.code && this.setState({
                         notices: t.data || [],
                         total: t.total || 0,
-                        current: e
+                        current: e,
+                        targetId: n || null
+                    }, ()=>{
+                        n && this.scrollToNotice(n)
                     }),
                     this.setState({
                         loading: !1
@@ -29072,6 +29087,13 @@
                     loading: !1
                 })
                 )
+            }
+            scrollToNotice(e) {
+                var t = document.getElementById("notice-".concat(e));
+                t && t.scrollIntoView({
+                    behavior: "smooth",
+                    block: "center"
+                })
             }
             renderLoading() {
                 return o.a.createElement("div", {
@@ -29084,6 +29106,7 @@
             renderNotice(e) {
                 var n = u()(1e3 * e.created_at);
                 return o.a.createElement("article", {
+                    id: "notice-".concat(e.id),
                     className: "notice-timeline-item".concat(e.is_pinned ? " is-pinned" : "").concat(e.is_latest ? " is-latest" : ""),
                     key: e.id
                 }, o.a.createElement("time", {
