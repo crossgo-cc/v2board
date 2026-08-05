@@ -1173,12 +1173,42 @@
     grid-column: 2;
     grid-row: 1;
     justify-self: end;
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.35rem;
     margin-top: 0;
-    color: #343a40;
-    font-size: 1.125rem;
-    font-weight: 600;
+    color: #6c757d;
+    font-size: 0.75rem;
+    font-weight: 400;
     line-height: 1.25;
     white-space: nowrap;
+}
+
+.v2board-period-card-price-label {
+    color: #6c757d;
+    font-size: 0.75rem;
+    font-weight: 400;
+}
+
+.v2board-period-card-price-value {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.1rem;
+    color: #171717;
+    font-size: 0.95rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.v2board-period-card-price-currency {
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.v2board-period-card-price-amount {
+    font-size: 1.25rem;
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
 }
 
 .v2board-period-card-unit {
@@ -1211,6 +1241,7 @@
     color: var(--primary, #0665d0);
     font-size: 0.95rem;
     font-weight: 600;
+    font-variant-numeric: tabular-nums;
 }
 
 @media (max-width: 767.98px) {
@@ -1230,6 +1261,10 @@
         padding-left: 0;
         margin-top: 0.2rem;
         border-left: 0;
+    }
+
+    .v2board-period-card-price-amount {
+        font-size: 1.125rem;
     }
 }
 
