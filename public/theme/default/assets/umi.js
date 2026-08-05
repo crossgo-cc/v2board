@@ -31058,12 +31058,7 @@
                             className: "v2board-period-card-header"
                         }, f.a.createElement("span", {
                             className: "v2board-period-card-title"
-                        }, h["a"].periodText[e] && h["a"].periodText[e]()), n === e && f.a.createElement("span", {
-                            className: "v2board-period-card-check",
-                            "aria-hidden": !0
-                        }, f.a.createElement("i", {
-                            className: "fa fa-check"
-                        }))), f.a.createElement("div", {
+                        }, h["a"].periodText[e] && h["a"].periodText[e]())), f.a.createElement("div", {
                             className: "v2board-period-card-price"
                         }, d.currency_symbol, (t[e] / 100).toFixed(2)), r && f.a.createElement("span", {
                             className: "v2board-period-card-unit"

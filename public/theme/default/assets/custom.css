@@ -1146,8 +1146,7 @@
 }
 
 .v2board-period-card.is-selected {
-    background: rgba(0, 123, 255, 0.035);
-    box-shadow: inset 3px 0 0 var(--primary, #0665d0);
+    background: rgba(6, 101, 208, 0.1);
 }
 
 .v2board-period-card-header {
@@ -1168,19 +1167,6 @@
     line-height: 1.5;
     text-overflow: ellipsis;
     white-space: nowrap;
-}
-
-.v2board-period-card-check {
-    display: inline-flex;
-    flex: 0 0 auto;
-    align-items: center;
-    justify-content: center;
-    width: 16px;
-    height: 16px;
-    color: #fff;
-    background: var(--primary, #0665d0);
-    border-radius: 50%;
-    font-size: 0.6rem;
 }
 
 .v2board-period-card-price {
