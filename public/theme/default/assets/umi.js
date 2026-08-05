@@ -30828,7 +30828,7 @@
                 var t = b[e]
                   , n = this.props.plan.plan
                   , r = Number(n[e]);
-                if (!t || null === n[e] || !isFinite(r) || r < 0)
+                if (!t || "month_price" === e || null === n[e] || !isFinite(r) || r < 0)
                     return null;
                 return (r / t / 100).toFixed(2)
             }
