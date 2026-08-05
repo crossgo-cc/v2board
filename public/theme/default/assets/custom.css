@@ -1147,6 +1147,7 @@
 
 .v2board-period-card.is-selected {
     background: rgba(6, 101, 208, 0.1);
+    box-shadow: inset 3px 0 0 var(--primary, #0665d0);
 }
 
 .v2board-period-card-header {
