@@ -763,13 +763,17 @@
         padding-left: 0 !important;
     }
 
+    .notice-timeline {
+        padding-top: 0.5rem;
+    }
+
     .notice-empty {
         margin-right: 1rem;
         margin-left: 1rem;
     }
 
     .notice-timeline::before {
-        top: 7px;
+        top: calc(7px + 0.5rem);
         bottom: 24px;
         left: 16px;
     }
