@@ -776,22 +776,31 @@
 
     .notice-timeline-item {
         grid-template-columns: 32px minmax(0, 1fr);
-        padding-bottom: 1rem;
+        padding-bottom: 1.25rem;
         contain-intrinsic-size: 0 480px;
     }
 
     .notice-timeline-time {
         grid-column: 2;
         grid-row: 1;
-        padding: 0 0.75rem 0.5rem 0.5rem;
+        min-height: 2.25rem;
+        padding: 0.125rem 1rem 0.75rem 0.5rem;
         text-align: left;
         align-items: baseline;
         flex-direction: row;
-        gap: 0.4rem;
+        gap: 0.5rem;
+        line-height: 1.35;
+        white-space: nowrap;
     }
 
     .notice-timeline-time strong {
-        font-size: 14px;
+        font-size: 15px;
+        line-height: 1.35;
+    }
+
+    .notice-timeline-time span {
+        margin-top: 0;
+        line-height: 1.35;
     }
 
     .notice-timeline-marker {
