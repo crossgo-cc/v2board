@@ -29071,15 +29071,15 @@
                     current: e,
                     pageSize: this.pageSize
                 }).then(t=>{
-                    200 === t.code && this.setState({
+                    200 === t.code ? this.setState({
                         notices: t.data || [],
                         total: t.total || 0,
                         current: e,
-                        targetId: n || null
+                        targetId: n || null,
+                        loading: !1
                     }, ()=>{
                         n && this.scrollToNotice(n)
-                    }),
-                    this.setState({
+                    }) : this.setState({
                         loading: !1
                     })
                 }
