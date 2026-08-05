@@ -29091,12 +29091,14 @@
             scrollToNotice(e) {
                 var t = document.getElementById("notice-".concat(e));
                 if (t) {
-                    var n = document.getElementById("page-header")
-                      , r = n ? n.getBoundingClientRect().height : 0
-                      , o = t.getBoundingClientRect().top + (window.pageYOffset || document.documentElement.scrollTop) - r - 16;
-                    window.scrollTo({
-                        top: Math.max(0, o),
-                        behavior: "smooth"
+                    window.requestAnimationFrame(()=>{
+                        var e = document.getElementById("page-header")
+                          , r = e ? e.getBoundingClientRect().height : 0
+                          , o = t.getBoundingClientRect().top + (window.pageYOffset || document.documentElement.scrollTop) - r - 16;
+                        window.scrollTo({
+                            top: Math.max(0, o),
+                            behavior: "smooth"
+                        })
                     })
                 }
             }
@@ -29111,7 +29113,6 @@
             renderNotice(e) {
                 var n = u()(1e3 * e.created_at);
                 return o.a.createElement("article", {
-                    id: "notice-".concat(e.id),
                     className: "notice-timeline-item".concat(e.is_pinned ? " is-pinned" : "").concat(e.is_latest ? " is-latest" : ""),
                     key: e.id
                 }, o.a.createElement("time", {
@@ -29122,6 +29123,7 @@
                 }), o.a.createElement("div", {
                     className: "block block-rounded notice-timeline-card mb-0"
                 }, o.a.createElement("header", {
+                    id: "notice-".concat(e.id),
                     className: "block-header block-header-default notice-card-header"
                 }, o.a.createElement("h2", {
                     className: "block-title"
@@ -29188,7 +29190,7 @@
                     })
                 }), o.a.createElement("main", {
                     id: "main-container",
-                    className: "notice-page"
+                    className: "notice-page".concat(this.state.targetId ? " has-target" : "")
                 }, o.a.createElement("div", {
                     className: "content content-full"
                 }, a ? this.renderLoading() : 0 === t.length ? o.a.createElement("div", {
