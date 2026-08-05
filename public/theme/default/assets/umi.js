@@ -30802,7 +30802,15 @@
           , h = n("tI4l")
           , m = n("Y2fQ")
           , v = n("yWgo")
-          , y = n("ArA+");
+          , y = n("ArA+")
+          , b = {
+            month_price: 1,
+            quarter_price: 3,
+            half_year_price: 6,
+            year_price: 12,
+            two_year_price: 24,
+            three_year_price: 36
+        };
         class g extends f.a.Component {
             componentDidMount() {
                 this.props.dispatch({
@@ -30814,6 +30822,22 @@
                 }),
                 this.props.dispatch({
                     type: "order/fetch"
+                })
+            }
+            getPeriodUnitPrice(e) {
+                var t = b[e]
+                  , n = this.props.plan.plan
+                  , r = Number(n[e]);
+                if (!t || null === n[e] || !isFinite(r) || r < 0)
+                    return null;
+                return (r / t / 100).toFixed(2)
+            }
+            selectPeriod(e) {
+                this.props.dispatch({
+                    type: "plan/setState",
+                    payload: {
+                        selectPeriod: e
+                    }
                 })
             }
             componentWillUnmount() {
@@ -31011,32 +31035,43 @@
                 })), f.a.createElement("div", {
                     className: "block-options"
                 })), f.a.createElement("div", {
-                    className: "block-content p-0"
+                    className: "block-content v2board-period-grid",
+                    role: "radiogroup",
+                    "aria-label": Object(m["formatMessage"])({
+                        id: "\u4ed8\u6b3e\u5468\u671f"
+                    })
                 }, Object.keys(h["a"].periodText).map(e=>{
+                    var r = this.getPeriodUnitPrice(e);
                     if ("reset_price" !== e)
                         return null !== t[e] ? f.a.createElement("div", {
-                            onClick: ()=>this.props.dispatch({
-                                type: "plan/setState",
-                                payload: {
-                                    selectPeriod: e
-                                }
-                            }),
-                            className: "v2board-select ".concat(n === e && "active border-primary")
+                            key: e,
+                            role: "radio",
+                            "aria-checked": n === e,
+                            tabIndex: 0,
+                            onClick: ()=>this.selectPeriod(e),
+                            onKeyDown: t=>{
+                                ("Enter" === t.key || " " === t.key) && (t.preventDefault(),
+                                this.selectPeriod(e))
+                            },
+                            className: "v2board-period-card".concat(n === e ? " is-selected" : "")
                         }, f.a.createElement("div", {
-                            style: {
-                                flex: 1
-                            }
-                        }, f.a.createElement(a["a"], {
-                            className: "v2board-select-radio",
-                            checked: n === e
-                        }), h["a"].periodText[e] && h["a"].periodText[e]()), f.a.createElement("div", {
-                            style: {
-                                flex: 1,
-                                textAlign: "right"
-                            }
+                            className: "v2board-period-card-header"
                         }, f.a.createElement("span", {
-                            className: "price"
-                        }, d.currency_symbol, (t[e] / 100).toFixed(2)))) : void 0
+                            className: "v2board-period-card-title"
+                        }, h["a"].periodText[e] && h["a"].periodText[e]()), n === e && f.a.createElement("span", {
+                            className: "v2board-period-card-check",
+                            "aria-hidden": !0
+                        }, f.a.createElement("i", {
+                            className: "fa fa-check"
+                        }))), f.a.createElement("div", {
+                            className: "v2board-period-card-price"
+                        }, d.currency_symbol, (t[e] / 100).toFixed(2)), r && f.a.createElement("span", {
+                            className: "v2board-period-card-unit"
+                        }, f.a.createElement("span", {
+                            className: "v2board-period-card-unit-label"
+                        }, "\u6708\u5747"), f.a.createElement("strong", {
+                            className: "v2board-period-card-unit-value"
+                        }, d.currency_symbol, r))) : void 0
                 }
                 )))), f.a.createElement("div", {
                     className: "col-md-4 col-sm-12"
