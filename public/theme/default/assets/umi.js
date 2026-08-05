@@ -29088,18 +29088,39 @@
                 })
                 )
             }
+            alignNotice(e, t) {
+                var n = document.getElementById("page-header")
+                  , r = n ? n.getBoundingClientRect().height : 0
+                  , o = e.getBoundingClientRect().top + (window.pageYOffset || document.documentElement.scrollTop) - r - 16;
+                window.scrollTo({
+                    top: Math.max(0, o),
+                    behavior: t
+                })
+            }
             scrollToNotice(e) {
                 var t = document.getElementById("notice-".concat(e));
                 if (t) {
-                    window.requestAnimationFrame(()=>{
-                        var e = document.getElementById("page-header")
-                          , r = e ? e.getBoundingClientRect().height : 0
-                          , o = t.getBoundingClientRect().top + (window.pageYOffset || document.documentElement.scrollTop) - r - 16;
-                        window.scrollTo({
-                            top: Math.max(0, o),
-                            behavior: "smooth"
-                        })
-                    })
+                    var n = Array.prototype.slice.call(document.querySelectorAll(".notice-timeline-cover")).filter(e=>!e.complete)
+                      , r = !1
+                      , o = 0
+                      , i = ()=>{
+                        if (!r) {
+                            r = !0,
+                            n.forEach(e=>{
+                                e.removeEventListener("load", a),
+                                e.removeEventListener("error", a)
+                            }),
+                            window.requestAnimationFrame(()=>window.requestAnimationFrame(()=>this.alignNotice(t, "smooth")))
+                        }
+                    }
+                      , a = ()=>{
+                        r || (++o >= n.length && i())
+                    };
+                    n.forEach(e=>{
+                        e.addEventListener("load", a),
+                        e.addEventListener("error", a)
+                    }),
+                    n.length ? window.setTimeout(i, 1200) : i()
                 }
             }
             renderLoading() {
@@ -29144,7 +29165,7 @@
                     className: "notice-timeline-cover",
                     src: e.img_url,
                     alt: "",
-                    loading: "lazy",
+                    loading: this.state.targetId ? "eager" : "lazy",
                     referrerPolicy: "no-referrer"
                 }) : null, o.a.createElement("div", {
                     className: "block-content notice-markdown ticket-markdown custom-html-style",
