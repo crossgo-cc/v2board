@@ -5807,6 +5807,15 @@
                     defaultValue: t.tos_url,
                     onChange: e=>this.set("site", "tos_url", e.target.value)
                 })), f.a.createElement(m, {
+                    title: "\u9690\u79c1\u653f\u7b56URL",
+                    description: "\u7528\u4e8e\u8df3\u8f6c\u5230\u9690\u79c1\u653f\u7b56"
+                }, f.a.createElement("input", {
+                    type: "text",
+                    className: "form-control",
+                    placeholder: "\u8bf7\u8f93\u5165\u9690\u79c1\u653f\u7b56URL\uff0c\u672b\u5c3e\u4e0d\u8981/",
+                    defaultValue: t.privacy_url,
+                    onChange: e=>this.set("site", "privacy_url", e.target.value)
+                })), f.a.createElement(m, {
                     title: "\u505c\u6b62\u65b0\u7528\u6237\u6ce8\u518c",
                     description: "\u5f00\u542f\u540e\u4efb\u4f55\u4eba\u90fd\u5c06\u65e0\u6cd5\u8fdb\u884c\u6ce8\u518c\u3002"
                 }, f.a.createElement(l["a"], {

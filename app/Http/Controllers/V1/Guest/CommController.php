@@ -13,6 +13,7 @@ class CommController extends Controller
         return response([
             'data' => [
                 'app_name' => config('v2board.app_name', 'V2Board'),
+                'privacy_url' => config('v2board.privacy_url'),
                 'tos_url' => config('v2board.tos_url'),
                 'is_email_verify' => (int)config('v2board.email_verify', 0) ? 1 : 0,
                 'is_invite_force' => (int)config('v2board.invite_force', 0) ? 1 : 0,

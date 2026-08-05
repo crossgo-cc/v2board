@@ -111,6 +111,7 @@ class ConfigController extends Controller
                 'subscribe_path' => config('v2board.subscribe_path'),
                 'try_out_plan_id' => (int)config('v2board.try_out_plan_id', 0),
                 'try_out_hour' => (int)config('v2board.try_out_hour', 1),
+                'privacy_url' => config('v2board.privacy_url'),
                 'tos_url' => config('v2board.tos_url'),
                 'currency' => config('v2board.currency', 'CNY'),
                 'currency_symbol' => config('v2board.currency_symbol', '¥'),

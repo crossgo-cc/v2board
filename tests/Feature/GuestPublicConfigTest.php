@@ -10,6 +10,8 @@ class GuestPublicConfigTest extends TestCase
     {
         config([
             'v2board.app_name' => 'Example',
+            'v2board.privacy_url' => 'https://example.com/privacy',
+            'v2board.tos_url' => 'https://example.com/terms',
             'v2board.stop_register' => 1,
             'v2board.try_out_plan_id' => 3,
             'v2board.try_out_hour' => 12,
@@ -23,6 +25,8 @@ class GuestPublicConfigTest extends TestCase
         $response
             ->assertOk()
             ->assertJsonPath('data.app_name', 'Example')
+            ->assertJsonPath('data.privacy_url', 'https://example.com/privacy')
+            ->assertJsonPath('data.tos_url', 'https://example.com/terms')
             ->assertJsonPath('data.is_register', 0)
             ->assertJsonPath('data.is_try_out', 1)
             ->assertJsonPath('data.try_out_hour', 12)

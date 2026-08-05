@@ -33370,7 +33370,7 @@
             }
             register(e) {
                 var t = this.props.guest.commConfig;
-                !t.tos_url || this.state.tosChecked ? this.refs.password.value === this.refs.repassword.value ? this.props.dispatch({
+                (!t.tos_url || this.state.tosChecked) && (!t.privacy_url || this.state.privacyChecked) ? this.refs.password.value === this.refs.repassword.value ? this.props.dispatch({
                     type: "passport/register",
                     email: this.getEmail(),
                     password: this.refs.password.value,
@@ -33384,7 +33384,7 @@
                 })) : Object(p["r"])("error", Object(l["formatMessage"])({
                     id: "\u8bf7\u6c42\u5931\u8d25"
                 }), Object(l["formatMessage"])({
-                    id: "\u8bf7\u540c\u610f\u670d\u52a1\u6761\u6b3e"
+                    id: t.tos_url && t.privacy_url ? "\u8bf7\u540c\u610f\u670d\u52a1\u6761\u6b3e\u548c\u9690\u79c1\u653f\u7b56" : t.tos_url ? "\u8bf7\u540c\u610f\u670d\u52a1\u6761\u6b3e" : "\u8bf7\u540c\u610f\u9690\u79c1\u653f\u7b56"
                 }))
             }
             render() {
@@ -33548,13 +33548,37 @@
                             url: c.tos_url
                         })
                     }
+                })))), c.privacy_url && i.a.createElement("div", {
+                    className: "form-group"
+                }, i.a.createElement("div", {
+                    className: "custom-control custom-checkbox custom-control-primary"
+                }, i.a.createElement("input", {
+                    type: "checkbox",
+                    className: "custom-control-input",
+                    checked: this.state.privacyChecked,
+                    style: {
+                        zIndex: 1e3
+                    },
+                    onClick: ()=>this.setState({
+                        privacyChecked: !this.state.privacyChecked
+                    })
+                }), i.a.createElement("label", {
+                    className: "custom-control-label"
+                }, i.a.createElement("div", {
+                    dangerouslySetInnerHTML: {
+                        __html: Object(l["formatMessage"])({
+                            id: '\u6211\u5df2\u9605\u8bfb\u5e76\u540c\u610f <a target="_blank" href="{url}">\u9690\u79c1\u653f\u7b56</a>'
+                        }, {
+                            url: c.privacy_url
+                        })
+                    }
                 })))), i.a.createElement("div", {
                     className: "form-group mb-0"
                 }, i.a.createElement(u["a"], {
                     visible: c.is_recaptcha,
                     callback: e=>this.register(e)
                 }, i.a.createElement("button", {
-                    disabled: n || c.tos_url && !this.state.tosChecked,
+                    disabled: n || c.tos_url && !this.state.tosChecked || c.privacy_url && !this.state.privacyChecked,
                     type: "submit",
                     className: "btn btn-block btn-primary font-w400",
                     onClick: ()=>this.register()
