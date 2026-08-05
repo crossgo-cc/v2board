@@ -1121,10 +1121,10 @@
 
 .v2board-period-card {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    grid-template-rows: auto auto;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    grid-template-rows: auto;
     align-items: center;
-    column-gap: 1rem;
+    column-gap: 0.875rem;
     min-width: 0;
     padding: 1.25rem;
     color: #495057;
@@ -1152,7 +1152,7 @@
 
 .v2board-period-card-header {
     grid-column: 1;
-    grid-row: 1 / span 2;
+    grid-row: 1;
     display: flex;
     align-items: center;
     min-width: 0;
@@ -1196,17 +1196,18 @@
 }
 
 .v2board-period-card-unit {
-    grid-column: 2;
-    grid-row: 2;
+    grid-column: 3;
+    grid-row: 1;
     justify-self: end;
     display: inline-flex;
     align-items: baseline;
     gap: 0.35rem;
-    padding: 0;
-    margin-top: 0.2rem;
+    padding: 0 0 0 0.875rem;
+    margin-top: 0;
     color: #6c757d;
     background: transparent;
     border: 0;
+    border-left: 1px solid #e8e8e8;
     border-radius: 0;
     font-size: 0.75rem;
     font-weight: 400;
@@ -1228,7 +1229,21 @@
 
 @media (max-width: 767.98px) {
     .v2board-period-card {
+        grid-template-columns: minmax(0, 1fr) auto;
+        grid-template-rows: auto auto;
         padding: 0.9375rem 1.25rem;
+    }
+
+    .v2board-period-card-header {
+        grid-row: 1 / span 2;
+    }
+
+    .v2board-period-card-unit {
+        grid-column: 2;
+        grid-row: 2;
+        padding-left: 0;
+        margin-top: 0.2rem;
+        border-left: 0;
     }
 }
 
