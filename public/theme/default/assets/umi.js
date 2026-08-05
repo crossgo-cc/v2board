@@ -29090,10 +29090,15 @@
             }
             scrollToNotice(e) {
                 var t = document.getElementById("notice-".concat(e));
-                t && t.scrollIntoView({
-                    behavior: "smooth",
-                    block: "center"
-                })
+                if (t) {
+                    var n = document.getElementById("page-header")
+                      , r = n ? n.getBoundingClientRect().height : 0
+                      , o = t.getBoundingClientRect().top + (window.pageYOffset || document.documentElement.scrollTop) - r - 16;
+                    window.scrollTo({
+                        top: Math.max(0, o),
+                        behavior: "smooth"
+                    })
+                }
             }
             renderLoading() {
                 return o.a.createElement("div", {
