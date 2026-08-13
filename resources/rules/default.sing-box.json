@@ -6,26 +6,76 @@
                 "tag": "local"
             },
             {
-                "type": "udp",
+                "type": "https",
                 "tag": "remote",
-                "server": "1.1.1.1"
+                "server": "cloudflare-dns.com",
+                "path": "/dns-query",
+                "detour": "节点选择",
+                "domain_resolver": "local"
             },
             {
-                "type": "udp",
+                "type": "https",
                 "tag": "cn",
-                "server": "223.5.5.5"
+                "server": "dns.alidns.com",
+                "path": "/dns-query",
+                "domain_resolver": "local"
+            },
+            {
+                "type": "fakeip",
+                "tag": "fakeip",
+                "inet4_range": "198.18.0.0/15",
+                "inet6_range": "fc00::/18"
             }
         ],
         "rules": [
             {
+                "domain_suffix": [
+                    ".lan",
+                    ".local",
+                    ".localhost"
+                ],
+                "action": "route",
+                "server": "local"
+            },
+            {
+                "domain_regex": [
+                    "^time\\..+\\.com$",
+                    "^ntp\\..+\\.com$"
+                ],
+                "action": "route",
+                "server": "local"
+            },
+            {
                 "rule_set": [
-                    "geosite-cn"
+                    "geosite-private",
+                    "geosite-cn",
+                    "geosite-icloud",
+                    "geosite-apple"
                 ],
                 "action": "route",
                 "server": "cn"
+            },
+            {
+                "query_type": [
+                    "A",
+                    "AAAA"
+                ],
+                "action": "route",
+                "server": "fakeip"
+            },
+            {
+                "rule_set": [
+                    "geosite-google",
+                    "geosite-gfw",
+                    "geosite-tld-!cn",
+                    "geosite-geolocation-!cn"
+                ],
+                "action": "route",
+                "server": "remote"
             }
         ],
-        "final": "remote"
+        "final": "remote",
+        "independent_cache": true
     },
     "inbounds": [
         {
@@ -94,11 +144,29 @@
             },
             {
                 "rule_set": [
-                    "category-ads-all"
+                    "geosite-category-ads-all"
                 ],
                 "action": "reject",
                 "method": "default",
                 "no_drop": false
+            },
+            {
+                "domain": [
+                    "www.clarity.ms",
+                    "c.clarity.ms",
+                    "clash.razord.top",
+                    "yacd.haishan.me"
+                ],
+                "action": "route",
+                "outbound": "DIRECT"
+            },
+            {
+                "domain_suffix": [
+                    ".lan",
+                    ".local"
+                ],
+                "action": "route",
+                "outbound": "DIRECT"
             },
             {
                 "ip_is_private": true,
@@ -116,8 +184,38 @@
                 "outbound": "节点选择"
             },
             {
+                "ip_cidr": [
+                    "198.18.0.0/15",
+                    "fc00::/18"
+                ],
+                "action": "route",
+                "outbound": "节点选择"
+            },
+            {
                 "rule_set": [
-                    "geosite-cn","geoip-cn"
+                    "geosite-private",
+                    "geosite-icloud",
+                    "geosite-apple"
+                ],
+                "action": "route",
+                "outbound": "DIRECT"
+            },
+            {
+                "rule_set": [
+                    "geosite-google",
+                    "geosite-gfw",
+                    "geosite-tld-!cn",
+                    "geosite-geolocation-!cn",
+                    "geoip-telegram"
+                ],
+                "action": "route",
+                "outbound": "节点选择"
+            },
+            {
+                "rule_set": [
+                    "geosite-cn",
+                    "geoip-cn",
+                    "geoip-private"
                 ],
                 "action": "route",
                 "outbound": "DIRECT"
@@ -130,38 +228,108 @@
         },
         "rule_set": [
             {
-                "tag": "geosite-geolocation-!cn",
+                "tag": "geosite-category-ads-all",
                 "type": "remote",
                 "format": "binary",
-                "url": "https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-geolocation-!cn.srs",
+                "url": "https://cdn.jsdmirror.com/gh/MetaCubeX/meta-rules-dat@sing/geo/geosite/category-ads-all.srs",
+                "update_interval": "24h",
                 "download_detour": "节点选择"
             },
             {
-                "tag": "geoip-cn",
+                "tag": "geosite-private",
                 "type": "remote",
                 "format": "binary",
-                "url": "https://raw.githubusercontent.com/Loyalsoldier/geoip/release/srs/cn.srs",
+                "url": "https://cdn.jsdmirror.com/gh/MetaCubeX/meta-rules-dat@sing/geo/geosite/private.srs",
+                "update_interval": "24h",
+                "download_detour": "节点选择"
+            },
+            {
+                "tag": "geosite-icloud",
+                "type": "remote",
+                "format": "binary",
+                "url": "https://cdn.jsdmirror.com/gh/MetaCubeX/meta-rules-dat@sing/geo/geosite/icloud.srs",
+                "update_interval": "24h",
+                "download_detour": "节点选择"
+            },
+            {
+                "tag": "geosite-apple",
+                "type": "remote",
+                "format": "binary",
+                "url": "https://cdn.jsdmirror.com/gh/MetaCubeX/meta-rules-dat@sing/geo/geosite/apple.srs",
+                "update_interval": "24h",
+                "download_detour": "节点选择"
+            },
+            {
+                "tag": "geosite-google",
+                "type": "remote",
+                "format": "binary",
+                "url": "https://cdn.jsdmirror.com/gh/MetaCubeX/meta-rules-dat@sing/geo/geosite/google.srs",
+                "update_interval": "24h",
+                "download_detour": "节点选择"
+            },
+            {
+                "tag": "geosite-gfw",
+                "type": "remote",
+                "format": "binary",
+                "url": "https://cdn.jsdmirror.com/gh/MetaCubeX/meta-rules-dat@sing/geo/geosite/gfw.srs",
+                "update_interval": "24h",
+                "download_detour": "节点选择"
+            },
+            {
+                "tag": "geosite-tld-!cn",
+                "type": "remote",
+                "format": "binary",
+                "url": "https://cdn.jsdmirror.com/gh/MetaCubeX/meta-rules-dat@sing/geo/geosite/tld-!cn.srs",
+                "update_interval": "24h",
+                "download_detour": "节点选择"
+            },
+            {
+                "tag": "geosite-geolocation-!cn",
+                "type": "remote",
+                "format": "binary",
+                "url": "https://cdn.jsdmirror.com/gh/MetaCubeX/meta-rules-dat@sing/geo/geosite/geolocation-!cn.srs",
+                "update_interval": "24h",
                 "download_detour": "节点选择"
             },
             {
                 "tag": "geosite-cn",
                 "type": "remote",
                 "format": "binary",
-                "url": "https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-cn.srs",
+                "url": "https://cdn.jsdmirror.com/gh/MetaCubeX/meta-rules-dat@sing/geo/geosite/cn.srs",
+                "update_interval": "24h",
                 "download_detour": "节点选择"
             },
             {
-                "tag": "category-ads-all",
+                "tag": "geoip-cn",
                 "type": "remote",
                 "format": "binary",
-                "url": "https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-category-ads-all.srs",
+                "url": "https://cdn.jsdmirror.com/gh/MetaCubeX/meta-rules-dat@sing/geo/geoip/cn.srs",
+                "update_interval": "24h",
+                "download_detour": "节点选择"
+            },
+            {
+                "tag": "geoip-private",
+                "type": "remote",
+                "format": "binary",
+                "url": "https://cdn.jsdmirror.com/gh/MetaCubeX/meta-rules-dat@sing/geo/geoip/private.srs",
+                "update_interval": "24h",
+                "download_detour": "节点选择"
+            },
+            {
+                "tag": "geoip-telegram",
+                "type": "remote",
+                "format": "binary",
+                "url": "https://cdn.jsdmirror.com/gh/MetaCubeX/meta-rules-dat@sing/geo/geoip/telegram.srs",
+                "update_interval": "24h",
                 "download_detour": "节点选择"
             }
         ]
     },
     "experimental": {
         "cache_file": {
-            "enabled": true
+            "enabled": true,
+            "store_fakeip": true,
+            "store_rdrc": true
         },
         "clash_api": {
             "default_mode": "海外代理",
