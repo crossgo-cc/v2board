@@ -356,7 +356,6 @@ DROP TABLE IF EXISTS `v2_user`;
 CREATE TABLE `v2_user` (
                            `id` int(11) NOT NULL AUTO_INCREMENT,
                            `invite_user_id` int(11) DEFAULT NULL,
-                           `telegram_id` bigint(20) DEFAULT NULL,
                            `email` varchar(64) NOT NULL,
                            `password` varchar(64) NOT NULL,
                            `password_algo` char(10) DEFAULT NULL,

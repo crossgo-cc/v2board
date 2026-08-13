@@ -5713,12 +5713,9 @@
                   , h = e.tabs
                   , p = e.fetchLoading
                   , g = e.emailTemplate
-                  , v = (e.themeTemplate,
-                e.email)
-                  , y = e.telegram
-                  , b = e.setTelegramWebhookLoading
-                  , w = e.app
-                  , x = e.testSendMailLoading
+                   , v = (e.themeTemplate,
+                 e.email)
+                   , x = e.testSendMailLoading
                   , _ = e.safe
                   , E = this.props.plan.plans;
                 return f.a.createElement(d["a"], i()({}, this.props, {
@@ -6553,110 +6550,7 @@
                     onClick: ()=>this.props.dispatch({
                         type: "config/testSendMail"
                     })
-                }, "\u53d1\u9001\u6d4b\u8bd5\u90ae\u4ef6")))), f.a.createElement(s["a"].TabPane, {
-                    tab: "Telegram",
-                    key: "telegram"
-                }, f.a.createElement("div", {
-                    className: ""
-                }, f.a.createElement(m, {
-                    title: "\u673a\u5668\u4ebaToken",
-                    description: "\u8bf7\u8f93\u5165\u7531Botfather\u63d0\u4f9b\u7684token\u3002"
-                }, f.a.createElement("input", {
-                    type: "text",
-                    className: "form-control",
-                    placeholder: "0000000000:xxxxxxxxx_xxxxxxxxxxxxxxx",
-                    defaultValue: y.telegram_bot_token,
-                    onChange: e=>this.set("telegram", "telegram_bot_token", e.target.value)
-                })), y.telegram_bot_token && f.a.createElement(m, {
-                    title: "\u8bbe\u7f6eWebhook",
-                    description: "\u5bf9\u673a\u5668\u4eba\u8fdb\u884cWebhook\u8bbe\u7f6e\uff0c\u4e0d\u8bbe\u7f6e\u5c06\u65e0\u6cd5\u6536\u5230Telegram\u901a\u77e5\u3002"
-                }, f.a.createElement(o["a"], {
-                    type: "primary",
-                    onClick: ()=>{
-                        this.props.dispatch({
-                            type: "config/setTelegramWebhook"
-                        })
-                    }
-                    ,
-                    loading: b,
-                    disabled: b
-                }, "\u4e00\u952e\u8bbe\u7f6e")), f.a.createElement(m, {
-                    title: "\u5f00\u542f\u673a\u5668\u4eba\u901a\u77e5",
-                    description: "\u5f00\u542f\u540ebot\u5c06\u4f1a\u5bf9\u7ed1\u5b9a\u4e86telegram\u7684\u7ba1\u7406\u5458\u548c\u7528\u6237\u8fdb\u884c\u57fa\u7840\u901a\u77e5\u3002"
-                }, f.a.createElement(l["a"], {
-                    checked: parseInt(y.telegram_bot_enable),
-                    onChange: e=>this.set("telegram", "telegram_bot_enable", e ? 1 : 0)
-                })), f.a.createElement(m, {
-                    title: "\u7fa4\u7ec4\u5730\u5740",
-                    description: "\u586b\u5199\u540e\u5c06\u4f1a\u5728\u7528\u6237\u7aef\u5c55\u793a\uff0c\u6216\u8005\u88ab\u7528\u4e8e\u9700\u8981\u7684\u5730\u65b9\u3002"
-                }, f.a.createElement("input", {
-                    type: "text",
-                    className: "form-control",
-                    placeholder: "https://t.me/xxxxxx",
-                    defaultValue: y.telegram_discuss_link,
-                    onChange: e=>this.set("telegram", "telegram_discuss_link", e.target.value)
-                })))), f.a.createElement(s["a"].TabPane, {
-                    tab: "APP",
-                    key: "app"
-                }, f.a.createElement("div", {
-                    className: "block-content"
-                }, f.a.createElement("div", {
-                    className: "row"
-                }, f.a.createElement("div", {
-                    className: "col-lg-12"
-                }, f.a.createElement("div", {
-                    className: "alert alert-warning",
-                    role: "alert"
-                }, f.a.createElement("p", {
-                    className: "mb-0"
-                }, "\u7528\u4e8e\u81ea\u6709\u5ba2\u6237\u7aef(APP)\u7684\u7248\u672c\u7ba1\u7406\u53ca\u66f4\u65b0"))))), f.a.createElement("div", {
-                    className: ""
-                }, f.a.createElement(m, {
-                    title: "Windows",
-                    description: "Windows\u7aef\u7248\u672c\u53f7\u53ca\u4e0b\u8f7d\u5730\u5740"
-                }, f.a.createElement("input", {
-                    type: "text",
-                    className: "form-control",
-                    placeholder: "1.0.0",
-                    defaultValue: w.windows_version,
-                    onChange: e=>this.set("app", "windows_version", e.target.value)
-                }), f.a.createElement("input", {
-                    type: "text",
-                    className: "form-control mt-1",
-                    placeholder: "https://xxxx.com/xxx.exe",
-                    defaultValue: w.windows_download_url,
-                    onChange: e=>this.set("app", "windows_download_url", e.target.value)
-                })), f.a.createElement(m, {
-                    title: "macOS",
-                    description: "macOS\u7aef\u7248\u672c\u53f7\u53ca\u4e0b\u8f7d\u5730\u5740"
-                }, f.a.createElement("input", {
-                    type: "text",
-                    className: "form-control",
-                    placeholder: "1.0.0",
-                    defaultValue: w.macos_version,
-                    onChange: e=>this.set("app", "macos_version", e.target.value)
-                }), f.a.createElement("input", {
-                    type: "text",
-                    className: "form-control mt-1",
-                    placeholder: "https://xxxx.com/xxx.dmg",
-                    defaultValue: w.macos_download_url,
-                    onChange: e=>this.set("app", "macos_download_url", e.target.value)
-                })), f.a.createElement(m, {
-                    title: "Android",
-                    description: "Android\u7aef\u7248\u672c\u53f7\u53ca\u4e0b\u8f7d\u5730\u5740"
-                }, f.a.createElement("input", {
-                    type: "text",
-                    className: "form-control",
-                    placeholder: "1.0.0",
-                    defaultValue: w.android_version,
-                    onChange: e=>this.set("app", "android_version", e.target.value)
-                }), f.a.createElement("input", {
-                    type: "text",
-                    className: "form-control mt-1",
-                    placeholder: "https://xxxx.com/xxx.apk",
-                    defaultValue: w.android_download_url,
-                    onChange: e=>this.set("app", "android_download_url", e.target.value)
-                })))))))
+                }, "\u53d1\u9001\u6d4b\u8bd5\u90ae\u4ef6")))))))
             }
         }
         t["default"] = Object(p["c"])(e=>{
@@ -16325,15 +16219,12 @@
             subscribe: {},
             frontend: {},
             server: {},
-            email: {},
-            telegram: {},
-            app: {},
+             email: {},
             safe: {},
             tabs: "site",
             fetchLoading: !1,
             emailTemplate: [],
-            themeTemplate: [],
-            setTelegramWebhookLoading: !1
+             themeTemplate: []
         };
         t["default"] = {
             name: "config",
@@ -16491,52 +16382,6 @@
                                         }
                                     });
                                 case 7:
-                                case "end":
-                                    return e.stop()
-                                }
-                        }, e)
-                    })()
-                },
-                setTelegramWebhook(e, t) {
-                    var n = e.token
-                      , r = t.put;
-                    t.select;
-                    return u().mark(function e() {
-                        var t;
-                        return u().wrap(function(e) {
-                            while (1)
-                                switch (e.prev = e.next) {
-                                case 0:
-                                    return e.next = 2,
-                                    r({
-                                        type: "setState",
-                                        payload: {
-                                            setTelegramWebhookLoading: !0
-                                        }
-                                    });
-                                case 2:
-                                    return e.next = 4,
-                                    Object(c["b"])("/" + window.settings.secure_path + "/config/setTelegramWebhook", {
-                                        telegram_bot_token: n
-                                    });
-                                case 4:
-                                    return t = e.sent,
-                                    e.next = 7,
-                                    r({
-                                        type: "setState",
-                                        payload: {
-                                            setTelegramWebhookLoading: !1
-                                        }
-                                    });
-                                case 7:
-                                    if (200 === t.code) {
-                                        e.next = 9;
-                                        break
-                                    }
-                                    return e.abrupt("return");
-                                case 9:
-                                    i["a"].success("webhook \u8bbe\u7f6e\u6210\u529f");
-                                case 10:
                                 case "end":
                                     return e.stop()
                                 }
@@ -29693,7 +29538,6 @@
                                 order_handle: "\u8ba2\u5355\u961f\u5217",
                                 send_email: "\u90ae\u4ef6\u961f\u5217",
                                 send_email_mass: "\u90ae\u4ef6\u7fa4\u53d1\u961f\u5217",
-                                send_telegram: "Telegram\u6d88\u606f\u961f\u5217",
                                 stat: "\u7edf\u8ba1\u961f\u5217",
                                 traffic_fetch: "\u6d41\u91cf\u6d88\u8d39\u961f\u5217"
                             };

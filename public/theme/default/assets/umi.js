@@ -7503,7 +7503,7 @@
             e
         }
         t["default"] = {
-            name: "telegram",
+            name: "disabled",
             state: {
                 botInfo: {}
             },
@@ -7523,7 +7523,7 @@
                                 case 0:
                                     return n = t.put,
                                     e.next = 3,
-                                    Object(i["a"])("/user/telegram/getBotInfo");
+                                    Object(i["a"])("/disabled");
                                 case 3:
                                     if (r = e.sent,
                                     200 === r.code) {
@@ -15671,11 +15671,8 @@
           , l = n.n(u)
           , f = n("L12J")
           , p = n("/MKj")
-          , d = n("t3Un")
-          , h = (n("E3Iv"),
-        n("Td40"),
-        n("yxnn"))
-          , m = n("Y2fQ");
+           , d = n("t3Un")
+           , m = n("Y2fQ");
         n("v32e");
         class v extends l.a.Component {
             componentDidMount() {
@@ -15731,39 +15728,6 @@
                             })),
                             e.fetchData())
                         })
-                    },
-                    onCancel() {},
-                    okText: Object(m["formatMessage"])({
-                        id: "\u786e\u8ba4"
-                    }),
-                    cancelText: Object(m["formatMessage"])({
-                        id: "\u53d6\u6d88"
-                    })
-                })
-            }
-            unbindTelegram() {
-                var e = this;
-                s["a"].confirm({
-                    title: Object(m["formatMessage"])({
-                        id: "\u786e\u5b9a\u8981\u89e3\u9664\u7ed1\u5b9aTelegram\uff1f"
-                    }),
-                    content: Object(m["formatMessage"])({
-                        id: "\u5982\u679c\u4f60\u7684Telegram ID\u5df2\u5931\u6548\u53ef\u4ee5\u8fdb\u884c\u6b64\u64cd\u4f5c\u3002\u91cd\u7f6e\u540e\u4f60\u9700\u8981\u91cd\u65b0\u8fdb\u884c\u7ed1\u5b9a\u3002"
-                    }),
-                    onOk() {
-                        Object(d["a"])("/user/unbindTelegram").then(t=>{
-                            if(200 === t.code) {
-                                c["a"].success(Object(m["formatMessage"])({
-                                    id: "\u91cd\u7f6e\u6210\u529f"
-                                }));
-                                e.props.dispatch({
-                                    type: "user/getUserInfo"
-                                });
-                                e.props.dispatch({
-                                    type: "user/getSubscribe"
-                                });
-                            }
-                        });
                     },
                     onCancel() {},
                     okText: Object(m["formatMessage"])({
@@ -16052,57 +16016,7 @@
                     className: "row mb-3 mb-md-0"
                 }, l.a.createElement("div", {
                     className: "col-md-12"
-                }, r.is_telegram ? (!t.telegram_id ? l.a.createElement("div", {
-                    className: "block block-rounded bind_telegram"
                 }, l.a.createElement("div", {
-                    className: "block-header block-header-default"
-                }, l.a.createElement("h3", {
-                    className: "block-title"
-                }, Object(m["formatMessage"])({
-                    id: "\u7ed1\u5b9aTelegram"
-                })), l.a.createElement("div", {
-                    className: "block-options"
-                }, l.a.createElement(h["a"], null, l.a.createElement("button", {
-                    type: "button",
-                    className: "btn btn-primary btn-sm btn-primary btn-rounded px-3"
-                }, Object(m["formatMessage"])({
-                    id: "\u7acb\u5373\u5f00\u59cb"
-                })))))) : l.a.createElement("div", {
-                    className: "block block-rounded unbind_telegram"
-                }, l.a.createElement("div", {
-                    className: "block-header block-header-default"
-                }, l.a.createElement("h3", {
-                    className: "block-title"
-                }, Object(m["formatMessage"])({
-                    id: "\u7ed1\u5b9aTelegram"
-                })), l.a.createElement("div", {
-                    className: "block-options"
-                }, l.a.createElement(a["a"], {
-                    type: "danger",
-                    onClick: ()=>this.unbindTelegram()
-                }, Object(m["formatMessage"])({
-                    id: "\u89e3\u9664\u7ed1\u5b9a"
-                })))), l.a.createElement("div", {
-                    className: "block-options"
-                }, Object(m["formatMessage"])({
-                    id: "Telegram ID: " + String(t.telegram_id)
-                })))) : l.a.createElement(l.a.Fragment, null), r.telegram_discuss_link ? l.a.createElement("div", {
-                    className: "block block-rounded join_telegram_disscuss"
-                }, l.a.createElement("div", {
-                    className: "block-header block-header-default"
-                }, l.a.createElement("h3", {
-                    className: "block-title"
-                }, Object(m["formatMessage"])({
-                    id: "Telegram \u8ba8\u8bba\u7ec4"
-                })), l.a.createElement("div", {
-                    className: "block-options"
-                }, l.a.createElement("a", {
-                    href: r.telegram_discuss_link,
-                    target: "_blank",
-                    className: "btn btn-primary btn-sm btn-primary btn-rounded px-3"
-                }, Object(m["formatMessage"])({
-                    id: "\u7acb\u5373\u52a0\u5165"
-                }))))) : l.a.createElement(l.a.Fragment, null), l.a.createElement("div", {
                     className: "block block-rounded "
                 }, l.a.createElement("div", {
                     className: "block-header block-header-default"
@@ -18600,8 +18514,7 @@
           , b = n("Y2fQ")
           , w = n("wd/R")
           , x = n.n(w)
-          , O = (n("yxnn"),
-        n("v32e"))
+           , O = n("v32e")
           , E = n("ArA+");
         function _(e) {
             if ("function" !== typeof WeakMap)
@@ -41751,8 +41664,7 @@
                 changePasswordLoading: !1,
                 resetSecurityLoading: !1,
                 newPeriodLoading: !1,
-                unbindTelegramLoading: !1,
-                events: []
+                 events: []
             },
             reducers: {
                 setState(e, t) {
@@ -46432,8 +46344,7 @@
         n("wd/R"))
           , b = n.n(g)
           , w = n("Y2fQ")
-          , x = (n("yxnn"),
-        n("E3Iv"))
+           , x = n("E3Iv")
           , O = n("Td40");
         class E extends d.a.Component {
             componentDidMount() {
@@ -55195,9 +55106,6 @@
                 namespace: "stat"
             }, n("T4gb").default)),
             l.model(o()({
-                namespace: "telegram"
-            }, n("4Nfv").default)),
-            l.model(o()({
                 namespace: "ticket"
             }, n("e+9n").default)),
             l.model(o()({
@@ -56205,93 +56113,6 @@
     },
     yw4e: function(e, t) {
         e.exports = {}
-    },
-    yxnn: function(e, t, n) {
-        "use strict";
-        n("2qtc");
-        var r = n("kLXV")
-          , o = (n("Pwec"),
-        n("CtXQ"))
-          , i = n("q1tI")
-          , a = n.n(i)
-          , s = n("/MKj")
-          , c = n("+QRC")
-          , u = n.n(c)
-          , l = n("Y2fQ");
-        class f extends a.a.Component {
-            constructor(e) {
-                super(e),
-                this.state = {
-                    visible: !1
-                }
-            }
-            show() {
-                this.setState({
-                    visible: !this.state.visible
-                }, ()=>{
-                    this.state.visible && this.props.dispatch({
-                        type: "telegram/getBotInfo"
-                    })
-                }
-                )
-            }
-            render() {
-                var e = this.props.telegram.botInfo
-                  , t = this.props.user.subscribe;
-                return a.a.createElement(a.a.Fragment, null, a.a.cloneElement(this.props.children, {
-                    onClick: ()=>{
-                        this.show()
-                    }
-                }), a.a.createElement(r["a"], {
-                    okText: Object(l["formatMessage"])({
-                        id: "\u6211\u77e5\u9053\u4e86"
-                    }),
-                    cancelButtonProps: {
-                        hidden: !0
-                    },
-                    title: Object(l["formatMessage"])({
-                        id: "\u7ed1\u5b9aTelegram"
-                    }),
-                    visible: this.state.visible,
-                    onOk: ()=>this.show(),
-                    onCancel: ()=>this.show()
-                }, e.username ? a.a.createElement(a.a.Fragment, null, a.a.createElement("h2", {
-                    className: "content-heading pt-1"
-                }, a.a.createElement("i", {
-                    className: "fa fa-arrow-right text-info mr-1"
-                }), " ", Object(l["formatMessage"])({
-                    id: "\u7b2c\u4e00\u6b65"
-                })), a.a.createElement("div", null, Object(l["formatMessage"])({
-                    id: "\u6253\u5f00Telegram\u641c\u7d22"
-                }), a.a.createElement("a", {
-                    href: "https://t.me/".concat(e.username)
-                }, "@", e.username)), a.a.createElement("h2", {
-                    className: "content-heading"
-                }, a.a.createElement("i", {
-                    className: "fa fa-arrow-right text-info mr-1"
-                }), " ", Object(l["formatMessage"])({
-                    id: "\u7b2c\u4e8c\u6b65"
-                })), a.a.createElement("div", null, Object(l["formatMessage"])({
-                    id: "\u5411\u673a\u5668\u4eba\u53d1\u9001\u4f60\u7684"
-                }), a.a.createElement("br", null), a.a.createElement("code", {
-                    onClick: ()=>u()("/bind " + t.subscribe_url)
-                }, "/bind ", t.subscribe_url))) : a.a.createElement(o["a"], {
-                    type: "loading",
-                    style: {
-                        fontSize: 16
-                    }
-                })))
-            }
-        }
-        t["a"] = Object(s["c"])(e=>{
-            var t = e.telegram
-              , n = e.user;
-            return {
-                telegram: t,
-                user: n
-            }
-        }
-        )(f)
     },
     zKnh: function(e, t, n) {
         t.f = n("gL7N")

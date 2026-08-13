@@ -30,7 +30,6 @@ class CommController extends Controller
                 'try_out_hour' => (int)config('v2board.try_out_hour', 1),
                 'currency' => config('v2board.currency', 'CNY'),
                 'currency_symbol' => config('v2board.currency_symbol', '¥'),
-                'telegram_discuss_link' => config('v2board.telegram_discuss_link'),
             ]
         ]);
     }

@@ -17,7 +17,6 @@ class GuestPublicConfigTest extends TestCase
             'v2board.try_out_hour' => 12,
             'v2board.currency' => 'USD',
             'v2board.currency_symbol' => '$',
-            'v2board.telegram_discuss_link' => 'https://t.me/example'
         ]);
 
         $response = $this->getJson('/api/v1/guest/comm/config');
@@ -31,41 +30,16 @@ class GuestPublicConfigTest extends TestCase
             ->assertJsonPath('data.is_try_out', 1)
             ->assertJsonPath('data.try_out_hour', 12)
             ->assertJsonPath('data.currency', 'USD')
-            ->assertJsonPath('data.currency_symbol', '$')
-            ->assertJsonPath('data.telegram_discuss_link', 'https://t.me/example');
+            ->assertJsonPath('data.currency_symbol', '$');
 
         $data = json_decode($response->getContent(), true);
         $this->assertArrayNotHasKey('ticket_image_enable', $data['data']);
+        $this->assertArrayNotHasKey('telegram_discuss_link', $data['data']);
     }
 
-    public function testGuestAppEndpointExposesOnlyDownloadInformation(): void
+    public function testRemovedAppAndTelegramEndpointsAreUnavailable(): void
     {
-        config([
-            'v2board.windows_version' => '1.0.0',
-            'v2board.windows_download_url' => 'https://example.com/windows',
-            'v2board.macos_version' => '2.0.0',
-            'v2board.macos_download_url' => 'https://example.com/macos',
-            'v2board.android_version' => '3.0.0',
-            'v2board.android_download_url' => 'https://example.com/android'
-        ]);
-
-        $this->getJson('/api/v1/guest/app/fetch')
-            ->assertOk()
-            ->assertExactJson([
-                'data' => [
-                    'windows' => [
-                        'version' => '1.0.0',
-                        'download_url' => 'https://example.com/windows'
-                    ],
-                    'macos' => [
-                        'version' => '2.0.0',
-                        'download_url' => 'https://example.com/macos'
-                    ],
-                    'android' => [
-                        'version' => '3.0.0',
-                        'download_url' => 'https://example.com/android'
-                    ]
-                ]
-            ]);
+        $this->getJson('/api/v1/guest/app/fetch')->assertNotFound();
+        $this->postJson('/api/v1/guest/telegram/webhook')->assertNotFound();
     }
 }

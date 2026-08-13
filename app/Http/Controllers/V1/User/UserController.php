@@ -282,7 +282,6 @@ class UserController extends Controller
                 'plan_id',
                 'discount',
                 'commission_rate',
-                'telegram_id',
                 'uuid'
             ])
             ->first();
@@ -352,20 +351,6 @@ class UserController extends Controller
         $user['allow_new_period'] = (int)config('v2board.allow_new_period', 0);
         return response([
             'data' => $user
-        ]);
-    }
-
-    public function unbindTelegram(Request $request)
-    {
-        $user = User::find($request->user['id']);
-        if (!$user) {
-            abort(500, "该用户不存在");
-        }
-        if (!$user->update(['telegram_id' => null])) {
-            abort(500, "解绑 Telegram 失败");
-        }
-        return response([
-            'data' => true
         ]);
     }
 

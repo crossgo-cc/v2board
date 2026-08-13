@@ -178,7 +178,6 @@ return [
                     'stat',
                     'send_email',
                     'send_email_mass',
-                    'send_telegram',
                 ],
                 'balance' => 'auto',
                 'minProcesses' => 1,

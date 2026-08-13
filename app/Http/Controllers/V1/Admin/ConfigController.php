@@ -5,7 +5,6 @@ namespace App\Http\Controllers\V1\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\ConfigSave;
 use App\Jobs\SendEmailJob;
-use App\Services\TelegramService;
 use App\Utils\Dict;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
@@ -52,17 +51,6 @@ class ConfigController extends Controller
         return response([
             'data' => true,
             'log' => $obj->handle()
-        ]);
-    }
-
-    public function setTelegramWebhook(Request $request)
-    {
-        $hookUrl = secure_url('/api/v1/guest/telegram/webhook?access_token=' . md5(config('v2board.telegram_bot_token', $request->input('telegram_bot_token'))));
-        $telegramService = new TelegramService($request->input('telegram_bot_token'));
-        $telegramService->getMe();
-        $telegramService->setWebhook($hookUrl);
-        return response([
-            'data' => true
         ]);
     }
 
@@ -153,19 +141,6 @@ class ConfigController extends Controller
                 'email_password' => config('v2board.email_password'),
                 'email_encryption' => config('v2board.email_encryption'),
                 'email_from_address' => config('v2board.email_from_address')
-            ],
-            'telegram' => [
-                'telegram_bot_enable' => config('v2board.telegram_bot_enable', 0),
-                'telegram_bot_token' => config('v2board.telegram_bot_token'),
-                'telegram_discuss_link' => config('v2board.telegram_discuss_link')
-            ],
-            'app' => [
-                'windows_version' => config('v2board.windows_version'),
-                'windows_download_url' => config('v2board.windows_download_url'),
-                'macos_version' => config('v2board.macos_version'),
-                'macos_download_url' => config('v2board.macos_download_url'),
-                'android_version' => config('v2board.android_version'),
-                'android_download_url' => config('v2board.android_download_url')
             ],
             'safe' => [
                 'email_verify' => (int)config('v2board.email_verify', 0),
