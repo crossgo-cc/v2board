@@ -10,14 +10,6 @@ use Illuminate\Support\Facades\DB;
 
 class OrderService
 {
-    CONST STR_TO_TIME = [
-        'month_price' => 1,
-        'quarter_price' => 3,
-        'half_year_price' => 6,
-        'year_price' => 12,
-        'two_year_price' => 24,
-        'three_year_price' => 36
-    ];
     public $order;
     public $user;
 
@@ -112,7 +104,16 @@ class OrderService
         } else if ($user->plan_id !== NULL && $order->plan_id !== $user->plan_id && ($user->expired_at > time() || $user->expired_at === NULL)) {
             if (!(int)config('v2board.plan_change_enable', 1)) abort(500, '目前不允许更改订阅，请联系客服或提交工单操作');
             $order->type = 3;
-            if ((int)config('v2board.surplus_enable', 1)) $this->getSurplusValue($user, $order);
+            $order->surplus_amount = 0;
+            $order->surplus_order_ids = [];
+            if ((int)config('v2board.surplus_enable', 1)) {
+                $plan = Plan::find($user->plan_id);
+                if ($plan) {
+                    $credit = (new PlanCreditService())->calculate($user, $plan);
+                    $order->surplus_amount = $credit['amount'];
+                    $order->surplus_order_ids = $credit['order_ids'];
+                }
+            }
             if ($order->surplus_amount >= $order->total_amount) {
                 $order->refund_amount = $order->surplus_amount - $order->total_amount;
                 $order->total_amount = 0;
@@ -129,10 +130,13 @@ class OrderService
     public function setVipDiscount(User $user)
     {
         $order = $this->order;
-        if ($user->discount) {
-            $order->discount_amount = $order->discount_amount + ($order->total_amount * ($user->discount / 100));
+        $amount = (int)$order->total_amount;
+        $vipDiscount = 0;
+        if ($user->discount && $amount > 0) {
+            $vipDiscount = (int)round($amount * ($user->discount / 100));
         }
-        $order->total_amount = $order->total_amount - $order->discount_amount;
+        $order->discount_amount = (int)$order->discount_amount + $vipDiscount;
+        $order->total_amount = max(0, $amount - $vipDiscount);
     }
 
     public function setInvite(User $user):void
@@ -169,89 +173,6 @@ class OrderService
         return Order::where('user_id', $user->id)
             ->whereNotIn('status', [0, 2])
             ->first();
-    }
-
-    private function getSurplusValue(User $user, Order $order)
-    {
-        if ($user->expired_at === NULL) {
-            $this->getSurplusValueByOneTime($user, $order);
-        } else {
-            $this->getSurplusValueByPeriod($user, $order);
-        }
-    }
-
-
-    private function getSurplusValueByOneTime(User $user, Order $order)
-    {
-        $lastOneTimeOrder = Order::where('user_id', $user->id)
-            ->where('period', 'onetime_price')
-            ->where('status', 3)
-            ->orderBy('id', 'DESC')
-            ->first();
-        if (!$lastOneTimeOrder) return;
-        $nowUserTraffic = $user->transfer_enable / 1073741824;
-        if ($nowUserTraffic == 0) return;
-        $paidTotalAmount = ($lastOneTimeOrder->total_amount + $lastOneTimeOrder->balance_amount);
-        if ($paidTotalAmount == 0) return;
-        $notUsedTraffic = $nowUserTraffic - (($user->u + $user->d) / 1073741824);
-        $remainingTrafficRatio = $notUsedTraffic / $nowUserTraffic;
-        $result = $remainingTrafficRatio * $paidTotalAmount;
-        $order->surplus_amount = max($result, 0);
-        $orderModel = Order::where('user_id', $user->id)->where('period', '!=', 'reset_price')->where('status', 3);
-        $order->surplus_order_ids = array_column($orderModel->get()->toArray(), 'id');
-    }
-
-    private function getSurplusValueByPeriod(User $user, Order $order)
-    {
-        $orders = Order::where('user_id', $user->id)
-            ->where('period', '!=', 'reset_price')
-            ->where('period', '!=', 'onetime_price')
-            ->where('period', '!=', 'deposit')
-            ->where('status', 3)
-            ->get()
-            ->toArray();
-        if (!$orders) return;
-        $orderAmountSum = 0;
-        $orderMonthSum = 0;
-        $lastValidateAt = null;
-        foreach ($orders as $item) {
-            $period = self::STR_TO_TIME[$item['period']];
-            $orderEndTime = strtotime("+{$period} month", $item['created_at']);
-            if ($orderEndTime < time()) continue;
-            $lastValidateAt = $item['created_at'] > $lastValidateAt ? $item['created_at'] : $lastValidateAt;
-            $orderMonthSum += $period;
-            $orderAmountSum += $item['total_amount'] + $item['balance_amount'] + $item['surplus_amount'] - $item['refund_amount'];
-        }
-        if ($lastValidateAt === null) return;
-    
-        $expiredAtByOrder = strtotime("+{$orderMonthSum} month", $lastValidateAt);
-        $expiredAtByUser = $user->expired_at;
-        if ($expiredAtByOrder < time() || $expiredAtByUser < time()) return;
-        $orderSurplusSecond = $expiredAtByUser - time();
-        $orderRangeSecond = $expiredAtByOrder - $lastValidateAt;
-    
-        $totalTraffic = $user->transfer_enable;
-        $usedTraffic = ($user->u + $user->d);
-        if ($totalTraffic == 0) return;
-    
-        $remainingTrafficRatio = ($totalTraffic - $usedTraffic) / $totalTraffic;
-    
-        $avgPricePerSecond = $orderAmountSum / $orderRangeSecond;
-        if ($orderRangeSecond <= 31 * 86400) {
-            $remainingExpiredTimeRatio = $orderSurplusSecond / $orderRangeSecond;
-            $surplusRatio = min($remainingExpiredTimeRatio, $remainingTrafficRatio);
-            $orderSurplusAmount = $avgPricePerSecond * $orderSurplusSecond * $surplusRatio;
-        } else {
-            $monthSeconds = 30 * 86400;
-            $firstMonthRemainSeconds = $orderSurplusSecond % $monthSeconds;
-            $surplusRatio = min($firstMonthRemainSeconds / $monthSeconds, $remainingTrafficRatio);
-            $laterMonthsSeconds = $orderSurplusSecond - $firstMonthRemainSeconds;
-            $orderSurplusAmount = $avgPricePerSecond * $monthSeconds * $surplusRatio +
-                                  $avgPricePerSecond * $laterMonthsSeconds;
-        }
-    
-        $order->surplus_amount = max($orderSurplusAmount, 0);
-        $order->surplus_order_ids = array_column($orders, 'id');
     }
 
     public function paid(string $callbackNo)
