@@ -109,6 +109,19 @@ class ClientSubscriptionRenderingTest extends TestCase
         }
     }
 
+    public function testOpenClashUserAgentsProduceMihomoYaml()
+    {
+        foreach (['OpenClash/0.47.0', 'clash.meta', 'mihomo/1.19.20'] as $userAgent) {
+            $response = $this->render($userAgent, $this->user(), [
+                $this->server('anytls', 'openclash-anytls'),
+            ]);
+            $config = Yaml::parse($response->getContent());
+
+            $this->assertIsArray($config);
+            $this->assertSame('anytls', $config['proxies'][0]['type']);
+        }
+    }
+
     public function testClashMetaForAndroidRequestWithoutFlagProducesMihomoYaml()
     {
         $_SERVER['HTTP_HOST'] = 'example.com';

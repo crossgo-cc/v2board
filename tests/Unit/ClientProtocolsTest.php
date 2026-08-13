@@ -32,9 +32,13 @@ class ClientProtocolsTest extends TestCase
             ['SFI/1.13.0 (Build 100; sing-box 1.13.0; language en_US)', 'sing-box', Singbox::class],
             ['SFM/1.13.0 (Build 100; sing-box 1.13.0; language en_US)', 'sing-box', Singbox::class],
             ['SFT/1.13.0 (Build 100; sing-box 1.13.0; language en_US)', 'sing-box', Singbox::class],
+            ['HiddifyNext/4.1.1', 'sing-box', Singbox::class],
             ['Surge/5.0', 'surge', Surge::class],
             ['Surge Mac/5.10.0', 'surge', Surge::class],
             ['Surge iOS/5.10.0', 'surge', Surge::class],
+            ['OpenClash/0.47.0', 'mihomo', Mihomo::class],
+            ['clash.meta', 'mihomo', Mihomo::class],
+            ['mihomo/1.19.20', 'mihomo', Mihomo::class],
             ['clash.meta/1.19', 'mihomo', Mihomo::class],
             ['ClashMeta/1.19.15; mihomo/1.19.15', 'mihomo', Mihomo::class],
             ['ClashMetaForAndroid/2.11.32.Meta', 'mihomo', Mihomo::class],
@@ -73,18 +77,33 @@ class ClientProtocolsTest extends TestCase
             ['Surfboard/2.4'],
             ['Stash/2.7'],
             ['Clash/1.0'],
-            ['Mihomo/1.19'],
-            ['Clash-Verge-Rev/2.5'],
-            ['Clash Nyanpasu/2.4'],
-            ['Mihomo Party/2.0'],
             ['Sparkle/1.0'],
             ['singbox/1.12.0'],
-            ['wrapper clash.meta/1.19'],
-            ['not-surge/5.0'],
-            ['mihomo-preview'],
             ['unknown-client'],
             ['Shadowrocket/2.2 CFNetwork/1492.0.1 Darwin/23.3.0'],
         ];
+    }
+
+    public function testClientKeywordsIgnoreVersionAndPosition()
+    {
+        foreach ([
+            'Mihomo/1.19',
+            'Clash-Verge-Rev/2.5',
+            'Clash Nyanpasu/2.4',
+            'Mihomo Party/2.0',
+            'mihomo-preview',
+            'ClashVergeRev/2.5',
+            'ClashNyanpasu/2.4',
+            'KoalaClash/1.3.1',
+        ] as $userAgent) {
+            $this->assertSame('mihomo', ClientProtocols::match($userAgent)['name']);
+        }
+    }
+
+    public function testClientKeywordsCanAppearAnywhereInUserAgent()
+    {
+        $this->assertSame('mihomo', ClientProtocols::match('wrapper clash.meta/1.19')['name']);
+        $this->assertSame('surge', ClientProtocols::match('not-surge/5.0')['name']);
     }
 
     public function testSingboxUsesCurrentRendererWithoutSubscriptionInfoNodes()

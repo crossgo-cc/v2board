@@ -40,30 +40,43 @@ final class ClientProtocols
         self::SING_BOX => [
             'renderer' => Singbox::class,
             'flags' => ['sing-box'],
-            'user_agent_prefixes' => ['sfa/', 'sfi/', 'sfm/', 'sft/'],
+            'user_agent_keywords' => [
+                'sfa',
+                'sfi',
+                'sfm',
+                'sft',
+                'hiddifynext',
+                'sing-box',
+            ],
             'subscription_info' => false,
         ],
         self::SURGE => [
             'renderer' => Surge::class,
             'flags' => ['surge'],
-            'user_agent_prefixes' => ['surge/', 'surge mac/', 'surge ios/'],
+            'user_agent_keywords' => ['surge'],
             'subscription_info' => true,
         ],
         self::MIHOMO => [
             'renderer' => Mihomo::class,
             'flags' => ['mihomo'],
-            'user_agent_prefixes' => [
-                'clash.meta/',
-                'clashmeta/',
-                'clashmetaforandroid/',
-                'clash plus/v',
-                'clash-verge/v',
-                'clash-nyanpasu/v',
-                'flclash/v',
-                'flclash x/v',
-                'gui.for.clash/v',
-                'koala-clash/',
-                'mihomo.party/v',
+            'user_agent_keywords' => [
+                'clash.meta',
+                'clashmeta',
+                'mihomo',
+                'clash plus',
+                'clashplus',
+                'clash-verge',
+                'clash verge',
+                'clashverge',
+                'clash-nyanpasu',
+                'clash nyanpasu',
+                'clashnyanpasu',
+                'flclash',
+                'gui.for.clash',
+                'gui for clash',
+                'koala-clash',
+                'koalaclash',
+                'openclash',
             ],
             'subscription_info' => true,
         ],
@@ -117,8 +130,8 @@ final class ClientProtocols
         }
 
         foreach (self::PROFILES as $name => $profile) {
-            foreach ($profile['user_agent_prefixes'] as $prefix) {
-                if (strpos($userAgent, $prefix) === 0) {
+            foreach ($profile['user_agent_keywords'] as $keyword) {
+                if (strpos($userAgent, $keyword) !== false) {
                     return ['name' => $name] + $profile;
                 }
             }
