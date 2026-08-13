@@ -37,6 +37,7 @@ class CouponService
         if ($order->discount_amount > $order->total_amount) {
             $order->discount_amount = $order->total_amount;
         }
+        $order->total_amount -= $order->discount_amount;
         if ($this->coupon->limit_use !== NULL) {
             if ($this->coupon->limit_use <= 0) return false;
             $this->coupon->limit_use = $this->coupon->limit_use - 1;
