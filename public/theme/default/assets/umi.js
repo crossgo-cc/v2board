@@ -28873,12 +28873,14 @@
                     className: "nav-main-link-icon si si-support"
                 })))))))))), this.state.notice && l.a.createElement(c["a"], {
                     title: this.state.notice.title,
+                    className: "notice-popup-modal",
+                    width: 840,
                     visible: this.state.visible,
                     maskClosable: !0,
                     footer: !1,
                     onCancel: ()=>this.modalVisible()
                 }, this.state.notice.content && l.a.createElement("div", {
-                    className: "notice-content custom-html-style",
+                    className: "notice-content notice-markdown ticket-markdown custom-html-style",
                     dangerouslySetInnerHTML: Object(A["a"])(this.state.notice.content)
                 })))
             }
