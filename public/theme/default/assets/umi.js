@@ -28891,7 +28891,8 @@
                 })))))))))), this.state.notice && l.a.createElement(c["a"], {
                     title: this.state.notice.title,
                     className: "notice-popup-modal",
-                    width: 840,
+                    wrapClassName: "notice-popup-wrap",
+                    width: "min(900px, calc(100vw - 32px))",
                     visible: this.state.visible,
                     maskClosable: !0,
                     footer: l.a.createElement("div", null, l.a.createElement(i["a"], {
