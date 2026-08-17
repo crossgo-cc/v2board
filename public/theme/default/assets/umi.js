@@ -28895,6 +28895,7 @@
                     width: "min(900px, calc(100vw - 32px))",
                     visible: this.state.visible,
                     maskClosable: !0,
+                    closable: !1,
                     footer: l.a.createElement("div", null, l.a.createElement(i["a"], {
                         onClick: ()=>this.dismissNotice(this.state.notice)
                     }, Object(b["formatMessage"])({
