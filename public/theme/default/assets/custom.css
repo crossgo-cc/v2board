@@ -744,20 +744,34 @@
 }
 
 .notice-popup-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    padding: 2rem;
     overflow: hidden;
 }
 
 .notice-popup-wrap .ant-modal {
-    max-height: calc(100vh - 124px);
-    max-height: calc(100dvh - 124px);
+    top: 0;
+    max-width: 100%;
+    max-height: calc(100vh - 4rem);
+    max-height: calc(100dvh - 4rem);
+    margin: 0;
     padding-bottom: 0;
 }
 
 .notice-popup-wrap .ant-modal-content {
     display: flex;
     flex-direction: column;
-    max-height: calc(100vh - 124px);
-    max-height: calc(100dvh - 124px);
+    max-height: calc(100vh - 4rem);
+    max-height: calc(100dvh - 4rem);
+    overflow: hidden;
+}
+
+.notice-popup-wrap .ant-modal-header,
+.notice-popup-wrap .ant-modal-footer {
+    flex: 0 0 auto;
 }
 
 .notice-popup-wrap .ant-modal-body {
@@ -789,23 +803,18 @@
 
 @media (max-width: 767.98px) {
     .notice-popup-wrap {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-sizing: border-box;
         padding: 1rem;
     }
 
     .notice-popup-wrap .ant-modal {
-        top: 0;
         width: 100%;
-        max-width: 100%;
-        max-height: 100%;
-        margin: 0;
+        max-height: calc(100vh - 2rem);
+        max-height: calc(100dvh - 2rem);
     }
 
     .notice-popup-wrap .ant-modal-content {
-        max-height: 100%;
+        max-height: calc(100vh - 2rem);
+        max-height: calc(100dvh - 2rem);
     }
 
     .notice-popup-wrap .ant-modal-body {
