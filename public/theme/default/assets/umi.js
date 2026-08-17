@@ -28442,7 +28442,7 @@
                     complete: ()=>{
                         var e, t = (null === (e = this.props.notice) || void 0 === e ? void 0 : e.notices) || [];
                         if (t.length) {
-                            var n = t.find(e=>Array.isArray(e.tags) && -1 !== e.tags.indexOf("\u5f39\u7a97"));
+                            var n = t.find(e=>Array.isArray(e.tags) && -1 !== e.tags.indexOf("\u5f39\u7a97") && !this.isNoticeDismissed(e));
                             n && this.modalVisible(n)
                         }
                     }
@@ -28450,6 +28450,23 @@
                 this.props.dispatch({
                     type: "comm/config"
                 })
+            }
+            getTodayKey() {
+                var e = new Date();
+                return e.setHours(0, 0, 0, 0).toString()
+            }
+            isNoticeDismissed(e) {
+                try {
+                    return this.getTodayKey() === window.localStorage.getItem("v2board_notice_popup_dismissed_".concat(e.id))
+                } catch (e) {
+                    return !1
+                }
+            }
+            dismissNotice(e) {
+                try {
+                    window.localStorage.setItem("v2board_notice_popup_dismissed_".concat(e.id), this.getTodayKey())
+                } catch (e) {}
+                this.modalVisible()
             }
             modalVisible(e) {
                 this.setState({
@@ -28877,7 +28894,16 @@
                     width: 840,
                     visible: this.state.visible,
                     maskClosable: !0,
-                    footer: !1,
+                    footer: l.a.createElement("div", null, l.a.createElement(i["a"], {
+                        onClick: ()=>this.dismissNotice(this.state.notice)
+                    }, Object(b["formatMessage"])({
+                        id: "\u4eca\u65e5\u4e0d\u518d\u63d0\u793a"
+                    })), l.a.createElement(i["a"], {
+                        type: "primary",
+                        onClick: ()=>this.modalVisible()
+                    }, Object(b["formatMessage"])({
+                        id: "\u786e\u5b9a"
+                    }))),
                     onCancel: ()=>this.modalVisible()
                 }, this.state.notice.content && l.a.createElement("div", {
                     className: "notice-content notice-markdown ticket-markdown custom-html-style",
