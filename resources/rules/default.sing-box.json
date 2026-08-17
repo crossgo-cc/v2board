@@ -23,8 +23,7 @@
             {
                 "type": "fakeip",
                 "tag": "fakeip",
-                "inet4_range": "198.18.0.0/15",
-                "inet6_range": "fc00::/18"
+                "inet4_range": "198.18.0.0/16"
             }
         ],
         "rules": [
@@ -48,9 +47,7 @@
             {
                 "rule_set": [
                     "geosite-private",
-                    "geosite-cn",
-                    "geosite-icloud",
-                    "geosite-apple"
+                    "geosite-cn"
                 ],
                 "action": "route",
                 "server": "cn"
@@ -65,16 +62,14 @@
             },
             {
                 "rule_set": [
-                    "geosite-google",
                     "geosite-gfw",
-                    "geosite-tld-!cn",
                     "geosite-geolocation-!cn"
                 ],
                 "action": "route",
                 "server": "remote"
             }
         ],
-        "final": "remote",
+        "final": "cn",
         "independent_cache": true
     },
     "inbounds": [
@@ -109,10 +104,7 @@
     "outbounds": [
         {
             "tag": "DIRECT",
-            "type": "direct",
-            "domain_resolver": {
-                "server": "local"
-            }
+            "type": "direct"
         },
         {
             "tag": "节点选择",
@@ -126,7 +118,7 @@
             "tag": "自动选择",
             "type": "urltest",
             "url": "https://www.gstatic.com/generate_204",
-            "interval": "10m",
+            "interval": "5m",
             "tolerance": 50,
             "idle_timeout": "30m",
             "interrupt_exist_connections": false,
@@ -143,22 +135,28 @@
                 "action": "hijack-dns"
             },
             {
+                "domain": [
+                    "www.clarity.ms",
+                    "c.clarity.ms",
+                    "clarity.ms",
+                    "microsoft-clarity.com",
+                    "clash.razord.top",
+                    "yacd.haishan.me"
+                ],
+                "domain_suffix": [
+                    ".clarity.ms",
+                    ".microsoft-clarity.com"
+                ],
+                "action": "route",
+                "outbound": "DIRECT"
+            },
+            {
                 "rule_set": [
                     "geosite-category-ads-all"
                 ],
                 "action": "reject",
                 "method": "default",
                 "no_drop": false
-            },
-            {
-                "domain": [
-                    "www.clarity.ms",
-                    "c.clarity.ms",
-                    "clash.razord.top",
-                    "yacd.haishan.me"
-                ],
-                "action": "route",
-                "outbound": "DIRECT"
             },
             {
                 "domain_suffix": [
@@ -174,19 +172,18 @@
                 "outbound": "DIRECT"
             },
             {
-                "clash_mode": "关闭代理",
+                "clash_mode": "Direct",
                 "action": "route",
                 "outbound": "DIRECT"
             },
             {
-                "clash_mode": "全局代理",
+                "clash_mode": "Global",
                 "action": "route",
                 "outbound": "节点选择"
             },
             {
                 "ip_cidr": [
-                    "198.18.0.0/15",
-                    "fc00::/18"
+                    "198.18.0.0/16"
                 ],
                 "action": "route",
                 "outbound": "节点选择"
@@ -224,7 +221,7 @@
         "auto_detect_interface": true,
         "final": "节点选择",
         "default_domain_resolver": {
-            "server": "remote"
+            "server": "cn"
         },
         "rule_set": [
             {
@@ -332,7 +329,7 @@
             "store_rdrc": true
         },
         "clash_api": {
-            "default_mode": "海外代理",
+            "default_mode": "Rule",
             "external_controller": "127.0.0.1:9090",
             "secret": ""
         }

@@ -29,6 +29,7 @@ class ClientProtocolsTest extends TestCase
     {
         return [
             ['SFA/1.13.0 (100; sing-box 1.13.0; language en_US)', 'sing-box', Singbox::class],
+            ['SFA/1.13.19 (100; sing-box 1.13.19; language en_US)', 'sing-box', Singbox::class],
             ['SFI/1.13.0 (Build 100; sing-box 1.13.0; language en_US)', 'sing-box', Singbox::class],
             ['SFM/1.13.0 (Build 100; sing-box 1.13.0; language en_US)', 'sing-box', Singbox::class],
             ['SFT/1.13.0 (Build 100; sing-box 1.13.0; language en_US)', 'sing-box', Singbox::class],

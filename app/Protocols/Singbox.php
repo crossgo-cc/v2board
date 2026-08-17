@@ -99,7 +99,6 @@ class Singbox extends AbstractProtocol
         $array['server_port'] = $server['port'];
         $array['method'] = $server['cipher'];
         $array['password'] = $password;
-        $array['domain_resolver'] = 'local';
         if (isset($server['obfs']) && $server['obfs'] === 'http') {
             $array['plugin'] = 'obfs-local';
             $plugin_opts_parts = [];
@@ -136,7 +135,6 @@ class Singbox extends AbstractProtocol
         $array['security'] = 'auto';
         $array['alter_id'] = 0;
         $array['transport']= [];
-        $array['domain_resolver'] = 'local';
 
         if ($server['tls']) {
             $tlsConfig = [];
@@ -193,7 +191,6 @@ class Singbox extends AbstractProtocol
             "server" => $server['host'],
             "server_port" => $server['port'],
             "uuid" => $password,
-            "domain_resolver" => "local",
             "packet_encoding" => "xudp"
         ];
 
@@ -274,7 +271,6 @@ class Singbox extends AbstractProtocol
         $array['server'] = $server['host'];
         $array['server_port'] = $server['port'];
         $array['password'] = $password;
-        $array['domain_resolver'] = 'local';
 
         $tlsSettings = $server['tls_settings'] ?? [];
         $tlsConfig = [
@@ -334,7 +330,6 @@ class Singbox extends AbstractProtocol
         $array['congestion_control'] = $server['congestion_control'] ?? 'cubic';
         $array['udp_relay_mode'] = $server['udp_relay_mode'] ?? 'native';
         $array['zero_rtt_handshake'] = !empty($server['zero_rtt_handshake']);
-        $array['domain_resolver'] = 'local';
 
         $tlsSettings = $server['tls_settings'] ?? [];
         $array['tls'] = [
@@ -356,7 +351,6 @@ class Singbox extends AbstractProtocol
         $array['server'] = $server['host'];
         $array['server_port'] = $server['port'];
         $array['password'] = $password;
-        $array['domain_resolver'] = 'local';
 
         $tlsSettings = $server['tls_settings'] ?? [];
         $tlsConfig = [
@@ -418,7 +412,6 @@ class Singbox extends AbstractProtocol
                 'insecure' => ($tlsSettings['allow_insecure'] ?? 0) == 1 ? true : false,
                 'server_name' => $tlsSettings['server_name'] ?? ''
             ],
-            'domain_resolver' => 'local',
             'password' => $password,
             'tag' => $server['name'],
             'type' => 'hysteria2'

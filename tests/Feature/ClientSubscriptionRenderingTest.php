@@ -163,7 +163,7 @@ class ClientSubscriptionRenderingTest extends TestCase
     public function testSingboxUsesStableRuleSetDownloadFields()
     {
         $response = $this->render(
-            'SFA/1.13.14',
+            'SFA/1.13.19',
             $this->user(),
             []
         );
@@ -174,6 +174,43 @@ class ClientSubscriptionRenderingTest extends TestCase
         foreach ($config['route']['rule_set'] as $ruleSet) {
             $this->assertSame('节点选择', $ruleSet['download_detour']);
         }
+    }
+
+    public function testSingboxDoesNotEmbedOutboundDomainResolvers()
+    {
+        $response = $this->render(
+            'SFA/1.13.19',
+            $this->user(),
+            [$this->server('vless', 'singbox-node')]
+        );
+        $config = json_decode($response->getContent(), true);
+        $outbounds = array_column($config['outbounds'], null, 'tag');
+
+        foreach ($outbounds as $outbound) {
+            $this->assertArrayNotHasKey('domain_resolver', $outbound);
+        }
+    }
+
+    public function testSingboxAndMihomoTemplatesShareRoutingDefaults()
+    {
+        $singbox = json_decode(file_get_contents(base_path('resources/rules/default.sing-box.json')), true);
+        $mihomo = Yaml::parseFile(base_path('resources/rules/default.clash.yaml'));
+        $fakeIpServers = array_values(array_filter($singbox['dns']['servers'], function ($server) {
+            return ($server['tag'] ?? null) === 'fakeip';
+        }));
+        $urlTestGroups = array_values(array_filter($mihomo['proxy-groups'], function ($group) {
+            return ($group['type'] ?? null) === 'url-test';
+        }));
+
+        $this->assertSame('198.18.0.0/16', $fakeIpServers[0]['inet4_range']);
+        $this->assertArrayNotHasKey('inet6_range', $fakeIpServers[0]);
+        $this->assertSame('198.18.0.1/16', $mihomo['dns']['fake-ip-range']);
+        $this->assertSame('cn', $singbox['dns']['final']);
+        $this->assertSame('cn', $singbox['route']['default_domain_resolver']['server']);
+        $this->assertSame('Rule', $singbox['experimental']['clash_api']['default_mode']);
+        $this->assertSame('rule', $mihomo['mode']);
+        $this->assertSame('5m', $singbox['outbounds'][2]['interval']);
+        $this->assertSame(300, $urlTestGroups[0]['interval']);
     }
 
     public function testMihomoUsesCurrentHttpUpgradeFields()
@@ -270,7 +307,7 @@ class ClientSubscriptionRenderingTest extends TestCase
     public function testSingboxIgnoresEchFieldsOnRealityNodes()
     {
         $response = $this->render(
-            'SFA/1.13.14',
+            'SFA/1.13.19',
             $this->user(),
             [
                 array_merge($this->server('anytls', 'anytls-reality'), [
@@ -324,7 +361,7 @@ class ClientSubscriptionRenderingTest extends TestCase
             'down_mbps' => 100,
         ]);
 
-        foreach (['clash.meta/1.19', 'SFA/1.13.14'] as $userAgent) {
+        foreach (['clash.meta/1.19', 'SFA/1.13.19'] as $userAgent) {
             $response = $this->render(
                 $userAgent,
                 $this->user(),
@@ -339,7 +376,7 @@ class ClientSubscriptionRenderingTest extends TestCase
     public function testSingboxRejectsGeckoAndUsesValidServerPortRanges()
     {
         $response = $this->render(
-            'SFA/1.13.14',
+            'SFA/1.13.19',
             $this->user(),
             [
                 array_merge($this->server('hysteria2', 'unsupported-gecko'), [
