@@ -51,6 +51,8 @@ class CheckCommission extends Command
             Order::where('commission_status', 0)
                 ->where('invite_user_id', '!=', NULL)
                 ->whereIn('status', [3, 4])
+                ->whereNotNull('paid_at')
+                ->where('commission_balance', '>', 0)
                 ->where('updated_at', '<=', strtotime('-3 day', time()))
                 ->update([
                     'commission_status' => 1
@@ -62,6 +64,9 @@ class CheckCommission extends Command
     {
         $orders = Order::where('commission_status', 1)
             ->where('invite_user_id', '!=', NULL)
+            ->whereIn('status', [3, 4])
+            ->whereNotNull('paid_at')
+            ->where('commission_balance', '>', 0)
             ->get();
         foreach ($orders as $order) {
             DB::beginTransaction();

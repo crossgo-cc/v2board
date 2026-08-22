@@ -413,7 +413,8 @@ class UserController extends Controller
         $order->total_amount = $request->input('transfer_amount');
 
         $orderService->setOrderType($user);
-        $orderService->setInvite($user);
+        // Commission transfer only moves an existing balance and is not commissionable.
+        $order->commission_status = 3;
 
         $user->commission_balance = $user->commission_balance - $request->input('transfer_amount');
         $user->balance = $user->balance + $request->input('transfer_amount');

@@ -126,6 +126,15 @@ class OrderController extends Controller
             abort(500, '订单不存在');
         }
 
+        if ((int)$request->input('commission_status') === 1 && (
+            !in_array((int)$order->status, [3, 4], true)
+            || !$order->paid_at
+            || !$order->invite_user_id
+            || (int)$order->commission_balance <= 0
+        )) {
+            abort(500, '订单尚未满足佣金发放条件');
+        }
+
         try {
             $order->update($params);
         } catch (\Exception $e) {
@@ -157,7 +166,6 @@ class OrderController extends Controller
 
         DB::beginTransaction();
         $order = new Order();
-        $orderService = new OrderService($order);
         $order->user_id = $user->id;
         $order->plan_id = $plan->id;
         $order->period = $request->input('period');
@@ -174,7 +182,8 @@ class OrderController extends Controller
             $order->type = 1;
         }
 
-        $orderService->setInvite($user);
+        // Admin assignment grants a plan and is not a commissionable payment.
+        $order->commission_status = 3;
 
         if (!$order->save()) {
             DB::rollback();
