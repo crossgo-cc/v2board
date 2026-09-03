@@ -49060,7 +49060,9 @@
                 }, Object.keys(k).map(e=>m.a.createElement(a["a"].Option, {
                     key: e,
                     value: e
-                }, k[e])))), "technical" === r.category ? m.a.createElement(m.a.Fragment, null, m.a.createElement("div", {
+                }, k[e])))), m.a.createElement("p", {
+                    className: "font-size-sm text-muted mb-3"
+                }, "\u8bf7\u6839\u636e\u95ee\u9898\u9009\u62e9\u6b63\u786e\u7684\u5de5\u5355\u7c7b\u578b\u3002\u6280\u672f\u652f\u6301\u5de5\u5355\u8bf7\u5c3d\u53ef\u80fd\u5b8c\u6574\u3001\u51c6\u786e\u5730\u586b\u5199\u5ba2\u6237\u7aef\u53ca\u7248\u672c\u3001\u7f51\u7edc\u8fd0\u8425\u5546\u3001\u6d89\u53ca\u8282\u70b9\u548c\u95ee\u9898\u63cf\u8ff0\uff0c\u5e76\u5c3d\u53ef\u80fd\u4e0a\u4f20\u76f8\u5173\u622a\u56fe\u6216\u56fe\u7247\uff1b\u586b\u5199\u4e0d\u5b8c\u6574\u6216\u4e0d\u51c6\u786e\u7684\u5de5\u5355\u5c06\u65e0\u6cd5\u53d7\u7406\u3002"), "technical" === r.category ? m.a.createElement(m.a.Fragment, null, m.a.createElement("div", {
                     className: "form-group"
                 }, m.a.createElement("label", null, "\u5ba2\u6237\u7aef\u53ca\u7248\u672c"), m.a.createElement(s["a"], {
                     placeholder: "\u4f8b\u5982 Clash Verge 2.4.2",
