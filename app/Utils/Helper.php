@@ -253,6 +253,7 @@ class Helper
             $tlsSettings = $server['tls_settings'] ?? [];
             $config['allowInsecure'] = (int)($tlsSettings['allow_insecure'] ?? 0);
             $config['sni'] = $tlsSettings['server_name'] ?? '';
+            $config['pcs'] = $tlsSettings['pinned_peer_cert_sha256'] ?? '';
         }
         
         $network = (string)$server['network'];
@@ -316,6 +317,7 @@ class Helper
             "flow" => $server['flow'],
             "fp" => $tlsSettings['fingerprint'] ?? 'chrome',
             "insecure" => $tlsSettings['allow_insecure'] ?? 0,
+            "pcs" => $tlsSettings['pinned_peer_cert_sha256'] ?? '',
         ];
 
         if ($server['tls']) {
@@ -355,6 +357,7 @@ class Helper
             'allowInsecure' => $tlsSettings['allow_insecure'] ?? 0,
             'peer' => $tlsSettings['server_name'] ?? '',
             'sni' => $tlsSettings['server_name'] ?? '',
+            'pcs' => $tlsSettings['pinned_peer_cert_sha256'] ?? '',
             'type'=> $server['network'],
         ];
 
@@ -392,7 +395,8 @@ class Helper
         $tlsSettings = $server['tls_settings'] ?? [];
         $insecure = $tlsSettings['allow_insecure'] ?? 0;
         $sni = $tlsSettings['server_name'] ?? '';
-        $uri = "hysteria2://{$password}@{$remote}:{$firstPort}/?insecure={$insecure}&sni={$sni}";
+        $pcs = $tlsSettings['pinned_peer_cert_sha256'] ?? '';
+        $uri = "hysteria2://{$password}@{$remote}:{$firstPort}/?insecure={$insecure}&sni={$sni}&pcs={$pcs}";
 
         if (isset($server['obfs']) && isset($server['obfs_password'])) {
             $obfs_password = rawurlencode($server['obfs_password']);
@@ -414,6 +418,7 @@ class Helper
             'allow_insecure' => $tlsSettings['allow_insecure'] ?? 0,
             'disable_sni' => $server['disable_sni'] ?? 0,
             'udp_relay_mode' => $server['udp_relay_mode'] ?? 'native',
+            'pcs' => $tlsSettings['pinned_peer_cert_sha256'] ?? '',
         ];
 
         $remote = self::formatHost($server['host']);
@@ -429,6 +434,7 @@ class Helper
         $tlsSettings = $server['tls_settings'] ?? [];
         $config = [
             'insecure' => $tlsSettings['allow_insecure'] ?? 0,
+            'pcs' => $tlsSettings['pinned_peer_cert_sha256'] ?? '',
         ];
         if (isset($tlsSettings['server_name'])) {
             $config['sni'] = $tlsSettings['server_name'] ?? '';
