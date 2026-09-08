@@ -30492,6 +30492,9 @@
                 }, f.a.createElement("div", {
                     className: "content content-full"
                 }, f.a.createElement("div", {
+                    className: "alert alert-info mb-3",
+                    role: "alert"
+                }, f.a.createElement("strong", null, "\u6e29\u99a8\u63d0\u793a\uff1a"), "\u82e5\u5ba2\u6237\u7aef\u4e2d\u7684\u8282\u70b9\u4e0e\u672c\u5217\u8868\u4e0d\u4e00\u81f4\uff0c\u8bf7\u66f4\u65b0\u8ba2\u9605\u6216\u91cd\u65b0\u5bfc\u5165\u3002"), f.a.createElement("div", {
                     className: "row mb-3 mb-md-0"
                 }, f.a.createElement("div", {
                     className: "col-md-12"
